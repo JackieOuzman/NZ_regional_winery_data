@@ -146,9 +146,31 @@ perno_yld_coord_anti_join_variety <- perno_yld_coord_anti_join %>%
 
 
 perno_yld_coord <- perno_yld_coord %>% 
-  filter(x_coord > 0)
+  filter(x_coord > 0) %>% 
+  mutate(ID_yr = paste0(ID,"_", year))
 ######## This is the data frame with all yield and GPS pts ######
 ########Time for more merging ########
 glimpse(perno_yld_coord)
+
+#perno_maturity <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
+#                             sheet = "Grape Sample results by date") 
+perno_maturity <- read_excel("C:/Users/ouz001/NZ_work/test/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx" ,
+                        sheet = "Grape Sample results by date")
+glimpse(perno_maturity)
+perno_maturity <- select(perno_maturity,
+                    ID_temp = `VendorBlock Key`,
+                    Vnd = `Vendor Code`,
+                    Block = `Block Ref Number`,
+                    year = `Vintage Full Year`,
+                    brix_bunch_wt_temp = `Analysis Description`)%>%  
+                      mutate(ID = paste0(Vnd,"_", Block),
+                      ID_yr = paste0(ID,"_", year))
+### Create two files one with Brix and one with Bunch wt
+
+perno_maturity_brix <- perno_maturity %>% 
+                        filter(brix_bunch_wt_temp == 'Brix')
+perno_maturity_Bunch_wt_g <- perno_maturity %>% 
+                              filter(brix_bunch_wt_temp == 'Bunch wt g')
+### what is the max sampling date
 
 
