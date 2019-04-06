@@ -216,3 +216,8 @@ pernod_ricard <- pernod_ricard %>%
   filter(!is.na (x_coord) )
 glimpse(pernod_ricard)
 glimpse(pernod_ricard_na)
+
+
+##### Julian days
+pernod_ricard <- pernod_ricard %>% 
+mutate(julian = as.numeric(format(pernod_ricard$sample_date, "%j")))
