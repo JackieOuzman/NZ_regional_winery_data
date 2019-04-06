@@ -162,15 +162,39 @@ perno_maturity <- select(perno_maturity,
                     Vnd = `Vendor Code`,
                     Block = `Block Ref Number`,
                     year = `Vintage Full Year`,
-                    brix_bunch_wt_temp = `Analysis Description`)%>%  
+                    sample_date = `Sample Date`,
+                    brix_bunch_wt_name = `Analysis Description`,
+                    brix_bunch_wt_results = `Analysis Reading`)%>%  
                       mutate(ID = paste0(Vnd,"_", Block),
                       ID_yr = paste0(ID,"_", year))
 ### Create two files one with Brix and one with Bunch wt
 
 perno_maturity_brix <- perno_maturity %>% 
-                        filter(brix_bunch_wt_temp == 'Brix')
+                        filter(brix_bunch_wt_name == 'Brix')
 perno_maturity_Bunch_wt_g <- perno_maturity %>% 
-                              filter(brix_bunch_wt_temp == 'Bunch wt g')
+                              filter(brix_bunch_wt_name == 'Bunch wt g')
 ### what is the max sampling date
+glimpse(perno_maturity_brix)
 
+glimpse(test)
+perno_maturity_brix <- perno_maturity_brix %>% 
+  group_by(ID_yr) %>% 
+  summarise(max_date    = max(sample_date),
+            Vnd         = max(Vnd),
+            Block       = max(Block),
+            brix_check       = max(brix_bunch_wt_name),
+            brix_results       = max(brix_bunch_wt_results),
+            year        = max(year),
+            sample_date = max(sample_date),
+            ID          = max(ID ))
 
+perno_maturity_Bunch_wt_g <- perno_maturity_Bunch_wt_g %>% 
+  group_by(ID_yr) %>% 
+  summarise(max_date    = max(sample_date),
+            Vnd         = max(Vnd),
+            Block       = max(Block),
+            bunch_check       = max(brix_bunch_wt_name),
+            bunch_wt_g_results       = max(brix_bunch_wt_results),
+            year        = max(year),
+            sample_date = max(sample_date),
+            ID          = max(ID ))
