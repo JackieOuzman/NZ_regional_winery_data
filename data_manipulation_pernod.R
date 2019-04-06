@@ -179,22 +179,40 @@ glimpse(perno_maturity_brix)
 glimpse(test)
 perno_maturity_brix <- perno_maturity_brix %>% 
   group_by(ID_yr) %>% 
-  summarise(max_date    = max(sample_date),
-            Vnd         = max(Vnd),
-            Block       = max(Block),
-            brix_check       = max(brix_bunch_wt_name),
+  summarise(#max_date    = max(sample_date),
+            #Vnd         = max(Vnd),
+            #Block       = max(Block),
+            #brix_check       = max(brix_bunch_wt_name),
             brix_results       = max(brix_bunch_wt_results),
-            year        = max(year),
+            #year        = max(year),
             sample_date = max(sample_date),
             ID          = max(ID ))
 
 perno_maturity_Bunch_wt_g <- perno_maturity_Bunch_wt_g %>% 
   group_by(ID_yr) %>% 
-  summarise(max_date    = max(sample_date),
-            Vnd         = max(Vnd),
-            Block       = max(Block),
-            bunch_check       = max(brix_bunch_wt_name),
+  summarise(#max_date    = max(sample_date),
+            #Vnd         = max(Vnd),
+            #Block       = max(Block),
+            #bunch_check       = max(brix_bunch_wt_name),
             bunch_wt_g_results       = max(brix_bunch_wt_results),
-            year        = max(year),
+            #year        = max(year),
             sample_date = max(sample_date),
             ID          = max(ID ))
+## now join the brix and berry wt data
+perno_maturity1 <- left_join(perno_maturity_brix, perno_maturity_Bunch_wt_g, by= "ID_yr")
+
+glimpse(perno_maturity1)
+perno_maturity1 <- perno_maturity1 %>% 
+  select(ID_yr, sample_date = sample_date.x, brix_maturity = brix_results, bunch_wt_g = bunch_wt_g_results)
+
+
+## now join the GPS data
+
+pernod_ricard <- left_join(perno_maturity1, perno_yld_coord, by = "ID_yr")
+glimpse(pernod_ricard)
+pernod_ricard_na <- pernod_ricard %>% 
+  filter(is.na (x_coord) )
+pernod_ricard <- pernod_ricard %>% 
+  filter(!is.na (x_coord) )
+glimpse(pernod_ricard)
+glimpse(pernod_ricard_na)
