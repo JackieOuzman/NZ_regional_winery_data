@@ -125,28 +125,30 @@ perno_yld <- perno_yld %>%
   select(ID, yield_kg_per_m, brix)
 
 ###Join
-test_join <- left_join(perno_yld, perno_GPS_distinct, by =  "ID")
+perno_yld_coord <- left_join(perno_yld, perno_GPS_distinct, by =  "ID")
 
 #what was not joined and what variety was it?
-test_anti_join <- anti_join(perno_yld, perno_GPS_distinct, by =  "ID")
+perno_yld_coord_anti_join <- anti_join(perno_yld, perno_GPS_distinct, by =  "ID")
 #for what was not joined add the variety 264 - includes all the years
-test_anti_join <- test_anti_join %>% 
+
+
+perno_yld_coord_anti_join <- perno_yld_coord_anti_join %>% 
   separate( ID, into = c("vendor", "variety"), sep = "_", remove = FALSE )
+
 #just get the unquie blocks 123 blocks
-test_anti_join <- distinct(test_anti_join, ID)
-test_anti_join <- test_anti_join %>% 
-  separate( ID, into = c("vendor", "variety"), sep = "_", remove = FALSE )
+perno_yld_coord_anti_join <- distinct(perno_yld_coord_anti_join, ID, .keep_all = TRUE )
+
 #how many of these block that didnt get coord are SBLB blocks?
-test_anti_join <- distinct(test_anti_join, ID, .keep_all = TRUE)
-glimpse(test_anti_join)  
-test_anti_join_variety <- test_anti_join %>% 
+
+perno_yld_coord_anti_join_variety <- perno_yld_coord_anti_join %>% 
   group_by(variety) %>% 
-  summarise(test_anti_join =n())
+  summarise(perno_yld_coord_anti_join =n())
 
 
-test_join <- test_join %>% 
+perno_yld_coord <- perno_yld_coord %>% 
   filter(x_coord > 0)
-
- 
+######## This is the data frame with all yield and GPS pts ######
+########Time for more merging ########
+glimpse(perno_yld_coord)
 
 
