@@ -4,8 +4,11 @@ library(tidyverse)
 library(readxl)
 
 ####           GPS POINTS for blocks ##########
-perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
-                                 sheet = "Block Location reference")
+#perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
+#                                 sheet = "Block Location reference")
+
+perno_GPS_temp <- read_excel("C:/Users/ouz001/NZ_work/Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
+                             sheet = "Block Location reference")
 glimpse(perno_GPS_temp)
 perno_GPS <- select(perno_GPS_temp,
                     ID_temp = `VendorBlock Key` ,
@@ -14,7 +17,8 @@ perno_GPS <- select(perno_GPS_temp,
                     Vnd,
                     Block,
                     Yr,
-                    Variety) %>% 
+                    Variety,
+                    trellis =`Trellis Code`) %>% 
   mutate(ID = paste0(Vnd,"_", Block),
          year = as.double(paste0(Yr+2000)))
 glimpse(perno_GPS)
@@ -99,7 +103,7 @@ perno_GPS_distinct <- mutate(perno_GPS_distinct,
 ###need to check all of below code and make sure it works
 
 perno_GPS_distinct <- perno_GPS_distinct %>% 
-  select(ID, year, x_coord, y_coord, Variety, Vnd)
+  select(ID, year, x_coord, y_coord, Variety, Vnd, trellis)
 glimpse(perno_GPS_distinct)
 
 write_csv(perno_GPS_distinct, path = "V:/Marlborough regional/working_jaxs/perno_GPS_test1.csv" )
@@ -176,7 +180,7 @@ perno_maturity_Bunch_wt_g <- perno_maturity %>%
 ### what is the max sampling date
 glimpse(perno_maturity_brix)
 
-glimpse(test)
+
 perno_maturity_brix <- perno_maturity_brix %>% 
   group_by(ID_yr) %>% 
   summarise(#max_date    = max(sample_date),
@@ -218,6 +222,28 @@ glimpse(pernod_ricard)
 glimpse(pernod_ricard_na)
 
 
+
 ##### Julian days
 pernod_ricard <- pernod_ricard %>% 
 mutate(julian = as.numeric(format(pernod_ricard$sample_date, "%j")))
+
+
+##### need to convert trellis to canes - need trellis first
+
+pernod_ricard_test <- mutate(pernod_ricard,
+                             number_canes =  case_when(
+                               trellis == "1CN" ~ "1",
+                               trellis == "2CE" ~ "2",
+                               trellis == "2CN" ~ "2",
+                               trellis == "3CN" ~ "3",
+                               trellis == "4CN" ~ "4",
+                               trellis == "ARC" ~ "2",
+                               trellis == "GDC" ~ "4",
+                               trellis == "SCH" ~ "4",
+                               trellis == "SPR" ~ "0",
+                               trellis == "SYL" ~ "4",
+                               trellis == "VSP" ~ "4",
+                               trellis == "YVT" ~ "1",
+                               TRUE ~ trellis),
+                               number_canes = as.double(number_canes))
+glimpse(pernod_ricard_test)
