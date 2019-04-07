@@ -303,8 +303,10 @@ glimpse(perno_berryWt_2018)
 perno_berryWt_all <- rbind(perno_berryWt_2011,perno_berryWt_2016,
                            perno_berryWt_2017, perno_berryWt_2018)
 #### join it to data with coods pernod_ricard
-pernod_ricard_test <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr")
+pernod_ricard <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr")
 pernod_ricard_anti_join_berryWt <-anti_join(perno_berryWt_all,pernod_ricard, by= "ID_yr") %>% 
   separate(ID_yr, into = c("vendor", "variety", "yr"), sep = "_", remove = FALSE) %>%
   select(ID_temp, ID_yr, year, berry_weight_g, vendor, variety)
 glimpse(pernod_ricard_anti_join_berryWt)
+
+glimpse(pernod_ricard)
