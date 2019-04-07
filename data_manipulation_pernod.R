@@ -230,7 +230,7 @@ mutate(julian = as.numeric(format(pernod_ricard$sample_date, "%j")))
 
 ##### need to convert trellis to canes - need trellis first
 
-pernod_ricard_test <- mutate(pernod_ricard,
+pernod_ricard <- mutate(pernod_ricard,
                              number_canes =  case_when(
                                trellis == "1CN" ~ "1",
                                trellis == "2CE" ~ "2",
@@ -246,4 +246,65 @@ pernod_ricard_test <- mutate(pernod_ricard,
                                trellis == "YVT" ~ "1",
                                TRUE ~ trellis),
                                number_canes = as.double(number_canes))
-glimpse(pernod_ricard_test)
+glimpse(pernod_ricard)
+
+
+##### now we have a different file with the berry wt info #####
+
+perno_berryWt_2011 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
+                             sheet = "2011 data")
+perno_berryWt_2011 <- perno_berryWt_2011 %>% 
+  separate(`Vendor Block`, into = c("vendor_text", "vendor_numb","variety"), 
+      sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
+      mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
+      select(ID_temp =`Vendor Block`,
+             ID_yr, year = Vintage,
+             #sample_date = `Date sample taken`,
+             berry_weight_g = `Av. Berry weight (g)` )
+
+
+
+perno_berryWt_2016 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
+                                 sheet = "2016 data")
+perno_berryWt_2016 <- perno_berryWt_2016 %>% 
+  separate(VendBlock, into = c("vendor_text", "vendor_numb","variety"), 
+           sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
+  mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
+  select(ID_temp = VendBlock,
+         ID_yr, year = Vintage,
+         berry_weight_g = `Av berry wgt (g)`)
+
+
+perno_berryWt_2017 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
+                                 sheet = "2017 data")
+perno_berryWt_2017 <- perno_berryWt_2017 %>% 
+  separate(X__1  , into = c("vendor_text", "vendor_numb","variety"), 
+           sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
+  mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
+  select(ID_temp = X__1  ,
+         ID_yr, year = Vintage,
+         berry_weight_g = `Av berry wgt (g)` )
+
+perno_berryWt_2018 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
+                                 sheet = "2018 data")
+
+perno_berryWt_2018 <- perno_berryWt_2018 %>% 
+  separate(VendorBlock   , into = c("vendor_text", "vendor_numb","variety"), 
+           sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
+  mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
+  select(ID_temp = VendorBlock   ,
+         ID_yr, year = Vintage,
+         berry_weight_g = `Berry Wt` )
+
+glimpse(perno_berryWt_2011)
+glimpse(perno_berryWt_2016)
+glimpse(perno_berryWt_2017)
+glimpse(perno_berryWt_2018)
+perno_berryWt_all <- rbind(perno_berryWt_2011,perno_berryWt_2016,
+                           perno_berryWt_2017, perno_berryWt_2018)
+#### join it to data with coods pernod_ricard
+pernod_ricard_test <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr")
+pernod_ricard_anti_join_berryWt <-anti_join(perno_berryWt_all,pernod_ricard, by= "ID_yr") %>% 
+  separate(ID_yr, into = c("vendor", "variety", "yr"), sep = "_", remove = FALSE) %>%
+  select(ID_temp, ID_yr, year, berry_weight_g, vendor, variety)
+glimpse(pernod_ricard_anti_join_berryWt)
