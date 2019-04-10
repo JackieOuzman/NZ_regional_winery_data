@@ -17,10 +17,43 @@ delegates_GPS <- delegates_GPS1 %>%
 glimpse(delegates_GPS)
 
 
-delegates_data1 <- read_excel("V:/Marlborough regional/working_jaxs/Delegat For MRC Project RGVB rev.xlsx", 
+####Bring in the sub_block info#####
+delegates_sub_block1 <- read_excel("V:/Marlborough regional/working_jaxs/Delegat For MRC Project RGVB rev.xlsx", 
+                                   sheet = "Sub Block info")
+glimpse(delegates_sub_block1)
+
+delegates_sub_block <- delegates_sub_block1 %>% 
+  mutate(ID_temp = str_to_lower(`Sub-Block Name`, locale = "en"),
+         ID_temp = gsub( "-", "_", ID_temp)) %>% 
+  select(ID_temp,
+         row_spacing_m = `Row Spacing (m) (Block)`,
+         Vine_Spacing_m = `Vine Spacing (m) (Block)`)
+glimpse(delegates_sub_block)
+
+### Join to sub block and GPS data based onID_temp####
+
+glimpse(delegates_sub_block)
+glimpse(delegates_GPS)
+delegates_GPS_sub_block <- full_join(delegates_GPS, delegates_sub_block, by= "ID_temp")
+
+delegates_GPS_sub_block_anti_join1 <- anti_join(delegates_GPS, delegates_sub_block, by= "ID_temp")
+delegates_GPS_sub_block_anti_join2 <- anti_join(delegates_sub_block, delegates_GPS, by= "ID_temp")
+
+
+
+
+
+####Bring in the yield info#####
+delegates_yld_data1 <- read_excel("V:/Marlborough regional/working_jaxs/Delegat For MRC Project RGVB rev.xlsx", 
                              sheet = "Yield Info")
-glimpse(delegates_data1)
-delegates_data <- delegates_data1 %>% 
+glimpse(delegates_yld_data1)
+
+####    Harvest data    ######
+delegates_yld_data_harvest1 <- delegates_yld_data1 %>% 
+  filter(`Yield Type` == "Actual Yield") 
+glimpse(delegates_yld_data_harvest1)
+
+delegates_yld_data_harvest <- delegates_yld_data_harvest1 %>% 
   mutate(ID_temp = str_to_lower(`Sub-Block`, locale = "en"),
          ID_temp = gsub( "-", "_", ID_temp),
          ID_yr = paste0(ID_temp,"_", Vintage),
@@ -31,11 +64,54 @@ delegates_data <- delegates_data1 %>%
          yr,
          harvest_date = `Analysis Date`,
          trellis_type = `Trellis Type`,
-         pruning_method = `Pruning Method`,
-         yield_t_ha = `Yield (Tonnes/Hectare)`,
-         berry_weight_g = `Average Pre-Harvest Berry Weight (g)`,
-         bunch_weight_g = `Average Pre-Harvest Bunch Weight (g)`)
-         
-         
-glimpse(delegates_data)   
+         pruning_method = `Pruning Method`, #can this be revised with what I used for pernod
+         yield_t_ha = `Yield (Tonnes/Hectare)`) %>% 
+         #berry_weight_g = `Average Pre-Harvest Berry Weight (g)`,
+         #bunch_weight_g = `Average Pre-Harvest Bunch Weight (g)`) %>% 
+  mutate(julian = as.numeric(format(harvest_date, "%j")))
+glimpse(delegates_yld_data_harvest)
+
+####    Pre - Harvest data    ######  
+delegates_yld_data_pre_harvest <- delegates_yld_data1 %>% 
+    filter(`Yield Type` == "Pre-Harvest Yield") 
   
+  
+delegates_yld_data_pre_harvest <- delegates_yld_data_pre_harvest %>% 
+    mutate(ID_temp = str_to_lower(`Sub-Block`, locale = "en"),
+           ID_temp = gsub( "-", "_", ID_temp),
+           ID_yr = paste0(ID_temp,"_", Vintage),
+           yr = Vintage) %>% 
+    select(ID_yr,
+           berry_weight_g = `Average Pre-Harvest Berry Weight (g)`,
+           bunch_weight_g = `Average Pre-Harvest Bunch Weight (g)`)
+glimpse(delegates_yld_data_pre_harvest)
+
+#join pre harvest and yield data togther
+
+delegates_yld_data <- left_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
+
+
+
+###### Join more data ####
+
+glimpse(delegates_GPS_sub_block)
+glimpse(delegates_yld_data)
+
+delegates_GPS_sub_block_yld <- left_join(delegates_yld_data,delegates_GPS_sub_block, by= "ID_temp" )
+
+
+delegates_GPS_sub_block_yld_anti_join1 <- anti_join(delegates_yld_data,delegates_GPS_sub_block, by= "ID_temp" )
+delegates_GPS_sub_block_yld_anti_join2 <- anti_join(delegates_GPS_sub_block,delegates_yld_data, by= "ID_temp" )
+
+
+
+#### ADD Some extra data clms - need to chcek this #####
+glimpse(delegates_GPS_sub_block_yld)
+
+delegates_GPS_sub_block_yld <- delegates_GPS_sub_block_yld %>% 
+  mutate(yield_kg_m 	= ( yield_t_ha * 1000) / (10000/row_spacing_m), # is row spacing and row width the same thing?
+         #bunch_numb_m = bunch_numb_per_vine / Vine_Spacing_m,
+         #bunch_mass_g 		= 1000 * yield_kg_m /bunch_numb_m,
+         berry_bunch 		= bunch_weight_g / berry_weight_g,
+         company = "Delegates")
+
