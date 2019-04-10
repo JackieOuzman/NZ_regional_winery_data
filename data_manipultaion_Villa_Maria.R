@@ -189,6 +189,8 @@ Villia_maria_2017_2012 <- rbind(Villia_maria_2017_18,
 glimpse(Villia_maria_2017_2012)
 glimpse(Villia_maria_GPS)
 Villia_maria_2017_2012 <- left_join(Villia_maria_GPS, Villia_maria_2017_2012 )
+
+
 villia_maria_2017_2012_notjoined <- anti_join(Villia_maria_2017_2012, Villia_maria_GPS)
 glimpse(Villia_maria_2017_2012)
 
@@ -233,7 +235,8 @@ Villia_maria_2017_2012 <- mutate(Villia_maria_2017_2012,
                        julian = as.numeric(format(Villia_maria_2017_2012$harvest_date, "%j")),
                        meter_row_per_ha = 10000/row_width,
                        yld_per_m_row_kg =  (yield_t_ha *1000) / meter_row_per_ha,
-                       bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt_g)
+                       bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt_g,
+                       company = "Villa Maria")
                        
 glimpse(Villia_maria_2017_2012)
 write_csv(Villia_maria_2017_2012, "Villia_maria_2017_2012_post_R.csv")
