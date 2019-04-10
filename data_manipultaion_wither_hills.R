@@ -24,7 +24,9 @@ wither_hills_block_info <- wither_hills_block_info %>%
 glimpse(wither_hills_block_info)
 ###Join GPS and block data
 
-wither_hills_GPS_block_info <- left_join(wither_hills_GPS,wither_hills_block_info, by = "ID_temp")
+wither_hills_GPS_block_info <- full_join(wither_hills_GPS,wither_hills_block_info, by = "ID_temp")
+wither_hills_GPS_block_info_anti_join1 <- anti_join(wither_hills_GPS,wither_hills_block_info, by = "ID_temp")
+wither_hills_GPS_block_info_anti_join2 <- anti_join(wither_hills_block_info,wither_hills_GPS, by = "ID_temp")
 glimpse(wither_hills_GPS_block_info)
 
 #### measures
@@ -44,16 +46,16 @@ glimpse(wither_hills_harvest_details)
 
 #cals and selected clm - need to double check cals
 wither_hills_harvest_details1 <- wither_hills_harvest_details %>% 
-  select(ID_yr,ID_temp, year,
+  select(ID_yr,ID_temp, 
          Variety = Variety_lower,
          year,
-         brix = `Harvest brix` ,
+         brix = `Harvest brix` , #no data in the input file
          harvest_date = Harvest, #something wrong here the input file has this problem
          yield_t_ha = `Actual T/Ha`,
-         metres_row_ha =`metres row/ha`,
+         #metres_row_ha =`metres row/ha`, there is an error in the input data file dont use this clm
          vine_spacing = `Vine Spacing` ,
-         pruning_style = `Pruning style`, 
          row_width = `Row Width` ,
+         pruning_style = `Pruning style`, 
          bunch_numb_per_vine = `Ave Pre-Harvest Bunch #`,
          bunch_weight = `Ave Pre-Harvest Bunch weight`,
          berry_weight = `Ave Pre-Harvest Berry weight`) %>% 
@@ -65,9 +67,29 @@ wither_hills_harvest_details1 <- wither_hills_harvest_details %>%
          berry_wt = bunch_mass_g / berry_bunch)
 glimpse(wither_hills_harvest_details1)
 
+wither_hills_harvest_details1_wrong_date <- wither_hills_harvest_details1 %>% 
+  filter(harvest_date < 1980)
+write_csv(wither_hills_harvest_details1_wrong_date, "wither_hills_harvest_details1_wrong_date.csv")
+
+wither_hills_harvest_details1_no_yld <- wither_hills_harvest_details1 %>% 
+  filter(yield_t_ha <= 0)
+write_csv(wither_hills_harvest_details1_no_yld, "wither_hills_harvest_details1_no_yld.csv")
+wither_hills_harvest_details1_no_prune_style<- wither_hills_harvest_details1 %>% 
+  filter( is.na(pruning_style))
+wither_hills_harvest_details1_bunch_numb<- wither_hills_harvest_details1 %>% 
+  filter( is.na(bunch_numb_per_vine) | bunch_numb_per_vine == 0)
+wither_hills_harvest_details1_bunch_wt<- wither_hills_harvest_details1 %>% 
+  filter( is.na(bunch_weight) | bunch_weight == 0)
+wither_hills_harvest_details1_berry_wt<- wither_hills_harvest_details1 %>% 
+  filter( is.na(berry_weight) | berry_weight == 0)
+
+
 #### join the GPS files to the harvest data files
 glimpse(wither_hills_GPS_block_info)
 glimpse(wither_hills_harvest_details1)
-wither_hills_GPS_block_info_harvest <- left_join(wither_hills_GPS_block_info, wither_hills_harvest_details1,
-                                                 by= "ID_temp")
+wither_hills_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills_harvest_details1,
+                                                 by= "ID_temp") %>% 
+  mutate(company = "Wither_Hills")
+
 glimpse(wither_hills_GPS_block_info_harvest)
+write_csv(wither_hills_GPS_block_info_harvest, "wither_hills_GPS_block_info_harvest.csv")
