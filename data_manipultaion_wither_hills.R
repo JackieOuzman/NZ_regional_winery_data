@@ -24,6 +24,9 @@ wither_hills_block_info <- wither_hills_block_info %>%
 glimpse(wither_hills_block_info)
 ###Join GPS and block data
 
+glimpse(wither_hills_GPS)
+glimpse(wither_hills_block_info)
+
 wither_hills_GPS_block_info <- full_join(wither_hills_GPS,wither_hills_block_info, by = "ID_temp")
 wither_hills_GPS_block_info_anti_join1 <- anti_join(wither_hills_GPS,wither_hills_block_info, by = "ID_temp")
 wither_hills_GPS_block_info_anti_join2 <- anti_join(wither_hills_block_info,wither_hills_GPS, by = "ID_temp")
@@ -34,18 +37,21 @@ wither_hills_harvest_details <- read_excel("C:/Users/ouz001/NZ_work/Wither Hills
                                     sheet = "15,16,17,18 ", skip = 3)
 glimpse(wither_hills_harvest_details)
 #Create an ID clm
-wither_hills_harvest_details <- wither_hills_harvest_details %>% 
+wither_hills_harvest_details_step1 <- wither_hills_harvest_details %>% 
          mutate(vineyard_lower =str_to_lower(Vineyard, locale = "en"),
          block_lower =str_to_lower(Block, locale = "en"),
          Variety_lower =str_to_lower(Variety, locale = "en"),
-         year = gsub( "V|v", "20", wither_hills_harvest_details_test$Vintage),
-         ID_temp1 = gsub( " ", "_", wither_hills_harvest_details_test$block_lower),
+         year = gsub( "V|v", "20", wither_hills_harvest_details$Vintage))
+glimpse(wither_hills_harvest_details_step1)
+
+wither_hills_harvest_details_step2 <- wither_hills_harvest_details_step1 %>% 
+         mutate(ID_temp1 = gsub( " ", "_", wither_hills_harvest_details_step1$block_lower),
          ID_temp = paste0(ID_temp1,"_", Variety_lower),
          ID_yr = paste0(ID_temp,"_", year))  
-glimpse(wither_hills_harvest_details)
+glimpse(wither_hills_harvest_details_step2)
 
 #cals and selected clm - need to double check cals
-wither_hills_harvest_details1 <- wither_hills_harvest_details %>% 
+wither_hills_harvest_details <- wither_hills_harvest_details_step2 %>% 
   select(ID_yr,ID_temp, 
          Variety = Variety_lower,
          year,
@@ -65,29 +71,29 @@ wither_hills_harvest_details1 <- wither_hills_harvest_details %>%
          bunch_mass_g = 1000 * yield_kg_m /bunch_numb_m, #check this cal
          berry_bunch = bunch_weight / berry_weight,
          berry_wt = bunch_mass_g / berry_bunch)
-glimpse(wither_hills_harvest_details1)
+glimpse(wither_hills_harvest_details)
 
-wither_hills_harvest_details1_wrong_date <- wither_hills_harvest_details1 %>% 
+wither_hills_harvest_details1_wrong_date <- wither_hills_harvest_details %>% 
   filter(harvest_date < 1980)
 write_csv(wither_hills_harvest_details1_wrong_date, "wither_hills_harvest_details1_wrong_date.csv")
 
-wither_hills_harvest_details1_no_yld <- wither_hills_harvest_details1 %>% 
+wither_hills_harvest_details1_no_yld <- wither_hills_harvest_details %>% 
   filter(yield_t_ha <= 0)
 write_csv(wither_hills_harvest_details1_no_yld, "wither_hills_harvest_details1_no_yld.csv")
-wither_hills_harvest_details1_no_prune_style<- wither_hills_harvest_details1 %>% 
+wither_hills_harvest_details1_no_prune_style<- wither_hills_harvest_details %>% 
   filter( is.na(pruning_style))
-wither_hills_harvest_details1_bunch_numb<- wither_hills_harvest_details1 %>% 
+wither_hills_harvest_details1_bunch_numb<- wither_hills_harvest_details %>% 
   filter( is.na(bunch_numb_per_vine) | bunch_numb_per_vine == 0)
-wither_hills_harvest_details1_bunch_wt<- wither_hills_harvest_details1 %>% 
+wither_hills_harvest_details1_bunch_wt<- wither_hills_harvest_details %>% 
   filter( is.na(bunch_weight) | bunch_weight == 0)
-wither_hills_harvest_details1_berry_wt<- wither_hills_harvest_details1 %>% 
+wither_hills_harvest_details1_berry_wt<- wither_hills_harvest_details %>% 
   filter( is.na(berry_weight) | berry_weight == 0)
 
 
 #### join the GPS files to the harvest data files
 glimpse(wither_hills_GPS_block_info)
-glimpse(wither_hills_harvest_details1)
-wither_hills_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills_harvest_details1,
+glimpse(wither_hills_harvest_details)
+wither_hills_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills_harvest_details,
                                                  by= "ID_temp") %>% 
   mutate(company = "Wither_Hills")
 
