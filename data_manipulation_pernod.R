@@ -40,6 +40,8 @@ variety_coords <- perno_GPS_distinct %>%
   summarise(number_blocks_with_coords =n())
 
 ###### Summary of blocks with and without coords ########
+glimpse(variety_no_coords)
+glimpse(variety_coords)
 Summary_blocks_coods <- full_join(variety_no_coords, variety_coords)
                       
                       
@@ -266,6 +268,9 @@ perno_berryWt_2011 <- perno_berryWt_2011 %>%
 
 perno_berryWt_2016 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
                                  sheet = "2016 data")
+
+glimpse(perno_berryWt_2016)  
+
 perno_berryWt_2016 <- perno_berryWt_2016 %>% 
   separate(VendBlock, into = c("vendor_text", "vendor_numb","variety"), 
            sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
@@ -273,6 +278,30 @@ perno_berryWt_2016 <- perno_berryWt_2016 %>%
   select(ID_temp = VendBlock,
          ID_yr, year = Vintage,
          berry_weight_g = `Av berry wgt (g)`)
+glimpse(perno_berryWt_2016)
+
+###Locate the controls in the ID_temp clm and remove####
+#M14SBLD CONTROL
+#M14SBLO CONTROL
+#M14SBLR CONTROL
+perno_berryWt_2016_remove_control <- perno_berryWt_2016 %>% 
+  filter(ID_temp != "M14SBLD CONTROL",
+         ID_temp != "M14SBLO CONTROL",
+         ID_temp != "M14SBLR CONTROL")
+##Aveage the reps
+temp <- perno_berryWt_2016_remove_control %>% 
+  mutate(rep = ifelse(ID_temp == "MV8PNNL#1", "MV8PNNL",
+               ifelse(ID_temp == "MV8PNNL#2", "MV8PNNL", 
+               ifelse(ID_temp == "M13RR1B#1", "M13RR1B",
+               ifelse(ID_temp == "M13RR1B#2", "M13RR1B",
+               ifelse(ID_temp == "M13RRIA#1", "M13RRIA",
+               ifelse(ID_temp == "M13RRIA#2", "M13RRIA",
+                             "")))))))
+temp <- temp %>% 
+  group_by(rep) %>% 
+  summarise(average = mean(berry_weight_g))
+
+
 
 
 perno_berryWt_2017 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
