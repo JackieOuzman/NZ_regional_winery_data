@@ -58,10 +58,11 @@ delegates_yld_data_harvest <- delegates_yld_data_harvest1 %>%
          ID_temp = gsub( "-", "_", ID_temp),
          ID_yr = paste0(ID_temp,"_", Vintage),
          yr = Vintage,
-         brix = NA) %>% 
+         brix = NA,
+         variety = Variety) %>% 
   select(ID_temp,
          ID_yr,
-         Variety,
+         variety,
          yr,
          brix,
          harvest_date = `Analysis Date`,
@@ -126,9 +127,12 @@ delegates_GPS_sub_block_yld <- delegates_GPS_sub_block_yld %>%
 glimpse(delegates_GPS_sub_block_yld)
 
 delegates_april_2019 <- delegates_GPS_sub_block_yld %>% 
-select(company, ID_temp, ID_yr, Variety, x_coord, y_coord,
+select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
        year, harvest_date, julian,yield_t_ha,yield_kg_m,
        brix,bunch_weight, berry_weight,
        bunch_numb_m, bunch_mass_g, berry_bunch, berry_wt,
        pruning_style)
-
+glimpse(delegates_april_2019)
+delegates_april_2019$na_count <- apply(is.na(delegates_april_2019), 1, sum)
+glimpse(delegates_april_2019)
+write_csv(delegates_april_2019, "delegates_april_2019.csv")
