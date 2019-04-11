@@ -6,7 +6,7 @@ library(readxl)
 
 delegates_GPS1 <- read_excel("V:/Marlborough regional/working_jaxs/Delegat For MRC Project RGVB rev.xlsx", 
                                  sheet = "Use this Delegat4 NZ2000")
-glimpse(delegates_GPS)
+glimpse(delegates_GPS1)
 delegates_GPS <- delegates_GPS1 %>% 
   select(ID_temp = Name ,
          x_coord = POINT_X,
@@ -57,19 +57,21 @@ delegates_yld_data_harvest <- delegates_yld_data_harvest1 %>%
   mutate(ID_temp = str_to_lower(`Sub-Block`, locale = "en"),
          ID_temp = gsub( "-", "_", ID_temp),
          ID_yr = paste0(ID_temp,"_", Vintage),
-         yr = Vintage) %>% 
+         yr = Vintage,
+         brix = NA) %>% 
   select(ID_temp,
          ID_yr,
          Variety,
          yr,
+         brix,
          harvest_date = `Analysis Date`,
          trellis_type = `Trellis Type`,
-         pruning_method = `Pruning Method`, #can this be revised with what I used for pernod
+         pruning_style = `Pruning Method`, #can this be revised with what I used for pernod
          yield_t_ha = `Yield (Tonnes/Hectare)`) %>% 
          #berry_weight_g = `Average Pre-Harvest Berry Weight (g)`,
          #bunch_weight_g = `Average Pre-Harvest Bunch Weight (g)`) %>% 
   mutate(julian = as.numeric(format(harvest_date, "%j")))
-glimpse(delegates_yld_data_harvest)
+glimpse(delegates_yld_data_harvest) #has yield tha here
 
 ####    Pre - Harvest data    ######  
 delegates_yld_data_pre_harvest <- delegates_yld_data1 %>% 
@@ -82,15 +84,18 @@ delegates_yld_data_pre_harvest <- delegates_yld_data_pre_harvest %>%
            ID_yr = paste0(ID_temp,"_", Vintage),
            yr = Vintage) %>% 
     select(ID_yr,
-           berry_weight_g = `Average Pre-Harvest Berry Weight (g)`,
-           bunch_weight_g = `Average Pre-Harvest Bunch Weight (g)`)
+           berry_weight = `Average Pre-Harvest Berry Weight (g)`,
+           bunch_weight = `Average Pre-Harvest Bunch Weight (g)`)
 glimpse(delegates_yld_data_pre_harvest)
 
 #join pre harvest and yield data togther
 
-delegates_yld_data <- left_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
-
-
+delegates_yld_data1 <- left_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
+delegates_yld_data <- full_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
+#check <- full_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
+#glimpse(check)
+glimpse(delegates_yld_data)
+glimpse(delegates_yld_data1)
 
 ###### Join more data ####
 
@@ -111,7 +116,19 @@ glimpse(delegates_GPS_sub_block_yld)
 delegates_GPS_sub_block_yld <- delegates_GPS_sub_block_yld %>% 
   mutate(yield_kg_m 	= ( yield_t_ha * 1000) / (10000/row_spacing_m), # is row spacing and row width the same thing?
          #bunch_numb_m = bunch_numb_per_vine / Vine_Spacing_m,
+         bunch_numb_m = NA,
          #bunch_mass_g 		= 1000 * yield_kg_m /bunch_numb_m,
-         berry_bunch 		= bunch_weight_g / berry_weight_g,
-         company = "Delegates")
+         bunch_mass_g 		= NA,
+         berry_bunch 		= bunch_weight / berry_weight,
+         berry_wt = NA,
+         company = "Delegates",
+         year = yr)
+glimpse(delegates_GPS_sub_block_yld)
+
+delegates_april_2019 <- delegates_GPS_sub_block_yld %>% 
+select(company, ID_temp, ID_yr, Variety, x_coord, y_coord,
+       year, harvest_date, julian,yield_t_ha,yield_kg_m,
+       brix,bunch_weight, berry_weight,
+       bunch_numb_m, bunch_mass_g, berry_bunch, berry_wt,
+       pruning_style)
 

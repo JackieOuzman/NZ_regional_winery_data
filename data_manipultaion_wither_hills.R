@@ -2,6 +2,7 @@ library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
+library(lubridate)
 
 wither_hills_GPS_temp <- read_excel("C:/Users/ouz001/NZ_work/Wither Hills yield data For Mike Trought RGVB.xlsx", 
                              sheet = "Wither Hills NZ2000")
@@ -50,13 +51,28 @@ wither_hills_harvest_details_step2 <- wither_hills_harvest_details_step1 %>%
          ID_yr = paste0(ID_temp,"_", year))  
 glimpse(wither_hills_harvest_details_step2)
 
-#cals and selected clm - need to double check cals
+
+
+####Note that there is something wrong with the imput date clm we have lots of wrong dates
+# replace date error with NA
+
 wither_hills_harvest_details <- wither_hills_harvest_details_step2 %>% 
+    mutate(
+      harvest_date1 = ifelse(Harvest < 1980, NA , Harvest))
+
+wither_hills_harvest_details$harvest_date1 <- as_datetime(wither_hills_harvest_details$harvest_date1)
+glimpse(wither_hills_harvest_details)
+
+
+
+
+#cals and selected clm - need to double check cals
+wither_hills_harvest_details <- wither_hills_harvest_details %>% 
   select(ID_yr,ID_temp, 
-         Variety = Variety_lower,
+         #Variety = Variety_lower,
          year,
          brix = `Harvest brix` , #no data in the input file
-         harvest_date = Harvest, #something wrong here the input file has this problem
+         harvest_date = harvest_date1, #something wrong here the input file has this problem
          yield_t_ha = `Actual T/Ha`,
          #metres_row_ha =`metres row/ha`, there is an error in the input data file dont use this clm
          vine_spacing = `Vine Spacing` ,
@@ -70,7 +86,8 @@ wither_hills_harvest_details <- wither_hills_harvest_details_step2 %>%
          bunch_numb_m = bunch_numb_per_vine / vine_spacing , #check this cal
          bunch_mass_g = 1000 * yield_kg_m /bunch_numb_m, #check this cal
          berry_bunch = bunch_weight / berry_weight,
-         berry_wt = bunch_mass_g / berry_bunch)
+         berry_wt = bunch_mass_g / berry_bunch,
+         julian = as.numeric(format(harvest_date, "%j")))
 glimpse(wither_hills_harvest_details)
 
 wither_hills_harvest_details1_wrong_date <- wither_hills_harvest_details %>% 
@@ -96,6 +113,15 @@ glimpse(wither_hills_harvest_details)
 wither_hills_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills_harvest_details,
                                                  by= "ID_temp") %>% 
   mutate(company = "Wither_Hills")
+wither_hills_GPS_block_info_harvest <- wither_hills_GPS_block_info_harvest %>% 
+  select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
+         year,harvest_date, julian,yield_t_ha,yield_kg_m,
+         brix,bunch_weight, berry_weight,
+         bunch_numb_m, bunch_mass_g, berry_bunch, berry_wt,
+         pruning_style)
+  
+wither_hills_GPS_block_info_harvest$na_count <- apply(is.na(wither_hills_GPS_block_info_harvest), 1, sum)
 
 glimpse(wither_hills_GPS_block_info_harvest)
-write_csv(wither_hills_GPS_block_info_harvest, "wither_hills_GPS_block_info_harvest.csv")
+dim(wither_hills_GPS_block_info_harvest)
+write_csv(wither_hills_GPS_block_info_harvest, "wither_hills_april_2019.csv")
