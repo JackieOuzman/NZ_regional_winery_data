@@ -263,7 +263,7 @@ perno_berryWt_2011 <- perno_berryWt_2011 %>%
              ID_yr, year = Vintage,
              #sample_date = `Date sample taken`,
              berry_weight_g = `Av. Berry weight (g)` )
-
+glimpse(perno_berryWt_2011)
 
 
 perno_berryWt_2016 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
@@ -290,19 +290,42 @@ perno_berryWt_2016_remove_control <- perno_berryWt_2016 %>%
          ID_temp != "M14SBLR CONTROL")
 ##Aveage the reps
 temp <- perno_berryWt_2016_remove_control %>% 
-  mutate(rep = ifelse(ID_temp == "MV8PNNL#1", "MV8PNNL",
-               ifelse(ID_temp == "MV8PNNL#2", "MV8PNNL", 
-               ifelse(ID_temp == "M13RR1B#1", "M13RR1B",
-               ifelse(ID_temp == "M13RR1B#2", "M13RR1B",
-               ifelse(ID_temp == "M13RRIA#1", "M13RRIA",
-               ifelse(ID_temp == "M13RRIA#2", "M13RRIA",
+  mutate(rep = ifelse(ID_temp == "MV8PNNL#1", "MV8_PNNL",
+               ifelse(ID_temp == "MV8PNNL#2", "MV8_PNNL", 
+               ifelse(ID_temp == "M13RR1B#1", "M13_RR1B",
+               ifelse(ID_temp == "M13RR1B#2", "M13_RR1B",
+               ifelse(ID_temp == "M13RRIA#1", "M13_RRIA",
+               ifelse(ID_temp == "M13RRIA#2", "M13_RRIA",
                              "")))))))
-temp <- temp %>% 
+temp1 <- temp %>%
   group_by(rep) %>% 
-  summarise(average = mean(berry_weight_g))
+  summarise(berry_weight_g = mean(berry_weight_g)) 
+  
+temp1 <- temp1 %>% 
+  select(ID_temp = rep,
+         berry_weight_g) %>% 
+         mutate(ID_yr = paste0(ID_temp, "_", "2016"),
+                year = "2016")%>% 
+          filter(ID_temp > 0)
+  
+  
+ glimpse(temp1)
+temp2 <- temp %>% 
+  filter(ID_temp != "MV8PNNL#1",
+         ID_temp != "MV8PNNL#2", 
+         ID_temp != "M13RR1B#1",
+         ID_temp != "M13RR1B#2",
+         ID_temp != "M13RRIA#1",
+         ID_temp != "M13RRIA#2") %>% 
+  select(-rep) 
 
+glimpse(temp1)
+glimpse(temp2)
 
+perno_berryWt_2016 <- rbind(temp1,temp2 )
+glimpse(perno_berryWt_2016) 
 
+  
 
 perno_berryWt_2017 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
                                  sheet = "2017 data")
@@ -331,11 +354,45 @@ glimpse(perno_berryWt_2017)
 glimpse(perno_berryWt_2018)
 perno_berryWt_all <- rbind(perno_berryWt_2011,perno_berryWt_2016,
                            perno_berryWt_2017, perno_berryWt_2018)
+
 #### join it to data with coods pernod_ricard
-pernod_ricard <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr")
-pernod_ricard_anti_join_berryWt <-anti_join(perno_berryWt_all,pernod_ricard, by= "ID_yr") %>% 
-  separate(ID_yr, into = c("vendor", "variety", "yr"), sep = "_", remove = FALSE) %>%
-  select(ID_temp, ID_yr, year, berry_weight_g, vendor, variety)
-glimpse(pernod_ricard_anti_join_berryWt)
+glimpse(perno_berryWt_all)
+perno_berryWt_all <- perno_berryWt_all %>% 
+  select(ID_yr, berry_weight_g)
+
+
 
 glimpse(pernod_ricard)
+pernod_ricard1 <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr") %>% 
+  mutate(company = "pernod_ricard",
+         yield_t_ha = NA,
+         bunch_numb_m = NA, 
+         bunch_mass_g = NA,
+         berry_bunch = NA,
+         ID_temp = ID,
+         variety = Variety,
+         harvest_date = sample_date,
+         yield_kg_m = yield_kg_per_m
+         )
+glimpse(pernod_ricard1)
+pernod_ricard1 <- pernod_ricard1 %>% 
+  select(company, ID_temp, ID_yr, variety , x_coord, y_coord,
+                year , harvest_date, julian,
+                yield_t_ha, yield_kg_m,
+                brix,bunch_weight = bunch_wt_g, berry_weight = berry_weight_g,
+                pruning_style = trellis)
+
+glimpse(pernod_ricard1)
+
+pernod_ricard1$na_count <- apply(is.na(pernod_ricard1), 1, sum)
+write_csv(pernod_ricard1, "pernod_ricard_april_2019.csv")
+
+#pernod_ricard_anti_join_berryWt <-anti_join(perno_berryWt_all,pernod_ricard, by= "ID_yr") %>% 
+#  separate(ID_yr, into = c("vendor", "variety", "yr"), sep = "_", remove = FALSE) %>%
+#  select(ID_temp, ID_yr, year, berry_weight_g, vendor, variety)
+#glimpse(pernod_ricard_anti_join_berryWt)
+
+
+
+glimpse(pernod_ricard1)
+

@@ -198,32 +198,32 @@ Villia_maria_2017_2012_sub <- select(Villia_maria_2017_2012,
                                      lat,long, year, Section, variety, ID)
                                      
 
-write_csv(Villia_maria_2017_2012_sub, "Villia_maria_2017_2012_post_R2.csv")
+#write_csv(Villia_maria_2017_2012_sub, "Villia_maria_2017_2012_post_R2.csv")
 
 no_coords_count <- group_by(villia_maria_2017_2012_notjoined,
                       variety) %>% 
                       count(year)
-ggplot(no_coords_count, aes(year, n))+
-  geom_point()+
-  facet_wrap(.~ variety)+
-  labs(title = "number of sections without GPS points",
-       #subtitle = "xxx",
-       x = "years",
-       y = "number of sections")+
-  theme(axis.text.x=element_text(angle=90, hjust=1))
+#ggplot(no_coords_count, aes(year, n))+
+#  geom_point()+
+#  facet_wrap(.~ variety)+
+#  labs(title = "number of sections without GPS points",
+#       #subtitle = "xxx",
+#       x = "years",
+#       y = "number of sections")+
+#  theme(axis.text.x=element_text(angle=90, hjust=1))
 
 
-coords_count <- group_by(Villia_maria_2017_2012,
-                            variety) %>% 
-  count(year)
-ggplot(coords_count, aes(year, n))+
-  geom_point()+
-  facet_wrap(.~ variety)+
-  labs(title = "number of sections with GPS points",
+#coords_count <- group_by(Villia_maria_2017_2012,
+#                            variety) %>% 
+#  count(year)
+#ggplot(coords_count, aes(year, n))+
+#  geom_point()+
+#  facet_wrap(.~ variety)+
+#  labs(title = "number of sections with GPS points",
        #subtitle = "xxx",
-       x = "years",
-       y = "number of sections")+
-theme(axis.text.x=element_text(angle=90, hjust=1))
+#       x = "years",
+#       y = "number of sections")+
+#theme(axis.text.x=element_text(angle=90, hjust=1))
 
 
 
@@ -236,7 +236,27 @@ Villia_maria_2017_2012 <- mutate(Villia_maria_2017_2012,
                        meter_row_per_ha = 10000/row_width,
                        yld_per_m_row_kg =  (yield_t_ha *1000) / meter_row_per_ha,
                        bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt_g,
-                       company = "Villa Maria")
+                       company = "Villa Maria",
+                       ID_temp = Section,
+                       ID_yr =ID,
+                       x_coord = lat,
+                       y_coord = long,
+                       yield_kg_m = NA
+                       )
+glimpse(Villia_maria_2017_2012)
+
+##tidy up to match the other files
+Villia_maria_2017_2012_1 <- Villia_maria_2017_2012 %>% 
+  select(company, ID_temp, ID_yr, variety , x_coord, y_coord,
+         year , harvest_date, julian,
+         yield_t_ha, yield_kg_m,
+         brix,bunch_weight = bunch_wt_g, berry_weight = berry_wt_g,
+         pruning_style = trellis)
+
+glimpse(Villia_maria_2017_2012_1)
+
+Villia_maria_2017_2012_1$na_count <- apply(is.na(Villia_maria_2017_2012_1), 1, sum)
+write_csv(Villia_maria_2017_2012_1, "Villia_maria_2017_2012_april_2019.csv")
                        
 glimpse(Villia_maria_2017_2012)
 write_csv(Villia_maria_2017_2012, "Villia_maria_2017_2012_post_R.csv")
