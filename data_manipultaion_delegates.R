@@ -130,7 +130,7 @@ delegates_april_2019 <- delegates_GPS_sub_block_yld %>%
 select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
        year, harvest_date, julian,yield_t_ha,yield_kg_m,
        brix,bunch_weight, berry_weight,
-       bunch_numb_m, bunch_mass_g, berry_bunch, berry_wt,
+       #bunch_numb_m, bunch_mass_g, berry_bunch, berry_wt,
        pruning_style)
 glimpse(delegates_april_2019)
 delegates_april_2019$na_count <- apply(is.na(delegates_april_2019), 1, sum)
