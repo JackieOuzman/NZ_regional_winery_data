@@ -105,7 +105,7 @@ perno_GPS_distinct <- mutate(perno_GPS_distinct,
 ###need to check all of below code and make sure it works
 
 perno_GPS_distinct <- perno_GPS_distinct %>% 
-  select(ID, year, x_coord, y_coord, Variety, Vnd, trellis)
+  select(ID, x_coord, y_coord, Variety, Vnd, trellis)
 glimpse(perno_GPS_distinct)
 
 write_csv(perno_GPS_distinct, path = "V:/Marlborough regional/working_jaxs/perno_GPS_test1.csv" )
@@ -128,11 +128,16 @@ perno_yld <- select(perno_yld,
          year = as.double(paste0(Yr+2000)))
 #tidy this up
 perno_yld <- perno_yld %>% 
-  select(ID, yield_kg_per_m, brix)
+  select(ID, yield_kg_per_m, brix, year)
+glimpse(perno_yld)
 
 ###Join
-perno_yld_coord <- left_join(perno_yld, perno_GPS_distinct, by =  "ID")
+glimpse(perno_yld_coord)
 
+
+
+perno_yld_coord <- left_join(perno_yld, perno_GPS_distinct, by =  "ID")
+glimpse(perno_yld_coord)
 #what was not joined and what variety was it?
 perno_yld_coord_anti_join <- anti_join(perno_yld, perno_GPS_distinct, by =  "ID")
 #for what was not joined add the variety 264 - includes all the years
