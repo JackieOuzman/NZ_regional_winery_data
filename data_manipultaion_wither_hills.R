@@ -113,13 +113,22 @@ glimpse(wither_hills_harvest_details)
 wither_hills_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills_harvest_details,
                                                  by= "ID_temp") %>% 
   mutate(company = "Wither_Hills")
+glimpse(wither_hills_GPS_block_info_harvest)
+
 wither_hills_GPS_block_info_harvest <- wither_hills_GPS_block_info_harvest %>% 
   select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
          year,harvest_date, julian,yield_t_ha,yield_kg_m,
          brix,bunch_weight, berry_weight,
-         #bunch_numb_m, bunch_mass_g, berry_bunch, berry_wt,
+         bunch_numb_m,
+         row_width, vine_spacing,
+         #bunch_mass_g, berry_bunch, berry_wt,
          pruning_style)
-  
+glimpse(wither_hills_GPS_block_info_harvest)
+
+
+
+
+
 wither_hills_GPS_block_info_harvest$na_count <- apply(is.na(wither_hills_GPS_block_info_harvest), 1, sum)
 
 glimpse(wither_hills_GPS_block_info_harvest)

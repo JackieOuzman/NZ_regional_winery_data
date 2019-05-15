@@ -374,6 +374,9 @@ pernod_ricard1 <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr") %>%
          bunch_numb_m = NA, 
          bunch_mass_g = NA,
          berry_bunch = NA,
+         row_width = NA,
+         vine_spacing = NA,
+         bunch_numb_m = NA,
          ID_temp = ID,
          variety = Variety,
          harvest_date = sample_date,
@@ -385,6 +388,7 @@ pernod_ricard1 <- pernod_ricard1 %>%
                 year , harvest_date, julian,
                 yield_t_ha, yield_kg_m,
                 brix,bunch_weight = bunch_wt_g, berry_weight = berry_weight_g,
+         row_width, vine_spacing, bunch_numb_m,
                 pruning_style = trellis)
 
 glimpse(pernod_ricard1)

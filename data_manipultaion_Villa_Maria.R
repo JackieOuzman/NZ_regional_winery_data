@@ -241,7 +241,10 @@ Villia_maria_2017_2012 <- mutate(Villia_maria_2017_2012,
                        ID_yr =ID,
                        x_coord = lat,
                        y_coord = long,
-                       yield_kg_m = NA
+                       yield_kg_m = NA,
+                       row_width = row_width ,
+                       vine_spacing =vine_spacing,
+                       bunch_numb_m	 = NA
                        )
 glimpse(Villia_maria_2017_2012)
 
@@ -251,12 +254,16 @@ Villia_maria_2017_2012_1 <- Villia_maria_2017_2012 %>%
          year , harvest_date, julian,
          yield_t_ha, yield_kg_m,
          brix,bunch_weight = bunch_wt_g, berry_weight = berry_wt_g,
-         pruning_style = trellis)
+         pruning_style = trellis,
+         row_width,
+         vine_spacing,
+         bunch_numb_m
+         )
 
 glimpse(Villia_maria_2017_2012_1)
 
 Villia_maria_2017_2012_1$na_count <- apply(is.na(Villia_maria_2017_2012_1), 1, sum)
 write_csv(Villia_maria_2017_2012_1, "Villia_maria_2017_2012_april_2019.csv")
                        
-glimpse(Villia_maria_2017_2012)
+glimpse(Villia_maria_2017_2012_1)
 write_csv(Villia_maria_2017_2012, "Villia_maria_2017_2012_post_R.csv")

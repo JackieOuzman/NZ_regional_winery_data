@@ -39,7 +39,7 @@ delegates_GPS_sub_block <- full_join(delegates_GPS, delegates_sub_block, by= "ID
 delegates_GPS_sub_block_anti_join1 <- anti_join(delegates_GPS, delegates_sub_block, by= "ID_temp")
 delegates_GPS_sub_block_anti_join2 <- anti_join(delegates_sub_block, delegates_GPS, by= "ID_temp")
 
-
+glimpse(delegates_GPS_sub_block) # change the row_spacing_m to row_width 
 
 
 
@@ -104,7 +104,7 @@ glimpse(delegates_GPS_sub_block)
 glimpse(delegates_yld_data)
 
 delegates_GPS_sub_block_yld <- left_join(delegates_yld_data,delegates_GPS_sub_block, by= "ID_temp" )
-
+glimpse(delegates_GPS_sub_block_yld)
 
 delegates_GPS_sub_block_yld_anti_join1 <- anti_join(delegates_yld_data,delegates_GPS_sub_block, by= "ID_temp" )
 delegates_GPS_sub_block_yld_anti_join2 <- anti_join(delegates_GPS_sub_block,delegates_yld_data, by= "ID_temp" )
@@ -123,15 +123,20 @@ delegates_GPS_sub_block_yld <- delegates_GPS_sub_block_yld %>%
          berry_bunch 		= bunch_weight / berry_weight,
          berry_wt = NA,
          company = "Delegates",
-         year = yr)
+         year = yr,
+         row_width  = row_spacing_m,
+         vine_spacing =Vine_Spacing_m)
 glimpse(delegates_GPS_sub_block_yld)
 
 delegates_april_2019 <- delegates_GPS_sub_block_yld %>% 
 select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
        year, harvest_date, julian,yield_t_ha,yield_kg_m,
        brix,bunch_weight, berry_weight,
-       #bunch_numb_m, bunch_mass_g, berry_bunch, berry_wt,
-       pruning_style)
+       bunch_numb_m, 
+       #bunch_mass_g, berry_bunch, berry_wt,
+       pruning_style,
+       row_width,
+       vine_spacing)
 glimpse(delegates_april_2019)
 delegates_april_2019$na_count <- apply(is.na(delegates_april_2019), 1, sum)
 glimpse(delegates_april_2019)
