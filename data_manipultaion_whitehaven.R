@@ -5,11 +5,65 @@ library(tidyverse)
 library(readxl)
 install.packages("sp")
 library(sp)
+install.packages("biogeo")
+library(biogeo)
+library(stringr)
+
+
+#41°29'33.04"S 174° 0'29.98"E
+#test <- dms2dd(41,29,33.04,"S")
+#print(test)
+#This works but I need to strip out the non numberic values
+
+
+
+#This appoach will work but my grep function is not corrrct
+#x<-c('44.25 E','21.20 E','14.03 E')
+#glimpse(x)
+#dmsparsefmt(x,fmt="dd.mm L")
+
+#mock data to test approach
+
+#dummy_data <- c("41°29'33.04\"S", "42°29'33.04\"S", "41°39'33.04\"S", "41°49'33.04\"S") 
+#dummy_data_numeric2 <- sub("[^0-9]", "_", dummy_data)
+#glimpse(dummy_data_numeric2)
+#dummy_data_numeric3 <- sub("[']", "_", dummy_data_numeric2) 
+#glimpse(dummy_data_numeric3)
+#dummy_data_numeric4 <- sub('\"', " ", dummy_data_numeric3, fixed = TRUE ) 
+#glimpse(dummy_data_numeric4)
+
+#dummy_data_df <- data.frame(test = dummy_data_numeric4)
+#glimpse(dummy_data_df)
+#split the clms
+#dummy_data_df <- separate(dummy_data_df, test, into = c("dd", "mm", "ss"), sep = "\\_", remove = FALSE)
+#dummy_data_df <- separate(dummy_data_df, ss, into = c("ss", "L" ), sep = " ", remove = FALSE)
+#glimpse(dummy_data_df)
+#make new clm double not charcaters
+#dummy_data_df$dd <- as.double(dummy_data_df$dd)
+#dummy_data_df$mm <- as.double(dummy_data_df$mm)
+#dummy_data_df$ss <- as.double(dummy_data_df$ss)
+
+#convert from DMS to DD and create a new clm name
+#dummy_data_df$new <- dms2dd(dummy_data_df$dd,dummy_data_df$mm,dummy_data_df$ss, dummy_data_df$L)
+#glimpse(dummy_data_df)
+
+
+
+
+
+###REAL DATA
+
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(readxl)
+library(sp)
+library(biogeo)
+library(stringr)
 
 white_haven_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Harvest  Mapping Data Whitehaven.xlsx", 
-                             sheet = "All - Data")
+                              sheet = "All - Data")
 
-glimpse(white_haven_GPS)
 white_haven_GPS_1 <-  select(white_haven_GPS,Vineyard,
                              Block,
                              Latitude,
@@ -18,8 +72,201 @@ white_haven_GPS_1 <-  select(white_haven_GPS,Vineyard,
                              Row_spacing =`Row Spacing` ,
                              Vine_spacing =`Vine Spacing`)
 glimpse(white_haven_GPS_1)
+#Latitude Longitude
+#make 3 new clms to reformat latitude 
+white_haven_GPS_1$Latitude_1 <- sub("[^0-9]", "_", white_haven_GPS_1$Latitude)
+white_haven_GPS_1$Latitude_2 <- sub("[']", "_", white_haven_GPS_1$Latitude_1) 
+white_haven_GPS_1$Latitude_3 <- sub('\"', " ", white_haven_GPS_1$Latitude_2, fixed = TRUE ) 
+
+white_haven_GPS_1 <- separate(white_haven_GPS_1, 
+                                         Latitude_3, 
+                                         into = c("Lat_dd", "Lat_mm", "Lat_ss"), 
+                                         sep = "\\_", remove = FALSE)
 
 
-as.numeric(char2dms(white_haven_GPS_1$Latitude))
-as.numeric(char2dms("41°29'33.04S"))
-as.numeric(char2dms("32d14'23\"N"))
+white_haven_GPS_1 <- separate(white_haven_GPS_1, 
+                              Lat_ss, into = c("Lat_ss", "Lat_L" ), 
+                              sep = " ", remove = FALSE)
+
+#make new clm double not charcaters
+white_haven_GPS_1$Lat_dd <- as.double(white_haven_GPS_1$Lat_dd)
+white_haven_GPS_1$Lat_mm <- as.double(white_haven_GPS_1$Lat_mm)
+white_haven_GPS_1$Lat_ss <- as.double(white_haven_GPS_1$Lat_ss)
+
+#convert from DMS to DD and create a new clm name
+white_haven_GPS_1$Lat_DD <- dms2dd(white_haven_GPS_1$Lat_dd,
+                                   white_haven_GPS_1$Lat_mm,
+                                   white_haven_GPS_1$Lat_ss, 
+                                   white_haven_GPS_1$Lat_L)
+glimpse(white_haven_GPS_1)
+
+
+
+# Longitude
+#make 3 new clms to reformat latitude 
+white_haven_GPS_1$Longitude_1 <- sub("[^0-9]", "_", white_haven_GPS_1$Longitude)
+white_haven_GPS_1$Longitude_2 <- sub("[']", "_", white_haven_GPS_1$Longitude_1) 
+white_haven_GPS_1$Longitude_3 <- sub('\"', " ", white_haven_GPS_1$Longitude_2, fixed = TRUE ) 
+
+white_haven_GPS_1 <- separate(white_haven_GPS_1, 
+                              Longitude_3, 
+                              into = c("Long_dd", "Long_mm", "Long_ss"), 
+                              sep = "\\_", remove = FALSE)
+
+
+white_haven_GPS_1 <- separate(white_haven_GPS_1, 
+                              Long_ss, into = c("Long_ss", "Long_L" ), 
+                              sep = " ", remove = FALSE)
+
+#make new clm double not charcaters
+white_haven_GPS_1$Long_dd <- as.double(white_haven_GPS_1$Long_dd)
+white_haven_GPS_1$Long_mm <- as.double(white_haven_GPS_1$Long_mm)
+white_haven_GPS_1$Long_ss <- as.double(white_haven_GPS_1$Long_ss)
+
+#convert from DMS to DD and create a new clm name
+white_haven_GPS_1$Long_DD <- dms2dd(white_haven_GPS_1$Long_dd,
+                                   white_haven_GPS_1$Long_mm,
+                                   white_haven_GPS_1$Long_ss, 
+                                   white_haven_GPS_1$Long_L)
+glimpse(white_haven_GPS_1)
+
+
+white_haven_GPS_DD <-  select(white_haven_GPS_1,Vineyard,
+                             Block,
+                             Latitude,
+                             Longitude,
+                             Lat_DD,
+                             Long_DD,
+                             Variety,
+                             Row_spacing  ,
+                             Vine_spacing)
+
+
+
+glimpse(white_haven_GPS_DD)
+
+#Now I have my data in decimal degrees I want to convert it into GDA
+### ASK DAVID 
+
+write_csv(white_haven_GPS_DD, "white_haven_GPS_DD.csv")
+#I need to work on this converting to GDA in R
+
+white_haven_GPS_GDA.csv <- read_csv(file = "white_haven_GPS_GDA.csv" )
+          
+          
+white_haven <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Harvest  Mapping Data Whitehaven.xlsx", 
+                              sheet = "All - Data")
+#Create a ID Code with vineyard abbrevation, block variety and year
+
+#substr(white_haven$Vineyard, 1, 3)
+#tolower(white_haven$vineyard_abb)
+#remove the name block from list of block names
+#glimpse(white_haven$Block)
+
+#str_detect(white_haven$Block, regex("block", ignore_case = TRUE))
+#X <- c("block1", "Block2")
+#gsub("block", "", X, ignore.case = TRUE)
+
+#test1 <- gsub(" ", "", white_haven$Block)
+#glimpse(test1)
+#test2 <- gsub("block", "", test1, , ignore.case = TRUE)
+#glimpse(test2)
+#print(test2)
+
+
+white_haven <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Harvest  Mapping Data Whitehaven.xlsx", 
+                          sheet = "All - Data")
+
+###2019
+white_haven_2019 <- mutate(white_haven,
+                      vineyard_abb = tolower(substr(white_haven$Vineyard, 1, 3)),
+                      block_abb1 = gsub(" ", "", white_haven$Block),
+                      block_abb2 = gsub("block", "", block_abb1, ignore.case = TRUE),
+                      block_abb = tolower(substr(block_abb2, 1, 5)),
+                      ID = paste0(vineyard_abb, "_", block_abb, "_", tolower(Variety)),
+                      year = 2019,
+                      ID_yr = paste0(ID, "_", year),
+                      julian = as.numeric(format(`V2019 Harvest Date`, "%j")))
+glimpse(white_haven_2019)
+
+white_haven_2019_1 <- select(white_haven_2019,
+                           ID,
+                           ID_yr ,
+                           Vineyard,
+                           Block,
+                           Variety,
+                           harvest_date = `V2019 Harvest Date`,
+                           julian ,
+                           yield_t_ha =   `V2019 t/ha`,
+                           yield_kg_m =   `V2019 kg/m`,
+                           brix =         `V2019 Brix`,
+                           bunch_weight = `V2019 Bunch Weight Harvest`,
+                           berry_weight = `V2019 Berry Weight Harvest`,
+                           #bunch_numb_m,   #to be cal
+                           pruning_style = `V2019 Cane #`, #check this
+                           row_width =`Row Spacing`,
+                           vine_spacing = `Vine Spacing`)
+glimpse(white_haven_2019_1)
+
+###2018
+glimpse(white_haven)
+
+#problem the2018 harvest date is a character not dttm format
+as.Date.character (white_haven$`V2018 Harvest Date`)
+
+test <- white_haven$`V2018 Harvest Date`
+print(test)
+library(lubridate)
+as_date(test)
+
+white_haven_2018 <- mutate(white_haven,
+                           vineyard_abb = tolower(substr(white_haven$Vineyard, 1, 3)),
+                           block_abb1 = gsub(" ", "", white_haven$Block),
+                           block_abb2 = gsub("block", "", block_abb1, ignore.case = TRUE),
+                           block_abb = tolower(substr(block_abb2, 1, 5)),
+                           ID = paste0(vineyard_abb, "_", block_abb, "_", tolower(Variety)),
+                           year = 2019,
+                           ID_yr = paste0(ID, "_", year),
+                           `V2018 Harvest Date` = as.Date.character ( `V2018 Harvest Date`))
+glimpse(white_haven_2018)
+
+
+#white_haven_2018 <- mutate(white_haven_2018,
+                           #`V2018 Tonnes Harvested` = as.Date(`V2018 Tonnes Harvested`)
+                           #julian = as.numeric(format(`V2018 Tonnes Harvested`, "%j")))
+
+white_haven_2018_1 <- select(white_haven_2018,
+                             ID,
+                             ID_yr ,
+                             Vineyard,
+                             Block,
+                             Variety,
+                             harvest_date = `V2018 Harvest Date`,
+                             julian ,
+                             yield_t_ha =   `V2018 t/ha`,
+                             yield_kg_m =   `V2018 kg/m`,
+                             brix =         `V2018 Brix`,
+                             bunch_weight = `V2018 Bunch Weight Harvest`,
+                             berry_weight = `V2018 Berry Weight Harvest`,
+                             #bunch_numb_m,   #to be cal
+                             pruning_style = `V2018 Cane #`, #check this
+                             row_width =`Row Spacing`,
+                             vine_spacing = `Vine Spacing`)
+
+#some brix have 0 values that need to be replaced with NA 
+#some brix have multiple readings eg 22.4/22.5 this needs to be averaged
+#split brix clm into multiples
+white_haven_2019_1 <- separate(white_haven_2019_1, 
+         brix, into = c("brix_a", "brix_b" ), 
+         sep = "/", remove = FALSE)
+
+#Change these new clm into numbers not characters 
+white_haven_2019_1$brix_a <- as.double(white_haven_2019_1$brix_a)
+white_haven_2019_1$brix_b <- as.double(white_haven_2019_1$brix_b)
+#create a new clm for average
+white_haven_2019_1$brix_av <- rowMeans(select(white_haven_2019_1, brix_a, brix_b), na.rm = TRUE)
+#change the NaN to NA and report as number not character
+white_haven_2019_1$brix_av <- as.double(gsub("NaN", "NA", white_haven_2019_1$brix_av)) 
+#rename the 0 value to NA
+white_haven_2019_1$brix_av[white_haven_2019_1$brix_av == 0] <- NA
+
