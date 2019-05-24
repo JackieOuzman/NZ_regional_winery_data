@@ -1,9 +1,32 @@
 
 #install.packages("sp")
 #install.packages("biogeo")
+install.packages("rgdal")
+install.packages("sf")
 
 
+##Mess about getting 
 
+#https://spatialreference.org/ref/epsg/2193/
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+glimpse(white_haven_GPS_DD)
+
+test<- select(white_haven_GPS_DD, Lat_DD, Long_DD)
+glimpse(test)
+#proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
+coordinates(test) <- ~Long_DD+Lat_DD
+proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
+test1 <- spTransform(test, mapCRS)
+
+glimpse(test1)
+
+#write_csv(test1, "check_out_projec.csv")
+st_write(test1, "out.csv", layer_options = "coords")
+library(sf)
+st_write(test1, "test.shp")
+st_write_db(test1,"out.csv", layer)
 
 ###REAL DATA
 
@@ -14,6 +37,14 @@ library(readxl)
 library(sp)
 library(biogeo)
 library(stringr)
+library(rgdal)
+library(sf)
+
+
+
+
+
+
 
 white_haven_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Harvest  Mapping Data Whitehaven.xlsx", 
                               sheet = "All - Data",
