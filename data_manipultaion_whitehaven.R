@@ -733,3 +733,69 @@ write_csv(white_haven_2019to2014_GPS, "white_haven_2019to2014_GPS.csv")
 ######################################################################################################################
 ################                         view and summaries DF 2019 -2014                            #################
 ######################################################################################################################
+
+
+dim(white_haven_2019to2014_GPS)
+#how many site?
+dim(white_haven_GPS_DD1_df)
+glimpse(white_haven_2019to2014_GPS)
+
+glimpse(white_haven_2019_GPS)
+# do all sites have SB ?how many site?
+#all 130 sites are SB
+ggplot(white_haven_2019to2014_GPS, aes(Variety, year))+
+  geom_count()
+# how many vineyards?
+number_vineyards <- filter(white_haven_2019to2014_GPS, year == 2019) %>% 
+  distinct(Vineyard)
+glimpse(number_vineyards)
+# how many vineyards - not sure this is correct
+number_blocks <-filter(white_haven_2019to2014_GPS, year == 2019) %>% 
+  distinct(Block)
+glimpse(number_blocks)
+
+ggplot(white_haven_2019to2014_GPS, aes(year, julian))+
+  geom_point()
+  #geom_boxplot()
+
+#create a new variable year_as_factor
+white_haven_2019to2014_GPS$year_factor <- as.factor(white_haven_2019to2014_GPS$year)
+
+#julian days
+ggplot(white_haven_2019to2014_GPS, aes(year_factor, julian))+
+ geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days")
+#yield_t_ha
+ggplot(white_haven_2019to2014_GPS, aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha")
+
+#brix
+ggplot(white_haven_2019to2014_GPS, aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix")
+
+
+ggplot(white_haven_2019to2014_GPS, aes(year_factor, na_count))+
+    geom_col()+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Total counts of missing data entries NA")
+
+ggplot(white_haven_2019to2014_GPS, aes(na_count))+
+  geom_bar()+
+  scale_x_continuous(breaks =  c(2,4,6,8,10))+
+  facet_wrap(~year_factor)+
+  theme_bw()+
+  labs(x = "number of na counts per entry",
+       y= "Counts of missing data entries NA")
+
