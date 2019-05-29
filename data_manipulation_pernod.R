@@ -131,40 +131,15 @@ perno_yld <- select(perno_yld,
                     yield_kg_per_m = `Harvested KG per M`) %>% 
   mutate(ID = paste0(Vnd,"_", Block),
          year = as.double(paste0(Yr+2000)))
+## add in another ID clm        
+perno_yld <- perno_yld %>% 
+  mutate(ID_yr = paste0(ID,"_", year))
 #tidy this up
 perno_yld <- perno_yld %>% 
-  select(ID, yield_kg_per_m, brix, year)
-
-###########################             Join yield data to the GPS data     ########################
-glimpse(perno_GPS_distinct)#372
+  select(ID, ID_yr, yield_kg_per_m, brix, year)
 glimpse(perno_yld) # 4,112
-perno_yld_coord <- left_join(perno_yld, perno_GPS_distinct, by =  "ID")
-glimpse(perno_yld_coord) # 4,112
 
 
-#what was not joined and what variety was it?
-#perno_yld_coord_anti_join <- anti_join(perno_yld, perno_GPS_distinct, by =  "ID")
-#for what was not joined add the variety 264 - includes all the years
-#perno_yld_coord_anti_join <- perno_yld_coord_anti_join %>% 
-#  separate( ID, into = c("vendor", "variety"), sep = "_", remove = FALSE )
-
-#just get the unquie blocks 123 blocks
-#perno_yld_coord_anti_join <- distinct(perno_yld_coord_anti_join, ID, .keep_all = TRUE )
-
-#how many of these block that didnt get coord are SBLB blocks?
-#perno_yld_coord_anti_join_variety <- perno_yld_coord_anti_join %>% 
-#  group_by(variety) %>% 
-#  summarise(perno_yld_coord_anti_join =n())
-
-#######################         Create a new clm for ID_year          ######################################
-perno_yld_coord <- perno_yld_coord %>% 
-  mutate(ID_yr = paste0(ID,"_", year))
-
-#perno_yld_coord <- perno_yld_coord %>% 
-#  filter(x_coord > 0) %>%  #this was removing the data that had missing GPS coordinates - now keeping
-#  mutate(ID_yr = paste0(ID,"_", year))
-
-glimpse(perno_yld_coord)
 
 #########################################################################################################################
 ##############################           maturity data          #########################################################
@@ -187,24 +162,10 @@ perno_maturity <- select(perno_maturity,
                     brix_bunch_wt_results = `Analysis Reading`)%>%  
                       mutate(ID = paste0(Vnd,"_", Block),
                       ID_yr = paste0(ID,"_", year))
-### Create two files one with Brix and one with Bunch wt
-### only need the bunch wt - brix was captured at harvest
-#perno_maturity_brix <- perno_maturity %>% 
-#                        filter(brix_bunch_wt_name == 'Brix')
+
 perno_maturity_Bunch_wt_g <- perno_maturity %>% 
                               filter(brix_bunch_wt_name == 'Bunch wt g')
-### what is the max sampling date
-#glimpse(perno_maturity_brix)
-#perno_maturity_brix <- perno_maturity_brix %>% 
-#  group_by(ID_yr) %>% 
-#  summarise(#max_date    = max(sample_date),
-            #Vnd         = max(Vnd),
-            #Block       = max(Block),
-            #brix_check       = max(brix_bunch_wt_name),
-#            brix_results       = max(brix_bunch_wt_results),
-            #year        = max(year),
-#            sample_date = max(sample_date),
-#            ID          = max(ID ))
+
 
 perno_maturity_Bunch_wt_g <- perno_maturity_Bunch_wt_g %>% 
   group_by(ID_yr) %>% 
@@ -216,27 +177,25 @@ perno_maturity_Bunch_wt_g <- perno_maturity_Bunch_wt_g %>%
             #year        = max(year),
             sample_date = max(sample_date),
             ID          = max(ID ))
-## now join the brix and berry wt data
-#perno_maturity1 <- left_join(perno_maturity_brix, perno_maturity_Bunch_wt_g, by= "ID_yr")
 
 
-perno_maturity1 <- perno_maturity1 %>% 
-  select(ID_yr, sample_date,  bunch_wt_g = bunch_wt_g_results)
+perno_maturity1 <- perno_maturity_Bunch_wt_g %>% 
+  select(ID_yr, ID,sample_date,  bunch_wt_g = bunch_wt_g_results)
 
 
-## now join the GPS data
+################## now join the yield data   #############################
 glimpse(perno_maturity1) #3985
-glimpse(perno_yld_coord) #4112
+glimpse(perno_yld) #4112
 
-pernod_ricard <- left_join(perno_yld_coord, perno_maturity1, by = "ID_yr")
+pernod_ricard <- left_join(perno_yld, perno_maturity1, by = "ID_yr")
 glimpse(pernod_ricard) # 4112
+#remove the ID.x clm
 
-#pernod_ricard_na <- pernod_ricard %>% 
-#  filter(is.na (x_coord) )
-#pernod_ricard <- pernod_ricard %>% 
-#  filter(!is.na (x_coord) )
-#glimpse(pernod_ricard)
-#glimpse(pernod_ricard_na)
+pernod_ricard <- select(pernod_ricard,
+                        ID = ID.x,
+                        ID_yr, yield_kg_per_m,brix, year, sample_date, bunch_wt_g )
+
+
 
 
 
@@ -245,25 +204,7 @@ glimpse(pernod_ricard) # 4112
 #mutate(julian = as.numeric(format(pernod_ricard$sample_date, "%j")))
 
 
-##### need to convert trellis to canes - need trellis first
 
-pernod_ricard <- mutate(pernod_ricard,
-                             number_canes =  case_when(
-                               trellis == "1CN" ~ "1",
-                               trellis == "2CE" ~ "2",
-                               trellis == "2CN" ~ "2",
-                               trellis == "3CN" ~ "3",
-                               trellis == "4CN" ~ "4",
-                               trellis == "ARC" ~ "2",
-                               trellis == "GDC" ~ "4",
-                               trellis == "SCH" ~ "4",
-                               trellis == "SPR" ~ "0",
-                               trellis == "SYL" ~ "4",
-                               trellis == "VSP" ~ "4",
-                               trellis == "YVT" ~ "1",
-                               TRUE ~ trellis),
-                               number_canes = as.double(number_canes))
-glimpse(pernod_ricard)
 
 #########################################################################################################################
 ##############################           berry wt info data          #########################################################
@@ -385,19 +326,28 @@ glimpse(perno_berryWt_2017)
 glimpse(perno_berryWt_2018)
 perno_berryWt_all <- rbind(perno_berryWt_2011,perno_berryWt_2016,
                            perno_berryWt_2017, perno_berryWt_2018)
-
-#### join it to data with coods pernod_ricard
-glimpse(perno_berryWt_all) #763
 perno_berryWt_all <- perno_berryWt_all %>% 
-  select(ID_yr, berry_weight_g)
+  select(ID_yr, ID, berry_weight_g)
 
-
-
-glimpse(pernod_ricard)#4112 maturity data with coods
+#############################           berry wt info data with yld and maturity        ############################## 
 glimpse(perno_berryWt_all) #763 berry wts for subet of years - data supplied
+glimpse(pernod_ricard) #4112 maturity data and yld data
 
-pernod_ricard1 <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr") %>% 
-  mutate(company = "pernod_ricard",
+pernod_ricard1_a <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr")
+glimpse(pernod_ricard1_a)
+
+######################################################################################################################
+################                         join df to GPS on ID not ID_yr                             #################
+######################################################################################################################
+
+glimpse(pernod_ricard1_a) #4135 maturity data and yld data and berry wts
+glimpse(perno_GPS_distinct) #372 sites with GPS 
+
+pernod_ricard1 <- left_join(pernod_ricard1_a,perno_GPS_distinct, by= "ID")
+glimpse(pernod_ricard1) #4135
+
+pernod_ricard1 <- mutate(pernod_ricard1,
+         company = "pernod_ricard",
          yield_t_ha = NA,
          bunch_numb_m = NA, 
          bunch_mass_g = NA,
@@ -405,31 +355,53 @@ pernod_ricard1 <- left_join(pernod_ricard,perno_berryWt_all, by= "ID_yr") %>%
          row_width = NA,
          vine_spacing = NA,
          bunch_numb_m = NA,
-         ID_temp = ID,
          variety = Variety,
          harvest_date = NA,
          julian = NA,
-         yield_kg_m = yield_kg_per_m
+         yield_kg_m = yield_kg_per_m,
+         trellis
          )
 glimpse(pernod_ricard1) #4135
 
-
-
 pernod_ricard1 <- pernod_ricard1 %>% 
-  select(company, ID_temp, ID_yr, variety , x_coord, y_coord,
-                year , harvest_date, julian,
+  select(company, ID, ID_yr, variety , x_coord, y_coord,
+                year = year.x , harvest_date, julian,
                 yield_t_ha, yield_kg_m,
                 brix,bunch_weight = bunch_wt_g, berry_weight = berry_weight_g,
          row_width, vine_spacing, bunch_numb_m,
                 pruning_style = trellis)
 
 glimpse(pernod_ricard1)
+##### need to convert trellis to canes - need trellis first
+
+pernod_ricard1 <- mutate(pernod_ricard1,
+                        number_canes =  case_when(
+                          pruning_style == "1CN" ~ "1",
+                          pruning_style == "2CE" ~ "2",
+                          pruning_style == "2CN" ~ "2",
+                          pruning_style == "3CN" ~ "3",
+                          pruning_style == "4CN" ~ "4",
+                          pruning_style == "ARC" ~ "2",
+                          pruning_style == "GDC" ~ "4",
+                          pruning_style == "SCH" ~ "4",
+                          pruning_style == "SPR" ~ "0",
+                          pruning_style == "SYL" ~ "4",
+                          pruning_style == "VSP" ~ "4",
+                          pruning_style == "YVT" ~ "1",
+                          TRUE ~ pruning_style),
+                        number_canes = as.double(number_canes))
 
 pernod_ricard1$na_count <- apply(is.na(pernod_ricard1), 1, sum)
 #write_csv(pernod_ricard1, "pernod_ricard_april_2019.csv")
 
 
 glimpse(pernod_ricard1)
+
+
+
+
+
+
 
 
 
@@ -444,71 +416,50 @@ dim(pernod_ricard1)
 glimpse(pernod_ricard1) #4135 records
 max(pernod_ricard1$year) #2008 -2018
 
-#how many sites
+#how many sites with GPS pts
 glimpse(perno_GPS_distinct)#372 records
-filter(perno_GPS_distinct, Variety == "Sauvignon Blanc")
+#how many sites with GPS pts by Variety
+ggplot(perno_GPS_distinct, aes(Variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites with GPS coordinates")
+  
+#how many sites by Variety by year
+ggplot(pernod_ricard1, aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
 
-####up to here
-
+#how many sites by Variety
+ggplot(pernod_ricard1, aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")
+  
 
 
 #create a new variable year_as_factor
 pernod_ricard1$year_factor <- as.factor(pernod_ricard1$year)
 
-filter(pernod_ricard1, variety == "Sauvignon Blanc") %>%
-  ggplot(aes(year_factor,variety))+
-  geom_count()
+#filter data for Sauvignon Blanc
+pernod_ricard1_sau <- filter(pernod_ricard1, variety == "Sauvignon Blanc") 
+glimpse(pernod_ricard1_sau)
 
-  ggplot(pernod_ricard1, aes(year_factor))+
-  geom_bar()+
-    facet_wrap(~variety)
-
-# how many vineyards?
-number_vineyards <- filter(white_haven_2019to2014_GPS, year == 2019) %>% 
-  distinct(Vineyard)
-glimpse(number_vineyards)
-# how many vineyards - not sure this is correct
-number_blocks <-filter(white_haven_2019to2014_GPS, year == 2019) %>% 
-  distinct(Block)
-glimpse(number_blocks)
-
-ggplot(white_haven_2019to2014_GPS, aes(year, julian))+
-  geom_point()
-#geom_boxplot()
-
-
-
-#julian days
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, julian))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days")
-#yield_t_ha
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha")
-
-#brix
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix")
-
-
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, na_count))+
+#how many sites for Sauvignon Blanc by year
+group_by(pernod_ricard1_sau, year) %>% 
+  count()
+#how many sites for Sauvignon Blanc have missing data - how much missing data?
+ggplot(pernod_ricard1_sau, aes(year_factor, na_count))+
   geom_col()+
   theme_bw()+
   labs(x = "Year",
-       y= "Total counts of missing data entries NA")
-
-ggplot(white_haven_2019to2014_GPS, aes(na_count))+
+       y= "Total counts of missing data entries NA - Sauvignon Blanc")
+#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
+ggplot(pernod_ricard1_sau, aes(na_count))+
   geom_bar()+
   scale_x_continuous(breaks =  c(2,4,6,8,10))+
   facet_wrap(~year_factor)+
@@ -516,3 +467,57 @@ ggplot(white_haven_2019to2014_GPS, aes(na_count))+
   labs(x = "number of na counts per entry",
        y= "Counts of missing data entries NA")
 
+
+glimpse(pernod_ricard1_sau)
+#julian days
+ggplot(pernod_ricard1_sau, aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+#yield_t_ha
+ggplot(pernod_ricard1_sau, aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+#yield_kg_m
+ggplot(pernod_ricard1_sau, aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+#yield_kg_m filter out zeros
+filter(pernod_ricard1_sau,yield_kg_m != 0) %>% 
+ggplot( aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+
+#brix - too many zero
+ggplot(pernod_ricard1_sau, aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+#brix - filter out zero
+filter(pernod_ricard1_sau,brix != 0) %>% 
+ggplot( aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+write_csv(pernod_ricard1_sau, "pernod_ricard1_sau.csv")
