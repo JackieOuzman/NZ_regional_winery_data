@@ -4,9 +4,10 @@ library(tidyverse)
 
 library(readxl)
 
-#Villia_maria_GPS1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa Maria Data For Mike Trought.xlsx", 
-#                                 sheet = "2017-18 Includes GPS")
 
+######################################################################################################################
+################                         Make DF with GPS coodinates                                 #################
+######################################################################################################################
 
 Villia_maria_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                                         sheet = "2017-18 Includes GPS",
@@ -29,7 +30,8 @@ Villia_maria_GPS <- select(Villia_maria_GPS,
                            long = GPS2,
                            row_width =  `Row width`  ,
                            vine_spacing =`Vine spacing`,
-                           sub_region = `Sub-Region`)
+                           sub_region = `Sub-Region`,
+                           variety)
                            
 
 #These section are missing GPS locations drop them from my lookup table
@@ -43,10 +45,13 @@ Villia_maria_GPS <- select(Villia_maria_GPS,
 Villia_maria_GPS <- filter(Villia_maria_GPS,Section != "MWTFSB04",
                            Villia_maria_GPS,Section != "MMASPN04")
                                            
+######################################################################################################################
+################                         Make DF of yld measure by year                              #################
+######################################################################################################################
 
 
-#add all the years tabs togther
-#2018
+
+#####################                               2018                             ##################################
 Villia_maria_2017_18 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                sheet = "2017-18 Includes GPS")
 glimpse(Villia_maria_2017_18)
@@ -62,7 +67,9 @@ Villia_maria_2017_18 <- select(Villia_maria_2017_18,
                            bunch_wt_g = `Pre Harvest bunch weight ( g)`) %>% 
   mutate(year = 2018,
          ID = paste0(Section, "_", year))
-#2017
+
+#####################                               2017                             ##################################
+
 Villia_maria_2016_17 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                sheet = "2016-17")
 glimpse(Villia_maria_2016_17)
@@ -78,7 +85,9 @@ Villia_maria_2016_17 <- select(Villia_maria_2016_17,
                                bunch_wt_g = `VME Pre harvest bunch weight(g)( Sampling Sheets)`) %>% 
   mutate(year = 2017,
          ID = paste0(Section, "_", year))
-#2016
+
+#####################                               2016                             ##################################
+
 Villia_maria_2015_16 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2015-16")
 glimpse(Villia_maria_2015_16)
@@ -94,7 +103,9 @@ Villia_maria_2015_16 <- select(Villia_maria_2015_16,
                                bunch_wt_g = `VME Pre harvest bunch weight(g)( Sampling Sheets)`) %>% 
   mutate(year = 2016,
          ID = paste0(Section, "_", year))
-#2015
+
+#####################                               2015                             ##################################
+
 Villia_maria_2014_15 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2014-15")
 glimpse(Villia_maria_2014_15)
@@ -110,7 +121,9 @@ Villia_maria_2014_15 <- select(Villia_maria_2014_15,
                                bunch_wt_g = `VME Pre harvest bunch weight(g)( Sampling Sheets)`) %>% 
   mutate(year = 2015,
          ID = paste0(Section, "_", year))
-#2014
+
+#####################                               2014                             ##################################
+
 Villia_maria_2013_14 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2013-14")
 glimpse(Villia_maria_2013_14)
@@ -126,7 +139,9 @@ Villia_maria_2013_14 <- select(Villia_maria_2013_14,
                                bunch_wt_g = `VME Pre harvest bunch weight(g)( Sampling Sheets)`)  %>% 
   mutate(year = 2014,
          ID = paste0(Section, "_", year))
-#2013
+
+#####################                               2013                             ##################################
+
 Villia_maria_2012_13 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2012-13")
 glimpse(Villia_maria_2012_13)
@@ -142,7 +157,9 @@ Villia_maria_2012_13 <- select(Villia_maria_2012_13,
                                bunch_wt_g = `VME Pre harvest bunch weight(g)( Sampling Sheets)`) %>% 
   mutate(year = 2013,
          ID = paste0(Section, "_", year))
-#2012
+
+
+#####################                               2012                             ##################################
                             
 Villia_maria_2011_12 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
                                                         sheet = "2011-12", col_types = c("text", 
@@ -177,7 +194,7 @@ glimpse(Villia_maria_2013_14)
 glimpse(Villia_maria_2012_13)
 glimpse(Villia_maria_2011_12)
 
-
+#####################                              Join all the yield data togther 2018-2012             ##################################
 Villia_maria_2017_2012 <- rbind(Villia_maria_2017_18,
                                 Villia_maria_2016_17,
                                 Villia_maria_2015_16,
@@ -185,71 +202,49 @@ Villia_maria_2017_2012 <- rbind(Villia_maria_2017_18,
                                 Villia_maria_2013_14,
                                 Villia_maria_2012_13,
                                 Villia_maria_2011_12)
-#assign GPS coords to the section
-glimpse(Villia_maria_2017_2012)
-glimpse(Villia_maria_GPS)
-Villia_maria_2017_2012 <- left_join(Villia_maria_GPS, Villia_maria_2017_2012 )
 
 
-villia_maria_2017_2012_notjoined <- anti_join(Villia_maria_2017_2012, Villia_maria_GPS)
-glimpse(Villia_maria_2017_2012)
+#####################                              Join  yield data to GPS data             ##################################
 
-Villia_maria_2017_2012_sub <- select(Villia_maria_2017_2012,
-                                     lat,long, year, Section, variety, ID)
+glimpse(Villia_maria_2017_2012) #yld data 2101
+glimpse(Villia_maria_GPS) #GPS data 324
+Villia_maria_2017_2012_all <- left_join(Villia_maria_GPS, Villia_maria_2017_2012 )
+glimpse(Villia_maria_2017_2012_all)
+#stuff around with names and extra clms
+Villia_maria_2017_2012_all <- select(Villia_maria_2017_2012_all,
+                                     lat,long, year, ID = Section, variety, ID_yr =ID,
+                                     row_width,
+                                     vine_spacing,
+                                     harvest_date,
+                                     variety,
+                                     trellis,
+                                     yield_t_ha,
+                                     berries_bunch,
+                                     berry_wt_g,
+                                     brix,
+                                     bunch_wt_g
+                                     )
                                      
-
+glimpse(Villia_maria_2017_2012_all)
 #write_csv(Villia_maria_2017_2012_sub, "Villia_maria_2017_2012_post_R2.csv")
 
-no_coords_count <- group_by(villia_maria_2017_2012_notjoined,
-                      variety) %>% 
-                      count(year)
-#ggplot(no_coords_count, aes(year, n))+
-#  geom_point()+
-#  facet_wrap(.~ variety)+
-#  labs(title = "number of sections without GPS points",
-#       #subtitle = "xxx",
-#       x = "years",
-#       y = "number of sections")+
-#  theme(axis.text.x=element_text(angle=90, hjust=1))
-
-
-#coords_count <- group_by(Villia_maria_2017_2012,
-#                            variety) %>% 
-#  count(year)
-#ggplot(coords_count, aes(year, n))+
-#  geom_point()+
-#  facet_wrap(.~ variety)+
-#  labs(title = "number of sections with GPS points",
-       #subtitle = "xxx",
-#       x = "years",
-#       y = "number of sections")+
-#theme(axis.text.x=element_text(angle=90, hjust=1))
-
-
-
-
-
 ####cal a few extra columns
-glimpse(Villia_maria_2017_2012)
-Villia_maria_2017_2012 <- mutate(Villia_maria_2017_2012,
-                       julian = as.numeric(format(Villia_maria_2017_2012$harvest_date, "%j")),
-                       meter_row_per_ha = 10000/row_width,
-                       yld_per_m_row_kg =  (yield_t_ha *1000) / meter_row_per_ha,
-                       bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt_g,
+
+Villia_maria_2017_2012_all <- mutate(Villia_maria_2017_2012_all,
+                       julian = as.numeric(format(Villia_maria_2017_2012_all$harvest_date, "%j")),
+                       #meter_row_per_ha = 10000/row_width,
+                       #yld_per_m_row_kg =  (yield_t_ha *1000) / 10000/row_width,
+                       #bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt_g,
                        company = "Villa Maria",
-                       ID_temp = Section,
-                       ID_yr =ID,
                        x_coord = lat,
                        y_coord = long,
                        yield_kg_m = NA,
-                       row_width = row_width ,
-                       vine_spacing =vine_spacing,
                        bunch_numb_m	 = NA
                        )
-glimpse(Villia_maria_2017_2012)
+glimpse(Villia_maria_2017_2012_all)
 
 ##tidy up to match the other files
-Villia_maria_2017_2012_1 <- Villia_maria_2017_2012 %>% 
+Villia_maria_2017_2012_all <- Villia_maria_2017_2012_all %>% 
   select(company, ID_temp, ID_yr, variety , x_coord, y_coord,
          year , harvest_date, julian,
          yield_t_ha, yield_kg_m,
@@ -260,10 +255,126 @@ Villia_maria_2017_2012_1 <- Villia_maria_2017_2012 %>%
          bunch_numb_m
          )
 
-glimpse(Villia_maria_2017_2012_1)
+glimpse(Villia_maria_2017_2012_all)
 
-Villia_maria_2017_2012_1$na_count <- apply(is.na(Villia_maria_2017_2012_1), 1, sum)
-write_csv(Villia_maria_2017_2012_1, "Villia_maria_2017_2012_april_2019.csv")
+Villia_maria_2017_2012_all$na_count <- apply(is.na(Villia_maria_2017_2012_all), 1, sum)
+write_csv(Villia_maria_2017_2012_all, "Villia_maria_2017_2012_april_2019.csv")
                        
-glimpse(Villia_maria_2017_2012_1)
-write_csv(Villia_maria_2017_2012, "Villia_maria_2017_2012_post_R.csv")
+######################################################################################################################
+################                         view and summaries DF 2019 -2014                            #################
+######################################################################################################################
+
+
+dim(Villia_maria_2017_2012_all)
+#how many site?
+dim(Villia_maria_2017_2012_all)
+glimpse(Villia_maria_2017_2012_all) #1817 records
+max(Villia_maria_2017_2012_all$year) #2012 -2018
+min(Villia_maria_2017_2012_all$year)
+
+
+#how many sites with GPS pts
+glimpse(Villia_maria_GPS  )#324 records
+#how many sites with GPS pts by Variety
+ggplot(Villia_maria_GPS, aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites with GPS coordinates")
+
+#how many sites by Variety by year
+ggplot(Villia_maria_2017_2012_all, aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
+
+#how many sites by Variety
+ggplot(Villia_maria_2017_2012_all, aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")
+
+
+
+#create a new variable year_as_factor
+Villia_maria_2017_2012_all$year_factor <- as.factor(Villia_maria_2017_2012_all$year)
+
+#filter data for Sauvignon Blanc
+Villia_maria_2017_2012_all_sau <- filter(Villia_maria_2017_2012_all, variety == "SAUV") 
+glimpse(Villia_maria_2017_2012_all_sau)
+
+#how many sites for Sauvignon Blanc by year
+group_by(Villia_maria_2017_2012_all_sau, year) %>% 
+  count()
+#how many sites for Sauvignon Blanc have missing data - how much missing data?
+ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, na_count))+
+  geom_col()+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Total counts of missing data entries NA - Sauvignon Blanc")
+#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
+ggplot(Villia_maria_2017_2012_all_sau, aes(na_count))+
+  geom_bar()+
+  scale_x_continuous(breaks =  c(2,4,6,8,10))+
+  facet_wrap(~year_factor)+
+  theme_bw()+
+  labs(x = "number of na counts per entry",
+       y= "Counts of missing data entries NA")
+
+
+glimpse(Villia_maria_2017_2012_all_sau)
+#julian days
+ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+#yield_t_ha
+ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+#yield_kg_m
+ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+#yield_kg_m filter out zeros
+filter(Villia_maria_2017_2012_all_sau,yield_kg_m != 0) %>% 
+  ggplot( aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+
+#brix - too many zero
+ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+#brix - filter out high values
+filter(Villia_maria_2017_2012_all_sau,brix <40) %>% 
+  ggplot( aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+write_csv(pernod_ricard1_sau, "pernod_ricard1_sau.csv")
