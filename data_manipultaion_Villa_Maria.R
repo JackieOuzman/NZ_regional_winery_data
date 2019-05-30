@@ -3,6 +3,11 @@ library(ggplot2)
 library(tidyverse)
 
 library(readxl)
+library(sp)
+library(biogeo)
+library(stringr)
+library(rgdal)
+library(sf)
 
 
 ######################################################################################################################
@@ -42,8 +47,46 @@ Villia_maria_GPS <- select(Villia_maria_GPS,
 #MWTFSB04
 #MMASPN04 (this is an error with long and lat having the same value)
 
-Villia_maria_GPS <- filter(Villia_maria_GPS,Section != "MWTFSB04",
-                           Villia_maria_GPS,Section != "MMASPN04")
+Villia_maria_GPS <- filter(Villia_maria_GPS,Section !="MWTFSB04") %>% 
+filter(Section !="MMASPN04") 
+                             
+
+
+
+write_csv(Villia_maria_GPS, "Villia_maria_GPS_test.csv")
+######################################################################################################################
+################                         change the projection of the data                              #################
+######################################################################################################################
+#Now I have my data in decimal degrees I want to convert it into GDA
+
+#Villia_maria_GPS_1$Long_DD <- dms2dd(white_haven_GPS_1$Long_dd,
+#                                    white_haven_GPS_1$Long_mm,
+#                                    white_haven_GPS_1$Long_ss, 
+#                                    white_haven_GPS_1$Long_L)
+
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+glimpse(Villia_maria_GPS) # seems to be missing a few values
+Villia_maria_GPS_1 <-drop_na(Villia_maria_GPS)
+glimpse(Villia_maria_GPS_1)
+
+
+coordinates(Villia_maria_GPS_1) <- ~long + lat
+
+
+#something wrong with the projection I am selecting
+proj4string(Villia_maria_GPS_1) <- wgs84CRS   # assume input lat and longs are WGS84
+glimpse(Villia_maria_GPS_1) 
+Villia_maria_GPS_1 <- spTransform(Villia_maria_GPS_1, mapCRS)
+
+glimpse(Villia_maria_GPS_1)
+
+Villia_maria_GPS = as.data.frame(Villia_maria_GPS_1) #this has the new coordinates projected !YES!!
+glimpse(Villia_maria_GPS)
+
+  
+  
                                            
 ######################################################################################################################
 ################                         Make DF of yld measure by year                              #################
@@ -244,8 +287,8 @@ Villia_maria_2017_2012_all <- mutate(Villia_maria_2017_2012_all,
 glimpse(Villia_maria_2017_2012_all)
 
 ##tidy up to match the other files
-Villia_maria_2017_2012_all <- Villia_maria_2017_2012_all %>% 
-  select(company, ID_temp, ID_yr, variety , x_coord, y_coord,
+Villia_maria_2017_2012_all <- 
+  select(Villia_maria_2017_2012_all, company, ID, variety , x_coord, y_coord,
          year , harvest_date, julian,
          yield_t_ha, yield_kg_m,
          brix,bunch_weight = bunch_wt_g, berry_weight = berry_wt_g,
@@ -268,13 +311,13 @@ write_csv(Villia_maria_2017_2012_all, "Villia_maria_2017_2012_april_2019.csv")
 dim(Villia_maria_2017_2012_all)
 #how many site?
 dim(Villia_maria_2017_2012_all)
-glimpse(Villia_maria_2017_2012_all) #1817 records
+glimpse(Villia_maria_2017_2012_all) #1754 records
 max(Villia_maria_2017_2012_all$year) #2012 -2018
 min(Villia_maria_2017_2012_all$year)
 
 
 #how many sites with GPS pts
-glimpse(Villia_maria_GPS  )#324 records
+glimpse(Villia_maria_GPS  )#312 records
 #how many sites with GPS pts by Variety
 ggplot(Villia_maria_GPS, aes(variety))+
   geom_bar()+
@@ -377,4 +420,4 @@ filter(Villia_maria_2017_2012_all_sau,brix <40) %>%
        y= "Brix - Sauvignon Blanc")
 
 
-write_csv(pernod_ricard1_sau, "pernod_ricard1_sau.csv")
+write_csv(Villia_maria_2017_2012_all_sau, "Villia_maria_2017_2012_all_sau.csv")
