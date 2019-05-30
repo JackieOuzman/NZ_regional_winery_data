@@ -1,67 +1,4 @@
 
-#install.packages("sp")
-#install.packages("biogeo")
-install.packages("rgdal")
-install.packages("sf")
-
-
-##Mess about getting 
-
-#https://spatialreference.org/ref/epsg/2193/
-#mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
-#wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
-
-#glimpse(white_haven_GPS_DD)
-
-#test<- select(white_haven_GPS_DD, Vineyard, Lat_DD, Long_DD)
-#glimpse(test)
-#proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
-#coordinates(test) <- ~Long_DD+Lat_DD
-#proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
-#test1 <- spTransform(test, mapCRS)
-
-#glimpse(test1)
-
-#coordinates(test1) #this pulls out the coordinates from my spatial point data frame
-#but I want to keep the ID column - in this case the $Vineyards ? not sure how to do this??
-
-#test1.df = as.data.frame(test1) #this has the new coordinates projected !YES!!
-#head(test1.df)
-
-
-
-################  TRY THIS  Example #################
-#make a dummy x and y
-#xc = round(runif(10), 2)
-#head(xc)
-#yc = round(runif(10), 2)
-#xy = cbind(xc, yc)
-#head(xy)
-#convert to spatial points
-#xy.sp = SpatialPoints(xy)
-#xy.sp #this is different to the demo
-#xy.cc = coordinates(xy.sp)
-#xy.cc
-#xy.sp[1:2] #this is different to the demo
-#xy.df = as.data.frame(xy.sp)
-#class(xy.df)
-#summary(xy.sp)
-#head(xy.sp)
-#plot(xy.sp, pch=2)
-#bbox(xy.sp)
-#xy.df = as.data.frame(xy.sp)
-#xy.df
-##build points with atttributes
-
-
-#df = data.frame(z1 = round(5+rnorm(10), 2), z2 = 20:29)
-#df
-#xy.spdf = SpatialPointsDataFrame(xy.sp, df)
-#xy.spdf #not the same as the demo?? why
-#xy.spdf[1:2, ]
-#xy.df = as.data.frame(xy.spdf)
-
-
 
 ###REAL DATA
 
@@ -703,12 +640,13 @@ white_haven_2019to2014_GPS <- rbind(white_haven_2014_GPS,
 glimpse(white_haven_2019to2014_GPS)
 
 white_haven_2019to2014_GPS <- select(white_haven_2019to2014_GPS,
+                                     #company = "whitehaven",
                                      ID,
                                      ID_yr,
                                      year,
                                      Vineyard,
                                      Block,
-                                     Variety,
+                                     variety = Variety,
                                      harvest_date,
                                      julian,
                                      yield_t_ha,
@@ -720,13 +658,18 @@ white_haven_2019to2014_GPS <- select(white_haven_2019to2014_GPS,
                                      row_width,
                                      vine_spacing,
                                      brix = brix_av,
-                                     y = Lat_DD,
-                                     x = Long_DD)
+                                     y_coord = Lat_DD,
+                                     x_coord = Long_DD)
+#add in company company
+white_haven_2019to2014_GPS <- mutate(white_haven_2019to2014_GPS,
+                                     company = "whitehaven")
 
 white_haven_2019to2014_GPS$na_count <- apply(is.na(white_haven_2019to2014_GPS), 1, sum)
 glimpse(white_haven_2019to2014_GPS)
 
-write_csv(white_haven_2019to2014_GPS, "white_haven_2019to2014_GPS.csv")
+
+
+#write_csv(white_haven_2019to2014_GPS, "white_haven_2019to2014_GPS.csv")
 
 
 
@@ -799,3 +742,11 @@ ggplot(white_haven_2019to2014_GPS, aes(na_count))+
   labs(x = "number of na counts per entry",
        y= "Counts of missing data entries NA")
 
+
+
+############################################################################## 
+########################    File to use   ####################################
+white_haven_2019to2014_all_sav <- select(white_haven_2019to2014_GPS, -year_factor)
+glimpse(white_haven_2019to2014_all_sav)
+write_csv(white_haven_2019to2014_all_sav, "V:/Marlborough regional/working_jaxs/white_haven_2019to2014_all_sav.csv")
+##############################################################################   
