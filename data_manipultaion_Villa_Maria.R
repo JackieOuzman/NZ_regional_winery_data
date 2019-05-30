@@ -418,7 +418,12 @@ filter(Villia_maria_2017_2012_all_sau,brix <40) %>%
   theme_bw()+
   labs(x = "Year",
        y= "Brix - Sauvignon Blanc")
+
+
+
 ############################################################################## 
 ########################    File to use   ####################################
-write_csv(Villia_maria_2017_2012_all_sau, "Villia_maria_2017_2012_all_sau.csv")
+Villia_maria_2017_2012_all_sau <- select(Villia_maria_2017_2012_all_sau, -year_factor)
+glimpse(Villia_maria_2017_2012_all_sau)
+write_csv(Villia_maria_2017_2012_all_sau, "V:/Marlborough regional/working_jaxs/Villia_maria_2017_2012_all_sau.csv")
 ##############################################################################   
