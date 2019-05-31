@@ -307,7 +307,7 @@ filter(wither_hills_GPS_block_info_harvest_sau,brix != 0) %>%
 ########################    File to use   ####################################
 wither_hills_GPS_block_info_harvest_sau <- select(wither_hills_GPS_block_info_harvest_sau, -year_factor)
 glimpse(wither_hills_GPS_block_info_harvest_sau)
-write_csv(pernod_ricard1_sau, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
+write_csv(wither_hills_GPS_block_info_harvest_sau, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
 ##############################################################################   
 
 
