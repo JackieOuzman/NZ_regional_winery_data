@@ -279,8 +279,8 @@ Villia_maria_2017_2012_all <- mutate(Villia_maria_2017_2012_all,
                        #yld_per_m_row_kg =  (yield_t_ha *1000) / 10000/row_width,
                        #bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt_g,
                        company = "Villa Maria",
-                       x_coord = lat,
-                       y_coord = long,
+                       y_coord = lat,
+                       x_coord = long,
                        yield_kg_m = NA,
                        bunch_numb_m	 = NA
                        )
@@ -427,3 +427,4 @@ Villia_maria_2017_2012_all_sau <- select(Villia_maria_2017_2012_all_sau, -year_f
 glimpse(Villia_maria_2017_2012_all_sau)
 write_csv(Villia_maria_2017_2012_all_sau, "V:/Marlborough regional/working_jaxs/Villia_maria_2017_2012_all_sau.csv")
 ##############################################################################   
+
