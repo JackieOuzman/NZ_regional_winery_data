@@ -520,4 +520,12 @@ ggplot( aes(year_factor, brix))+
        y= "Brix - Sauvignon Blanc")
 
 
-write_csv(pernod_ricard1_sau, "pernod_ricard1_sau.csv")
+############################################################################## 
+########################    File to use   ####################################
+pernod_ricard1_sau <- select(pernod_ricard1_sau, -year_factor)
+glimpse(pernod_ricard1_sau)
+write_csv(pernod_ricard1_sau, "V:/Marlborough regional/working_jaxs/pernod_ricard1_sau.csv")
+##############################################################################   
+
+
+
