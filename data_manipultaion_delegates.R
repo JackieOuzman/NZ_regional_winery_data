@@ -164,63 +164,85 @@ delegates_april_2019$na_count <- apply(is.na(delegates_april_2019), 1, sum)
 
 
 ######################################################################################################################
-################                         view and summaries DF 2019 -2014                            #################
+################                         view and summaries DF                             #################
 ######################################################################################################################
 
 
 dim(delegates_april_2019)
 #how many site?
 dim(delegates_april_2019)
-glimpse(delegates_april_2019) #853 records
+glimpse(delegates_april_2019$year) #853 records
+
 max(delegates_april_2019$year, na.rm = TRUE) #2006 -2018
 min(delegates_april_2019$year, na.rm = TRUE) #2006 -2018
 
-#####Up to here
 
 #how many sites with GPS pts
-glimpse(delegates_april_2019  )#853 records
-#how many sites with GPS pts by Variety
-ggplot(delegates_april_2019, aes(variety))+
+glimpse(delegates_april_2019)#853 all records records
+colSums(is.na(delegates_april_2019)) #218 with missing GPS records
+GPS_only_delegates <- filter(delegates_april_2019, x_coord> 0)
+glimpse(GPS_only_delegates) #635
+
+
+
+#how many sites with GPS pts by Variety using filter
+filter(delegates_april_2019, x_coord > 0) %>% 
+  ggplot( aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites with GPS coordinates")
+#how many sites with GPS pts by Variety using df with just GPS pts (same graph different methods)
+ggplot(GPS_only_delegates, aes(variety))+
   geom_bar()+
   theme_bw()+
   theme(axis.text.x=element_text(angle=90))+
   labs(y = "Count of sites with GPS coordinates")
 
-#how many sites by Variety by year
-ggplot(Villia_maria_2017_2012_all, aes(variety))+
+
+
+
+#how many sites by Variety by year with just the GPS data
+ggplot(GPS_only_delegates, aes(variety))+
   geom_bar()+
   theme_bw()+
   theme(axis.text.x=element_text(angle=90))+
   labs(y = "Count of sites")+
   facet_wrap(~year)
 
-#how many sites by Variety
-ggplot(Villia_maria_2017_2012_all, aes(variety))+
+#how many sites by Variety with just the GPS data all the data by year
+ggplot(delegates_april_2019, aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
+
+#how many sites by Variety with just the GPS data all the data
+ggplot(delegates_april_2019, aes(variety))+
   geom_bar()+
   theme_bw()+
   theme(axis.text.x=element_text(angle=90))+
   labs(y = "Count of sites")
 
-
-
 #create a new variable year_as_factor
-Villia_maria_2017_2012_all$year_factor <- as.factor(Villia_maria_2017_2012_all$year)
-
+delegates_april_2019$year_factor <- as.factor(delegates_april_2019$year)
+glimpse(delegates_april_2019)
 #filter data for Sauvignon Blanc
-Villia_maria_2017_2012_all_sau <- filter(Villia_maria_2017_2012_all, variety == "SAUV") 
-glimpse(Villia_maria_2017_2012_all_sau)
+delegates_april_2019_sau <- filter(delegates_april_2019, variety == "Sauvignon Blanc") 
+glimpse(delegates_april_2019_sau)
 
 #how many sites for Sauvignon Blanc by year
-group_by(Villia_maria_2017_2012_all_sau, year) %>% 
+group_by(delegates_april_2019_sau, year) %>% 
   count()
 #how many sites for Sauvignon Blanc have missing data - how much missing data?
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, na_count))+
+ggplot(delegates_april_2019_sau, aes(year_factor, na_count))+
   geom_col()+
   theme_bw()+
   labs(x = "Year",
        y= "Total counts of missing data entries NA - Sauvignon Blanc")
 #how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-ggplot(Villia_maria_2017_2012_all_sau, aes(na_count))+
+ggplot(delegates_april_2019_sau, aes(na_count))+
   geom_bar()+
   scale_x_continuous(breaks =  c(2,4,6,8,10))+
   facet_wrap(~year_factor)+
@@ -229,23 +251,39 @@ ggplot(Villia_maria_2017_2012_all_sau, aes(na_count))+
        y= "Counts of missing data entries NA")
 
 
-glimpse(Villia_maria_2017_2012_all_sau)
+glimpse(delegates_april_2019_sau)
 #julian days
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, julian))+
+ggplot(delegates_april_2019_sau, aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
   labs(x = "Year",
        y= "Julian days - Sauvignon Blanc")
+
+#julian days with zero filtered out
+
+filter(delegates_april_2019_sau,julian >20 ) %>% 
+  ggplot( aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+  
+  
+  
+  
+  
+  
 #yield_t_ha
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, yield_t_ha))+
+ggplot(delegates_april_2019_sau, aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
   labs(x = "Year",
        y= "Yield t/ha - Sauvignon Blanc")
 #yield_kg_m
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, yield_kg_m))+
+ggplot(delegates_april_2019_sau, aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -253,7 +291,7 @@ ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, yield_kg_m))+
        y= "yield kg/m - Sauvignon Blanc")
 
 #yield_kg_m filter out zeros
-filter(Villia_maria_2017_2012_all_sau,yield_kg_m != 0) %>% 
+filter(delegates_april_2019_sau,yield_kg_m != 0) %>% 
   ggplot( aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -263,7 +301,7 @@ filter(Villia_maria_2017_2012_all_sau,yield_kg_m != 0) %>%
 
 
 #brix - too many zero
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, brix))+
+ggplot(delegates_april_2019_sau, aes(year_factor, brix))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -271,8 +309,8 @@ ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, brix))+
        y= "Brix - Sauvignon Blanc")
 
 
-#brix - filter out high values
-filter(Villia_maria_2017_2012_all_sau,brix <40) %>% 
+#brix - filter out zero
+filter(delegates_april_2019_sau,brix != 0) %>% 
   ggplot( aes(year_factor, brix))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -281,12 +319,12 @@ filter(Villia_maria_2017_2012_all_sau,brix <40) %>%
        y= "Brix - Sauvignon Blanc")
 
 
-
 ############################################################################## 
 ########################    File to use   ####################################
-Villia_maria_2017_2012_all_sau <- select(Villia_maria_2017_2012_all_sau, -year_factor)
-glimpse(Villia_maria_2017_2012_all_sau)
-write_csv(Villia_maria_2017_2012_all_sau, "V:/Marlborough regional/working_jaxs/Villia_maria_2017_2012_all_sau.csv")
+delegates_april_2019_sau <- select(delegates_april_2019_sau, -year_factor)
+glimpse(delegates_april_2019_sau)
+write_csv(delegates_april_2019_sau, "V:/Marlborough regional/working_jaxs/delegates_april_2019_sau.csv")
 ##############################################################################   
+
 
 
