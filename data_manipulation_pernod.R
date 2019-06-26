@@ -111,18 +111,18 @@ glimpse(perno_GPS_distinct)
 
 
 #########################################################################################################################
-##############################           Yield data             #########################################################
+##############################           Yield data  PART 1           #################################################
 #########################################################################################################################
 
 
 
 #Bring in the yld data and add to coordiates 
-perno_yld <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
+perno_yld_kg_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
                              sheet = "Block Yield reference") 
 #perno_yld <- read_excel("C:/Users/ouz001/NZ_work/test/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx" ,
 #                        sheet = "Block Yield reference")
 
-perno_yld <- select(perno_yld,
+perno_yld_kg_ha <- select(perno_yld_kg_ha,
                     ID_temp = `VendorBlock Key` ,
                     Vnd = `Vendor Code`,
                     Block = `Block Ref Number`,
@@ -132,15 +132,87 @@ perno_yld <- select(perno_yld,
   mutate(ID = paste0(Vnd,"_", Block),
          year = as.double(paste0(Yr+2000)))
 ## add in another ID clm        
-perno_yld <- perno_yld %>% 
+perno_yld_kg_ha <- perno_yld_kg_ha %>% 
   mutate(ID_yr = paste0(ID,"_", year))
 #tidy this up
-perno_yld <- perno_yld %>% 
+perno_yld_kg_ha <- perno_yld_kg_ha %>% 
   select(ID, ID_yr, yield_kg_per_m, brix, year)
-glimpse(perno_yld) # 4,112
+glimpse(perno_yld_kg_ha) # 4,112
+
+#########################################################################################################################
+##############################           Yield data now with t/ha PART 2    ############################################
+#########################################################################################################################
+perno_yld_t_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl with H Dates_tonnes_ha.xlsx", 
+                        sheet = "Yield per ha") 
+
+perno_yld_t_ha <- select(perno_yld_t_ha,
+                    ID_temp = `VendorBlock Key` ,
+                    Vnd = `Vendor Code`,
+                    Block = `Block Ref Number`,
+                    Yr = `Vintage`,
+                    yield_t_per_ha = `Harvested T per HA`) %>% 
+  mutate(ID = paste0(Vnd,"_", Block),
+         year = as.double(paste0(Yr+2000)))
+## add in another ID clm        
+perno_yld_t_ha <- perno_yld_t_ha %>% 
+  mutate(ID_yr = paste0(ID,"_", year))
+#tidy this up
+perno_yld_t_ha <- perno_yld_t_ha %>% 
+  select(ID_yr, yield_t_per_ha)
+glimpse(perno_yld_t_ha) # 3,740
 
 
+glimpse(perno_yld_t_ha) #3740
+glimpse(perno_yld_kg_ha) #4112
 
+perno_yld_1 <- full_join(perno_yld_kg_ha, perno_yld_t_ha, by = "ID_yr")
+glimpse(perno_yld_1) # 4112
+
+
+#########################################################################################################################
+##############################           Yield data now with harvest date PART 3    ############################################
+#########################################################################################################################
+
+perno_yld_harvest_date <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl with H Dates_tonnes harvested.xlsx", 
+                             sheet = "Harvest Dates") 
+
+glimpse(perno_yld_harvest_date)
+
+perno_yld_harvest_date <- select(perno_yld_harvest_date,
+                         ID_temp = `VendorBlock Key` ,
+                         Vnd = `Vendor Code`,
+                         Block = `Block Ref Number`,
+                         Yr = `Vintage`,
+                         harvest_date = `Date harvested`,
+                         ton_harvested = `Tons Harvested`) %>% 
+  mutate(ID = paste0(Vnd,"_", Block),
+         year = as.double(paste0(Yr+2000)))
+## add in another ID clm        
+perno_yld_harvest_date <- perno_yld_harvest_date %>% 
+  mutate(ID_yr = paste0(ID,"_", year))
+#tidy this up
+perno_yld_harvest_date <- perno_yld_harvest_date %>% 
+  select(ID, ID_yr, yield_t_per_ha, year)
+glimpse(perno_yld_harvest_date) # 4,772
+
+#need to group data by ID_Yr and then work out max yield and what date this occured this works but dont use the tonnes harvested as this is only for the max date harvested
+perno_yld_harvest_date_max <- perno_yld_harvest_date  %>%
+  group_by(ID_yr) %>%
+  filter(row_number() == which.max(ton_harvested)) %>% 
+  select(harvest_date, ID_yr)
+glimpse(perno_yld_harvest_date_max)
+
+
+glimpse(perno_yld_harvest_date_max) #3,993
+glimpse(perno_yld_1) #4112
+
+perno_yld <- full_join(perno_yld_1, perno_yld_harvest_date_max, by = "ID_yr")
+glimpse(perno_yld) #4,112
+
+##### Julian days
+perno_yld <- perno_yld %>% 
+mutate(julian = as.numeric(format(perno_yld$harvest_date, "%j")))
+glimpse(perno_yld)
 #########################################################################################################################
 ##############################           maturity data          #########################################################
 #########################################################################################################################
@@ -180,7 +252,7 @@ perno_maturity_Bunch_wt_g <- perno_maturity_Bunch_wt_g %>%
 
 
 perno_maturity1 <- perno_maturity_Bunch_wt_g %>% 
-  select(ID_yr, ID,sample_date,  bunch_wt_g = bunch_wt_g_results)
+  select(ID_yr,  bunch_wt_g = bunch_wt_g_results)
 
 
 ################## now join the yield data   #############################
@@ -191,17 +263,13 @@ pernod_ricard <- left_join(perno_yld, perno_maturity1, by = "ID_yr")
 glimpse(pernod_ricard) # 4112
 #remove the ID.x clm
 
-pernod_ricard <- select(pernod_ricard,
-                        ID = ID.x,
-                        ID_yr, yield_kg_per_m,brix, year, sample_date, bunch_wt_g )
 
 
 
 
 
-##### Julian days
-#pernod_ricard <- pernod_ricard %>% 
-#mutate(julian = as.numeric(format(pernod_ricard$sample_date, "%j")))
+
+
 
 
 
@@ -327,7 +395,7 @@ glimpse(perno_berryWt_2018)
 perno_berryWt_all <- rbind(perno_berryWt_2011,perno_berryWt_2016,
                            perno_berryWt_2017, perno_berryWt_2018)
 perno_berryWt_all <- perno_berryWt_all %>% 
-  select(ID_yr, ID, berry_weight_g)
+  select(ID_yr, berry_weight_g)
 
 #############################           berry wt info data with yld and maturity        ############################## 
 glimpse(perno_berryWt_all) #763 berry wts for subet of years - data supplied
@@ -348,7 +416,7 @@ glimpse(pernod_ricard1) #4135
 
 pernod_ricard1 <- mutate(pernod_ricard1,
          company = "pernod_ricard",
-         yield_t_ha = NA,
+         yield_t_ha = yield_t_per_ha,
          bunch_numb_m = NA, 
          bunch_mass_g = NA,
          berry_bunch = NA,
@@ -356,8 +424,8 @@ pernod_ricard1 <- mutate(pernod_ricard1,
          vine_spacing = NA,
          bunch_numb_m = NA,
          variety = Variety,
-         harvest_date = NA,
-         julian = NA,
+         harvest_date,
+         julian,
          yield_kg_m = yield_kg_per_m,
          trellis
          )
@@ -365,7 +433,7 @@ glimpse(pernod_ricard1) #4135
 
 pernod_ricard1 <- pernod_ricard1 %>% 
   select(company, ID, ID_yr, variety , x_coord, y_coord,
-                year = year.x , harvest_date, julian,
+                year , harvest_date, julian,
                 yield_t_ha, yield_kg_m,
                 brix,bunch_weight = bunch_wt_g, berry_weight = berry_weight_g,
          row_width, vine_spacing, bunch_numb_m,
@@ -415,6 +483,8 @@ dim(pernod_ricard1)
 dim(pernod_ricard1)
 glimpse(pernod_ricard1) #4135 records
 max(pernod_ricard1$year) #2008 -2018
+summary(pernod_ricard1)
+
 
 #how many sites with GPS pts
 glimpse(perno_GPS_distinct)#372 records
