@@ -67,8 +67,130 @@ delegate_pern_villia_white_haven <- rbind(delegate_pern_villia,
 
 del_pern_vill_white_wither <- rbind(delegate_pern_villia_white_haven,
                                     wither_hills_april_2019)
+####do na count again ####
+glimpse(del_pern_vill_white_wither)
+del_pern_vill_white_wither <- select(del_pern_vill_white_wither, -na_count)
 
+del_pern_vill_white_wither$na_count <- apply(is.na(del_pern_vill_white_wither), 1, sum)
+######   Recode variety column so that it is all the same
+group_by(del_pern_vill_white_wither, variety) %>% 
+  count()
+
+
+del_pern_vill_white_wither <- mutate(del_pern_vill_white_wither,
+                                     variety =  case_when(
+                                       variety == "SAUV" ~ "Sauvignon Blanc",
+                                       variety == "sb" ~ "Sauvignon Blanc",
+                                       variety == "SB" ~ "Sauvignon Blanc",
+                                       TRUE ~ variety))
+
+group_by(del_pern_vill_white_wither, company) %>% 
+  count()
+
+del_pern_vill_white_wither <- mutate(del_pern_vill_white_wither,
+                                     company =  case_when(
+                                       company == "Delegates" ~ "Delegat",
+                                       company == "pernod_ricard" ~ "Pernod Ricard",
+                                       company == "Villa Maria" ~ "Villa Maria",
+                                       company == "whitehaven" ~ "Whitehaven",
+                                       company == "Wither_Hills" ~ "Wither Hills",
+                                       TRUE ~ company))
 
 write_csv(del_pern_vill_white_wither, "V:/Marlborough regional/working_jaxs/del_pern_vill_white_wither.csv")
 
  
+
+
+##################################################################################################################
+######################      Display data                   #####################################################
+################################################################################################################
+
+dim(del_pern_vill_white_wither)
+#how many site?
+
+glimpse(del_pern_vill_white_wither) #4400 records
+summary(del_pern_vill_white_wither)#2006 -2019
+
+
+#how many sites by company by year
+ggplot(del_pern_vill_white_wither, aes(company))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
+
+#how many sites by company by year with coods
+filter(del_pern_vill_white_wither,x_coord > 0) %>% 
+ggplot( aes(company))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
+
+#create a new variable year_as_factor
+del_pern_vill_white_wither$year_factor <- as.factor(del_pern_vill_white_wither$year)
+
+
+ggplot(del_pern_vill_white_wither, aes(year_factor, na_count))+
+  geom_col()+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Total counts of missing data entries NA - Sauvignon Blanc")
+
+#julian days
+ggplot(del_pern_vill_white_wither, aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+##### only display greater than 20 
+filter(del_pern_vill_white_wither,julian > 20) %>% 
+  ggplot( aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+
+filter(del_pern_vill_white_wither,julian > 20) %>% 
+  ggplot( aes(year_factor, julian, colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+#yield_t_ha
+ggplot(del_pern_vill_white_wither, aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+
+#yield_t_ha
+filter(del_pern_vill_white_wither,yield_t_ha > 0) %>% 
+ggplot( aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+
+#yield_t_ha
+filter(del_pern_vill_white_wither,yield_t_ha > 0) %>% 
+  ggplot( aes(year_factor, yield_t_ha, colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")+
+  facet_wrap(.~ company)
