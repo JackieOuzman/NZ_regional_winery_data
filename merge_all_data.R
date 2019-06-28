@@ -121,13 +121,31 @@ ggplot(del_pern_vill_white_wither, aes(company))+
   facet_wrap(~year)
 
 #how many sites by company by year with coods
+test <- filter(del_pern_vill_white_wither, year_factor != "NA")
+glimpse(test)
+summary(del_pern_vill_white_wither)
+
+
 filter(del_pern_vill_white_wither,x_coord > 0) %>% 
-ggplot( aes(company))+
+  filter( year_factor != "NA") %>% 
+   ggplot( aes(company_a))+
   geom_bar()+
   theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
+  theme(axis.text.x=element_text(angle=0))+
   labs(y = "Count of sites")+
   facet_wrap(~year)
+
+###Create a new column which changes company name
+del_pern_vill_white_wither <- mutate(del_pern_vill_white_wither,
+                                     company_a =  case_when(
+                                       company == "Delegat" ~ "a",
+                                       company == "Pernod Ricard" ~ "b",
+                                       company == "Villa Maria" ~ "c",
+                                       company == "Whitehaven" ~ "d",
+                                       company == "Wither Hills" ~ "e",
+                                       TRUE ~ company))
+
+
 
 #create a new variable year_as_factor
 del_pern_vill_white_wither$year_factor <- as.factor(del_pern_vill_white_wither$year)
