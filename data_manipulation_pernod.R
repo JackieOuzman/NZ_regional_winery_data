@@ -6,8 +6,9 @@ library(readxl)
 ##############################           GPS POINTS for blocks #########################################################
 #########################################################################################################################
 
-perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
+perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
                                  sheet = "Block Location reference")
+
 
 #perno_GPS_temp <- read_excel("C:/Users/ouz001/NZ_work/Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
 #                             sheet = "Block Location reference")
@@ -117,7 +118,7 @@ glimpse(perno_GPS_distinct)
 
 
 #Bring in the yld data and add to coordiates 
-perno_yld_kg_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
+perno_yld_kg_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
                              sheet = "Block Yield reference") 
 #perno_yld <- read_excel("C:/Users/ouz001/NZ_work/test/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx" ,
 #                        sheet = "Block Yield reference")
@@ -142,7 +143,7 @@ glimpse(perno_yld_kg_ha) # 4,112
 #########################################################################################################################
 ##############################           Yield data now with t/ha PART 2    ############################################
 #########################################################################################################################
-perno_yld_t_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl with H Dates_tonnes_ha.xlsx", 
+perno_yld_t_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl with H Dates_tonnes_ha.xlsx", 
                         sheet = "Yield per ha") 
 
 perno_yld_t_ha <- select(perno_yld_t_ha,
@@ -173,7 +174,7 @@ glimpse(perno_yld_1) # 4112
 ##############################           Yield data now with harvest date PART 3    ############################################
 #########################################################################################################################
 
-perno_yld_harvest_date <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl with H Dates_tonnes harvested.xlsx", 
+perno_yld_harvest_date <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl with H Dates_tonnes harvested.xlsx", 
                              sheet = "Harvest Dates") 
 
 glimpse(perno_yld_harvest_date)
@@ -219,7 +220,7 @@ glimpse(perno_yld)
 
 
 
-perno_maturity <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
+perno_maturity <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
                              sheet = "Grape Sample results by date") 
 #perno_maturity <- read_excel("C:/Users/ouz001/NZ_work/test/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx" ,
 #                        sheet = "Grape Sample results by date")
@@ -285,7 +286,7 @@ glimpse(pernod_ricard) # 4112
 #perno_berryWt_2011 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
 #                             sheet = "2011 data")
 # read in the data
-perno_berryWt_2011 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2011 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
                                  sheet = "2011 data")
 
 #create ID clm,select Av. berry weight
@@ -302,7 +303,7 @@ glimpse(perno_berryWt_2011)
 ##############################           2016 berry wt info data          ####################################################
 #perno_berryWt_2016 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
 #                                 sheet = "2016 data")
-perno_berryWt_2016 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2016 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
                                  sheet = "2016 data")
 #glimpse(perno_berryWt_2016)  
 perno_berryWt_2016 <- perno_berryWt_2016 %>% 
@@ -363,7 +364,7 @@ glimpse(perno_berryWt_2016)
 
 #perno_berryWt_2017 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
 #                                 sheet = "2017 data")
-perno_berryWt_2017 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2017 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
                                  sheet = "2017 data")
 perno_berryWt_2017 <- perno_berryWt_2017 %>% 
   separate(X__1  , into = c("vendor_text", "vendor_numb","variety"), 
@@ -375,7 +376,7 @@ perno_berryWt_2017 <- perno_berryWt_2017 %>%
 
 ##############################           2018 berry wt info data          #################################################### 
 
-perno_berryWt_2018 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2018 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
                                  sheet = "2018 data")
 
 perno_berryWt_2018 <- perno_berryWt_2018 %>% 
