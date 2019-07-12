@@ -27,7 +27,7 @@ library(sf)
 ################  Bring in data file   and reformat coodinates clms      ################ ###############     #################
 
 
-white_haven_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Harvest  Mapping Data Whitehaven.xlsx", 
+white_haven_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Whitehaven/Harvest  Mapping Data Whitehaven.xlsx", 
                               sheet = "All - Data",
                               col_types = c("text", "text", "text", 
                                             "text", "text", "text", "text", "text", 
@@ -172,7 +172,7 @@ glimpse(white_haven_GPS_DD1_df)
 
 
 
-white_haven <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Harvest  Mapping Data Whitehaven.xlsx", 
+white_haven <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Whitehaven/Harvest  Mapping Data Whitehaven.xlsx", 
                                               sheet = "All - Data",
                                               col_types = c("text", "text", "text", 
                                                             "text", "text", "text", "text", "text", 
