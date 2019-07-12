@@ -14,7 +14,7 @@ library(sf)
 ################                         Make DF with GPS coodinates                                 #################
 ######################################################################################################################
 
-Villia_maria_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                                         sheet = "2017-18 Includes GPS",
                                                         col_types = c("text", "text", "text", 
                                                                       "text", "text", "text", "numeric", 
@@ -95,7 +95,7 @@ glimpse(Villia_maria_GPS)
 
 
 #####################                               2018                             ##################################
-Villia_maria_2017_18 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_2017_18 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                sheet = "2017-18 Includes GPS")
 glimpse(Villia_maria_2017_18)
 Villia_maria_2017_18 <- select(Villia_maria_2017_18,
@@ -113,7 +113,7 @@ Villia_maria_2017_18 <- select(Villia_maria_2017_18,
 
 #####################                               2017                             ##################################
 
-Villia_maria_2016_17 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_2016_17 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                sheet = "2016-17")
 glimpse(Villia_maria_2016_17)
 Villia_maria_2016_17 <- select(Villia_maria_2016_17,
@@ -131,7 +131,7 @@ Villia_maria_2016_17 <- select(Villia_maria_2016_17,
 
 #####################                               2016                             ##################################
 
-Villia_maria_2015_16 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_2015_16 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2015-16")
 glimpse(Villia_maria_2015_16)
 Villia_maria_2015_16 <- select(Villia_maria_2015_16,
@@ -149,7 +149,7 @@ Villia_maria_2015_16 <- select(Villia_maria_2015_16,
 
 #####################                               2015                             ##################################
 
-Villia_maria_2014_15 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_2014_15 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2014-15")
 glimpse(Villia_maria_2014_15)
 Villia_maria_2014_15 <- select(Villia_maria_2014_15,
@@ -185,7 +185,7 @@ Villia_maria_2013_14 <- select(Villia_maria_2013_14,
 
 #####################                               2013                             ##################################
 
-Villia_maria_2012_13 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_2012_13 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2012-13")
 glimpse(Villia_maria_2012_13)
 Villia_maria_2012_13 <- select(Villia_maria_2012_13,
@@ -204,7 +204,7 @@ Villia_maria_2012_13 <- select(Villia_maria_2012_13,
 
 #####################                               2012                             ##################################
                             
-Villia_maria_2011_12 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_2011_12 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                                         sheet = "2011-12", col_types = c("text", 
                                                                                          "text", "text", "text", "text", "numeric", 
                                                                                          "text", "numeric", "numeric", "numeric", 
