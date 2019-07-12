@@ -7,7 +7,7 @@ library(readxl)
 ################                         Make DF with GPS coodinates                                 #################
 ######################################################################################################################
 
-delegates_GPS1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat For MRC Project RGVB rev.xlsx", 
+delegates_GPS1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Delegat For MRC Project RGVB rev.xlsx", 
                                  sheet = "Use this Delegat4 NZ2000")
 glimpse(delegates_GPS1)
 delegates_GPS <- delegates_GPS1 %>% 
@@ -25,7 +25,7 @@ glimpse(delegates_GPS)
 ######################################################################################################################
 
 ####Bring in the sub_block info#####
-delegates_sub_block1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat For MRC Project RGVB rev.xlsx", 
+delegates_sub_block1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Delegat For MRC Project RGVB rev.xlsx", 
                                    sheet = "Sub Block info")
 glimpse(delegates_sub_block1)
 
@@ -53,7 +53,7 @@ glimpse(delegates_GPS_sub_block) #357
 ######################################################################################################################
 
 
-delegates_yld_data1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat For MRC Project RGVB rev.xlsx", 
+delegates_yld_data1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Delegat For MRC Project RGVB rev.xlsx", 
                              sheet = "Yield Info")
 glimpse(delegates_yld_data1)
 
