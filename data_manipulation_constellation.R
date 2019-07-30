@@ -253,3 +253,17 @@ df_constellation_Vieceli <- st_drop_geometry(constellation_Vieceli)
 ### join data
 constellation_Vieceli <- full_join(centroid_Con_Vieceli_df,df_constellation_Vieceli )
 head(constellation_Vieceli)
+
+
+
+
+###############################################################################################################################################
+
+
+##############################################################################################################################################
+##########################                         Append all data                 ###########################################################
+##############################################################################################################################################
+constellation_spatial <- rbind(constellation_Hay, constellation_GF, constellation_Opaoa, constellation_Selak, constellation_Spy, constellation_Valleyfield)
+head(constellation_GF_Hay)
+
+constellation_spatial
