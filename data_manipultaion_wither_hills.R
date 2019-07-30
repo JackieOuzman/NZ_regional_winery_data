@@ -9,7 +9,7 @@ library(lubridate)
 ##############################           GPS POINTS for blocks #########################################################
 #########################################################################################################################
 
-wither_hills_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither Hills yield data For Mike Trought RGVB.xlsx",
+wither_hills_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/Wither Hills yield data For Mike Trought RGVB.xlsx",
                                     sheet = "Wither Hills NZ2000")
 
 
@@ -27,7 +27,7 @@ glimpse(wither_hills_GPS)
 #########################################################################################################################
 
 
-wither_hills_block_info <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither Hills yield data For Mike Trought RGVB.xlsx", 
+wither_hills_block_info <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/Wither Hills yield data For Mike Trought RGVB.xlsx", 
                                     sheet = "locations" , skip = 3)
 glimpse(wither_hills_block_info)
 wither_hills_block_info <- wither_hills_block_info %>% 
@@ -60,7 +60,7 @@ glimpse(wither_hills_GPS_block_info) #85
 ##############################           Add in the yield measures  #########################################################
 #########################################################################################################################
 
-wither_hills_harvest_details <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither Hills yield data For Mike Trought RGVB.xlsx", 
+wither_hills_harvest_details <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/Wither Hills yield data For Mike Trought RGVB.xlsx", 
                                     sheet = "15,16,17,18 ", skip = 3)
 glimpse(wither_hills_harvest_details)
 #bm_02_(spur09)_pn is only block name on the harvest data, and GPS point only have bm_02_pn – make the assumption that they are the same?
