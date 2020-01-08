@@ -12,28 +12,28 @@ library(data.table)
 ####################################################################################################################
 ################     Some polygons in the blocks need to be merged          #######################################
 ####################################################################################################################
-site <- "Awarua"
-
-test_shapefile =  st_read(paste0("V:/Marlborough regional/Regional winery data/Raw_data/constellation/", "Awarua", "/", 
-                                 "Awarua", ".shp"))
-
-# str(test_shapefile)
-# list_awarua <- unique(test_shapefile$SectionID)
-
-test <- aggregate(test_shapefile, list(test_shapefile$SectionID ), function(x) x[1])
-# dim(test_shapefile) #45 22
-# dim(test) #20 23 this has reduced the number of rows and added a extra clm
-# plot(test) #looks like this has not changed the shape of the vineyards
-# plot(test_shapefile)
-
-
-#create a centroid for newly aggreated polygons
-centroid_test_shapefile <- st_centroid(test_shapefile) #this is just a check
-centroid_test <- st_centroid(test)
-
-
-# plot(centroid_test_shapefile)
-# plot(centroid_test)
+# site <- "Awarua"
+# 
+# test_shapefile =  st_read(paste0("V:/Marlborough regional/Regional winery data/Raw_data/constellation/", "Awarua", "/", 
+#                                  "Awarua", ".shp"))
+# 
+# # str(test_shapefile)
+# # list_awarua <- unique(test_shapefile$SectionID)
+# 
+# test <- aggregate(test_shapefile, list(test_shapefile$SectionID ), function(x) x[1])
+# # dim(test_shapefile) #45 22
+# # dim(test) #20 23 this has reduced the number of rows and added a extra clm
+# # plot(test) #looks like this has not changed the shape of the vineyards
+# # plot(test_shapefile)
+# 
+# 
+# #create a centroid for newly aggreated polygons
+# centroid_test_shapefile <- st_centroid(test_shapefile) #this is just a check
+# centroid_test <- st_centroid(test)
+# 
+# 
+# # plot(centroid_test_shapefile)
+# # plot(centroid_test)
 
 ### check the centroids are where they should be
 # ggplot(test) +
@@ -185,7 +185,71 @@ constellation_spatial <- rbind(constellation_spatial_group5,
                                
                                
 head(constellation_spatial)
+
+
+### Remove the object I dont need  ######
+#1
+rm(
+  list = c(
+  "Giffords_Creek",
+  "Hay",
+  "Opaoa",
+  "Selak",
+  "Spy",
+  "Valleyfield",
+  "Vieceli"
+) )   
+
+#2
+rm(
+  list = c(
+  "Awatere_Hills",
+  "Bells_Road",
+  "Brooklands",
+  "Caseys_Road",
+  "Castle_Cliffs",
+  "Favourite"
+) )   
+
+#3
+rm(
+  list = c("Awarua", 
+           "Drylands",
+           "Marukoko",
+           "Rarangi",
+           "Spring_Creek",
+           "Springfields"
+))    
+#4
+rm(
+  list = c(
+    "Matador",
+    "Scarlett_Rise",
+    "Valley_East",
+    "Watsons_Road"
+  ) )   
+#5
+rm(
+  list = c(
+    "Erina",  
+    "Hillersden",
+    "Mill_Stream",
+    "The_Narrows",
+    "Wairau_Riverbank"
+  )
+)
  
+#merged sites 1-5
+rm(
+  list = c(
+    "constellation_spatial_group5",
+    "constellation_spatial_group4",
+    "constellation_spatial_group3",
+    "constellation_spatial_group2",
+    "constellation_spatial_group1"))   
+
+
+
 #Note that I want to match up the sectionID to the block code but note that sometimes I have multiple entries for the section
 #I have merged polygons with the same sectionID togther - not sure if this is correct.
 #example is Awarua spatial data has section ID called NARUASBM 2729 = 3.97ha, 2732 = 3.03ha, 2736 = 3.00ha all togther about 9 ha
@@ -264,7 +328,7 @@ yld_ber_bun_import_function <- function(file_name, year_file){
 yld_ber_bun_import_function_est <- function(file_name, year_file){
   
   #yld data first
-  yld =  read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/constellation/", "SI Grower 2017-18 Yield Estimation", ".xlsm"),
+  yld =  read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/constellation/", file_name , ".xlsm"),
                     "Block Summary" ,  col_names = FALSE,  range = "A1:AA100" )
   
   ######merge the first 3 rows all into first row
@@ -278,7 +342,7 @@ yld_ber_bun_import_function_est <- function(file_name, year_file){
   as.data.frame(colnames(yld))
   #######clmns that I need for now
   yld <- select(yld,
-                block_code = paste0("year_file", "_NA_BLOCK CODE"), 
+                block_code = paste0(year_file, "_NA_BLOCK CODE"), 
                 #block_code = `2017-18_NA_BLOCK CODE`, 
                 variety = `NA_NA_Variety Grouping`, 
                 row_spacing = `NA_NA_Row Spacing`, 
@@ -290,17 +354,17 @@ yld_ber_bun_import_function_est <- function(file_name, year_file){
   
   #remove the subtotal from row_m_ha
   yld <- filter(yld, row_m_ha != "Sub Total:")
-  
+  yld <- mutate(yld, year = year_file)
   #This pulls out the date blockId and bunch wt and berry weight
-  berry_bunch =  read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/constellation/", "SI Grower 2017-18 Yield Estimation", ".xlsm"),
+  berry_bunch =  read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/constellation/", file_name , ".xlsm"),
                             "data entry" ,  col_names = FALSE)
   ######now select the row 1, 2, 3, 4 #Try this is might work better?
-  berry_bunch = filter(berry_bunch,`...1` == year_file |  `...1` == "Date" |`...1` == "ESTIMATED BUNCH WEIGHT (g)" | `...1` == "ESTIMATED BERRY WEIGHT (g)")
-  berry_bunch = berry_bunch[-c(2),]
+  berry_bunch = filter( berry_bunch, `...3` == "BLOCK CODE" |  `...1` == "Date" |`...1` == "ESTIMATED BUNCH WEIGHT (g)" | `...1` == "ESTIMATED BERRY WEIGHT (g)")
+  berry_bunch = berry_bunch[-c(5),]
   
   #berry_bunch = berry_bunch[c(4, 108, 114:115),] 
   ######remove two clms
-  berry_bunch <- berry_bunch[,-c(2, 3)] 
+  #berry_bunch <- berry_bunch[,-c(2, 3)] 
   berry_bunch <- transpose(berry_bunch)
   #######fix up the first name
   berry_bunch[1,1] = 'block_code'
@@ -315,9 +379,12 @@ yld_ber_bun_import_function_est <- function(file_name, year_file){
   
   #join data
   yld_bun_berr <- full_join(berry_bunch, yld)
+  yld_bun_berr <- filter(yld_bun_berr, block_code != "BLOCK CODE")
+  yld_bun_berr <- filter(yld_bun_berr, block_code != "Block Code")
   return(yld_bun_berr)
   
 }
+
 
 
 yld_2017_18_AwatereValley <- yld_ber_bun_import_function("SI Company Awatere Valley 2017-18 Yield Estimation", "2017-18") 
@@ -327,10 +394,10 @@ yld_2017_18_SI <- yld_ber_bun_import_function_est("SI Grower 2017-18 Yield Estim
 
 
 
-yld_2018_19_Central_Wairau <- yld_ber_bun_import_function("SI Company Central Wairau 2018-2019 Yield Estimation", "2018-19") #problem
+yld_2018_19_Central_Wairau <- yld_ber_bun_import_function("SI Company Central Wairau 2018-2019 Yield Estimation", "2018-19") #problem - fixed
 yld_2018_19_Lower_Wairau <- yld_ber_bun_import_function("SI Company Lower Wairau 2018-2019 Yield Estimation", "2018-19") 
 yld_2018_19_Upper_Wairau <- yld_ber_bun_import_function("SI Company Upper Wairau 2018-2019 Yield Estimation", "2018-19") 
-yld_2018_19_SI <- yld_ber_bun_import_function("SI Grower 2018-19 Yield Estimation", "2018-19") 
+yld_2018_19_SI <- yld_ber_bun_import_function_est("SI Grower 2018-19 Yield Estimation", "2018-19") 
 
 
 ##############################################################################################################################################
@@ -343,79 +410,244 @@ constellation_yld2017_2018 <-     rbind(yld_2017_18_AwatereValley,
 
 
 
-constellation_yld201_2019 <- rbind(yld_2018_19_Central_Wairau,
+constellation_yld2018_2019 <- rbind(yld_2018_19_Central_Wairau,
                                yld_2018_19_Lower_Wairau,
                                yld_2018_19_Upper_Wairau,
                                yld_2018_19_SI)                       
 
 
+constellation_yld2017_2019 <- rbind(constellation_yld2017_2018,constellation_yld2018_2019 )
+
+############################################################################################################################
+############## Remove the objects I don't need #############################################################################
+#2017-2018
+rm(
+  list = c(
+    "yld_2017_18_AwatereValley",
+    "yld_2017_18_North_Wairau",
+    "yld_2017_18_South_Wairau",
+    "yld_2017_18_SI")
+  )
+
+#2018-2019
+rm(
+  list = c(
+    "yld_2018_19_Central_Wairau",
+    "yld_2018_19_Lower_Wairau",
+    "yld_2018_19_Upper_Wairau",
+    "yld_2018_19_SI")
+)
+
+rm(
+  list = c("constellation_yld2017_2018","constellation_yld2018_2019"))
 
 
-head(yld_2017_18_AwatereValley)
-dim(yld_2017_18_AwatereValley)
-head(yld_2017_18_North_Wairau)
-head(yld_2017_18_South_Wairau)
-head(yld_2017_18_SI)
-
-dim(yld_2018_19_Central_Wairau)
-dim(yld_2018_19_Lower_Wairau)
-dim(yld_2018_19_Upper_Wairau)
-dim(yld_2018_19_SI)
 
 #Note that I want to match up the sectionID to the block code but note that sometimes I have multiple entries for the section
 #this relates to the sub_sect_ID - Not sure 
 
+###########################################################################################################################
 
+#Join the spatial data to the yield data
 
-############################################################################################################################
+str(constellation_yld2017_2019)
+str(constellation_spatial1) #this is too much info select less
 
-##########################################################################################################################
-##################                 Giffords_Creek  spatial data              #############################################
-##########################################################################################################################
+constellation_spatial <- select(constellation_spatial,
+                                block_code = SectionID ,
+                                #BlockID = block_code,
+                                POINT_X,
+                                POINT_Y)
 
-constellation_GF <- st_read("V:/Marlborough regional/Regional winery data/Raw_data/constellation/Giffords_Creek/Giffords_Creek.shp")
-#head(constellation_GF,3)
+constellation_yld2017_2019_spatial <- left_join(constellation_yld2017_2019, constellation_spatial)
+str(constellation_yld2017_2019_spatial)
 
-
-constellation_GF_geom <- st_geometry(constellation_GF)
-#head(constellation_GF_geom,3)
-
-centroid_Con_GF <- st_centroid(constellation_GF_geom)
-#head(centroid_Con_GF,3)
-
-ggplot() + 
-  geom_sf(data = constellation_GF, size = 3, color = "black") + 
-  geom_sf(data = centroid_Con_GF, size = 3, color = "blue") + 
-  ggtitle("constellation_GF") + 
-  coord_sf()
-
-centroid_Con_GF_df <- data.frame(matrix(unlist(centroid_Con_GF), nrow=length(centroid_Con_GF), byrow=T))
-#head(centroid_Con_GF_df,3)
-#str(centroid_Con_GF_df)
-#table(df_constellation_GF$OBJECTID)
-#head(centroid_Con_GF_df)
-#### I have a big problem here all my centroid values have no attributes attached I need to have this!
-##### This is sooo not the way to do it!
-#### create a list of object ID to put back into centroids
-
-GF_Object_ID <- c(unique(constellation_GF$OBJECTID)) 
-centroid_Con_GF_df <- mutate(centroid_Con_GF_df, OBJECTID = GF_Object_ID,
-                             POINT_X = X1,
-                             POINT_Y = X2,
-                             Block_name = "Giffords_creek")
-
-df_constellation_GF <- st_drop_geometry(constellation_GF)
-#str(df_constellation_GF)
-
-constellation_GF <- full_join(centroid_Con_GF_df,df_constellation_GF )
-head(constellation_GF)
-
-
-##This looks good####
-#check_GF <- write.csv(constellation_GF, "constellation_GF.csv")
+#change some clm to double
+constellation_yld2017_2019_spatial$bunch_wt <- as.double(constellation_yld2017_2019_spatial$bunch_wt)
+constellation_yld2017_2019_spatial$berry_wt <- as.double(constellation_yld2017_2019_spatial$berry_wt)                                     
+constellation_yld2017_2019_spatial$ row_spacing <- as.double(constellation_yld2017_2019_spatial$ row_spacing)
+constellation_yld2017_2019_spatial$vine_spacing <- as.double(constellation_yld2017_2019_spatial$vine_spacing)
+constellation_yld2017_2019_spatial$total_vines <- as.double(constellation_yld2017_2019_spatial$total_vines)
+constellation_yld2017_2019_spatial$ row_m_ha <- as.double(constellation_yld2017_2019_spatial$ row_m_ha)
+constellation_yld2017_2019_spatial$ actual_T <- as.double(constellation_yld2017_2019_spatial$ actual_T)
+constellation_yld2017_2019_spatial$ actual_ha <- as.double(constellation_yld2017_2019_spatial$ actual_ha)
 
 
 
 
+constellation_yld2017_2019_spatial <- mutate(constellation_yld2017_2019_spatial,
+                                     #julian = as.numeric(format(constellation_yld2017_2019_spatial$harvest_date, "%j")),
+                                     yield_t_ha = actual_T / actual_ha,
+                                     meter_row_per_ha = 10000/row_spacing,
+                                     yld_per_m_row_kg =  (yield_t_ha *1000) / 10000/row_spacing,
+                                     bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt,
+                                     company = "constellation",
+                                     y_coord = POINT_X,
+                                     x_coord =  POINT_Y ,
+                                     yield_kg_m = NA,
+                                     bunch_numb_m	 = NA,
+                                     yield_kg_m 	= ( yield_t_ha * 1000) / (10000/row_spacing))
 
-#
+
+str(constellation_yld2017_2019_spatial)
+###################################################################################################
+#Keep only the sav
+
+
+str(constellation_yld2017_2019_spatial)
+
+
+unique(constellation_yld2017_2019_spatial$variety)
+  
+constellation_yld2017_2019_spatial_SAU <- filter(constellation_yld2017_2019_spatial,
+                                                 variety == "Sauvignon Blanc")
+
+
+######################################################################################################################
+################                         view and summaries DF 2019 -2014                            #################
+######################################################################################################################
+
+
+dim(constellation_yld2017_2019_spatial_SAU)
+#how many site are SAU?
+dim(constellation_yld2017_2019_spatial_SAU)
+glimpse(constellation_yld2017_2019_spatial_SAU) #418 records
+max(constellation_yld2017_2019_spatial_SAU$year) #2018-2019
+min(constellation_yld2017_2019_spatial_SAU$year) #2017-2018
+#how many site are SAU with GPS
+count(filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0)) #297
+
+
+
+#how many sites with GPS pts all varieties
+glimpse(constellation_yld2017_2019_spatial_SAU  )#418 records
+#how many sites with GPS pts all varieties
+count(filter(constellation_yld2017_2019_spatial,  POINT_X >0)) #399
+
+filter(constellation_yld2017_2019_spatial,  POINT_X >0) %>% 
+ggplot( aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites with GPS coordinates")
+
+#how many sites with GPS pts by Variety by year
+filter(constellation_yld2017_2019_spatial,  POINT_X >0) %>% 
+ggplot( aes(variety))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
+
+
+
+
+#create a new variable year_as_factor
+constellation_yld2017_2019_spatial_SAU$year_factor <- as.factor(constellation_yld2017_2019_spatial_SAU$year)
+
+#filter data for Sauvignon Blanc
+constellation_yld2017_2019_spatial_SAU
+
+#how many sites for Sauvignon Blanc by year
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>% 
+group_by(year) %>% 
+  count() # 2017 - 2018 = 164 and 2018 -2019 = 133
+
+####################################################################################################
+
+constellation_yld2017_2019_spatial_SAU$na_count <- apply(is.na(constellation_yld2017_2019_spatial_SAU), 1, sum)
+
+str(constellation_yld2017_2019_spatial_SAU)
+
+#how many sites for Sauvignon Blanc have missing data - how much missing data?
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>% 
+ggplot( aes(year_factor, na_count))+
+  geom_col()+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Total counts of missing data entries NA - Sauvignon Blanc")
+#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+ggplot( aes(na_count))+
+  geom_bar()+
+  scale_x_continuous(breaks =  c(2,4,6,8,10))+
+  facet_wrap(~year_factor)+
+  theme_bw()+
+  labs(x = "number of na counts per entry",
+       y= "Counts of missing data entries NA")
+
+########################################################################################################
+
+#check stuff 
+
+
+glimpse(constellation_yld2017_2019_spatial_SAU)
+#julian days
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+ggplot( aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+#yield_t_ha
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+ggplot( aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+#yield_kg_m
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+ggplot( aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+#yield_kg_m filter out zeros
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(yield_kg_m != 0) %>% 
+  ggplot( aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+
+#brix - too many zero
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+ggplot( aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+#brix - filter out high values
+filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(brix <40) %>% 
+  ggplot( aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+
+############################################################################## 
+########################    File to use   ####################################
+# Villia_maria_2017_2012_all_sau <- select(Villia_maria_2017_2012_all_sau, -year_factor)
+# glimpse(Villia_maria_2017_2012_all_sau)
+# write_csv(Villia_maria_2017_2012_all_sau, "V:/Marlborough regional/working_jaxs/Villia_maria_2017_2012_all_sau.csv")
+##############################################################################   
+
+
+
+
