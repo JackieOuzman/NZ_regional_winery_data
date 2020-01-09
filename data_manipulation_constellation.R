@@ -643,9 +643,12 @@ filter(brix <40) %>%
 
 ############################################################################## 
 ########################    File to use   ####################################
-# Villia_maria_2017_2012_all_sau <- select(Villia_maria_2017_2012_all_sau, -year_factor)
-# glimpse(Villia_maria_2017_2012_all_sau)
-# write_csv(Villia_maria_2017_2012_all_sau, "V:/Marlborough regional/working_jaxs/Villia_maria_2017_2012_all_sau.csv")
+constellation_yld2017_2019_spatial_SAU_Gps <- filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0)
+str(constellation_yld2017_2019_spatial_SAU_Gps)
+
+ constellation_yld2017_2019_spatial_SAU_Gps <- select(constellation_yld2017_2019_spatial_SAU_Gps, -year_factor)
+ glimpse(constellation_yld2017_2019_spatial_SAU_Gps)
+ write_csv(constellation_yld2017_2019_spatial_SAU_Gps, "V:/Marlborough regional/working_jaxs/constellation_2017_2019_all_sau.csv")
 ##############################################################################   
 
 
