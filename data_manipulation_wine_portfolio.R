@@ -47,36 +47,262 @@ centroid_df <- select(centroid_df,
 write_csv(centroid_df, "V:/Marlborough regional/working_jaxs/Wine_port_centroid_df_check.csv")
 
 ###########################################################################################
-#### Yld data     ################################################################
-#########################################################################################
+#### Yld data     ########################################################################
+#### as a function             ###########################################################
+##########################################################################################
 
 
-Yld_data_2014 <-   read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/Kuranui Harvest data 2014-18.xlsx",
-                 "2014" ,  col_names = FALSE,  range = "A5:s30" )
+# file_name <- "Kuranui Harvest data 2014-18"
+# year_file <- "2015"
 
-header1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/Kuranui Harvest data 2014-18.xlsx",
-                       "2014" ,  col_names = FALSE,  range = "A1:s1" )
+yld_import_function <- function(file_name, year_file){
+  
+Yld_data <-   read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/",file_name, ".xlsx"),
+                              year_file ,  col_names = FALSE,  range = "A5:s30" )
 
-
-
-names(Yld_data_2014) <- header1
-#clm 7 is the block id
-
-colnames(Yld_data_2014)[7] <- "BLK_CODE"
-colnames(Yld_data_2014)[17] <- "Brix"
-str(Yld_data_2014)
+header1 <- read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/",file_name, ".xlsx"),
+                      year_file ,  col_names = FALSE,  range = "A1:s1" )
 
 
 
-Yld_data_20141 <- select(Yld_data_2014,
-                        "BLK_CODE") 
+names(Yld_data) <- header1
+#clm assign names that have meregd excel cells
+colnames(Yld_data)[1] <- "VAR"
+colnames(Yld_data)[2] <- "GRW"
+colnames(Yld_data)[3] <- "BLK"
+colnames(Yld_data)[4] <- "Ha"
+colnames(Yld_data)[5] <- "CLN"
+colnames(Yld_data)[6] <- "Rows"
+colnames(Yld_data)[7] <- "BLK_CODE"
+colnames(Yld_data)[8] <- "Est_tonnes"
+colnames(Yld_data)[9] <- "Actual_tonnes"
+colnames(Yld_data)[10] <- "Actual_t_ha"
+colnames(Yld_data)[11] <- "Av_Kg_Vine"
 
-# ,
-                        `2014 Actual t/ha` = Yield_t_ha,
-                        `Av. Bunch Weight at Harvest (g)` = Bunch_wt,
-                        `Av .Berry Weight at Harvest (g)` = Berry_wt,
-                        `2014 Harvest Dates` = Harvest_day,
-                        Brix)
-                        
-                        
+colnames(Yld_data)[16] <- "Harvest_date"
 
+colnames(Yld_data)[17] <- "Brix"
+colnames(Yld_data)[18] <- "pH"
+colnames(Yld_data)[19] <- "TA"
+str(Yld_data)
+
+#make sure harvest_date is as a date
+#Yld_data$Harvest_date <- as.POSIXct(Yld_data$Harvest_date)
+
+
+Yld_data <- select(
+  Yld_data,
+  VAR,
+  Block_name = BLK_CODE,
+  # new name = old name
+  Yield_t_ha = Actual_t_ha,
+  Bunch_wt = `Av. Bunch Weight at Harvest (g)`,
+  Berry_wt = `Av .Berry Weight at Harvest (g)`,
+  Harvest_date ,
+  Brix) %>% 
+  mutate(
+    julian = as.numeric(format(Harvest_date, "%j")),
+    year = year_file)
+#remove the summary data rows.
+#unique(Yld_data_2014$Block_name)
+Yld_data <- filter(Yld_data, Block_name != "NA")
+#Join the spatial data
+
+Yld_data_GPS <- left_join(Yld_data, centroid_df)
+
+}
+### use the function
+yld_2014 <- yld_import_function("Kuranui Harvest data 2014-18", "2014")
+yld_2015 <- yld_import_function("Kuranui Harvest data 2014-18", "2015")
+yld_2016 <- yld_import_function("Kuranui Harvest data 2014-18", "2016")
+yld_2017 <- yld_import_function("Kuranui Harvest data 2014-18", "2017")
+yld_2018 <- yld_import_function("Kuranui Harvest data 2014-18", "2018")
+yld_2019 <- yld_import_function("2019 Intake Harvest Data", "2019")
+
+
+#### use same function but don't join the GPS data. IE hash out line 111
+yld_2014_noGPS <- yld_import_function("Kuranui Harvest data 2014-18", "2014")
+yld_2015_noGPS <- yld_import_function("Kuranui Harvest data 2014-18", "2015")
+yld_2016_noGPS <- yld_import_function("Kuranui Harvest data 2014-18", "2016")
+yld_2017_noGPS <- yld_import_function("Kuranui Harvest data 2014-18", "2017")
+yld_2018_noGPS <- yld_import_function("Kuranui Harvest data 2014-18", "2018")
+yld_2019_noGPS <- yld_import_function("2019 Intake Harvest Data", "2019")
+
+
+###############################################################################################################
+### bind all the years together
+
+yld_GPS <- rbind(yld_2014,
+                 yld_2015,
+                 yld_2016,
+                 yld_2017,
+                 yld_2018, 
+                 yld_2019)
+
+#no GPS
+yld_GPS_noGPS <- rbind(yld_2014_noGPS,
+                 yld_2015_noGPS,
+                 yld_2016_noGPS,
+                 yld_2017_noGPS,
+                 yld_2018_noGPS, 
+                 yld_2019_noGPS)
+
+######################################################################################################################
+################                         view and summaries DF 2014 -2019                            #################
+######################################################################################################################
+
+#how many entries with and without GPS for all years
+dim(yld_GPS_noGPS)#144
+yld_SAB_GPS_noGPS <- filter(yld_GPS_noGPS, VAR == "SAB" )
+dim(yld_SAB_GPS_noGPS)#71
+
+#how many entries with GPS for all years
+yld_GPS_only <- filter(yld_GPS,  POINT_X >0)
+dim(yld_GPS_only) #136
+#how many site are SAU?
+unique(yld_GPS_only$VAR)
+SAB
+yld_GPS_only_SAB <- filter(yld_GPS_only, VAR == "SAB" )
+dim(yld_GPS_only_SAB) #70
+
+
+
+glimpse(yld_GPS_only_SAB) #70 records
+max(yld_GPS_only_SAB$year) #2019
+min(yld_GPS_only_SAB$year) #2014
+#how many records are SAU with GPS
+count(filter(yld_GPS_only_SAB,  POINT_X >0)) #70
+
+
+
+#how many records with GPS pts all varieties
+glimpse(yld_GPS_only  )#136 records
+#how many records with GPS pts all varieties
+count(filter(yld_GPS_only,  POINT_X >0)) #136
+
+filter(yld_GPS_only,  POINT_X >0) %>% 
+  ggplot( aes(VAR))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites with GPS coordinates")
+
+#how many sites with GPS pts by Variety by year
+filter(yld_GPS_only,  POINT_X >0) %>% 
+  ggplot( aes(VAR))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
+
+
+
+
+#create a new variable year_as_factor
+yld_GPS_only_SAB$year_factor <- as.factor(yld_GPS_only_SAB$year)
+
+#filter data for Sauvignon Blanc
+yld_GPS_only_SAB
+
+#how many sites for Sauvignon Blanc by year
+filter(yld_GPS_only_SAB,  POINT_X >0) %>% 
+  group_by(year) %>% 
+  count() # 2014 = 12, 2015 =12, 2016 =12, 2017 =10, 2018 =12, 2019 =12
+
+####################################################################################################
+
+yld_GPS_only_SAB$na_count <- apply(is.na(yld_GPS_only_SAB), 1, sum)
+
+str(yld_GPS_only_SAB)
+
+#how many sites for Sauvignon Blanc have missing data - how much missing data?
+filter(yld_GPS_only_SAB,  POINT_X >0) %>% 
+  ggplot( aes(year_factor, na_count))+
+  geom_col()+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Total counts of missing data entries NA - Sauvignon Blanc")
+#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
+filter(yld_GPS_only_SAB,  POINT_X >0) %>%
+  ggplot( aes(na_count))+
+  geom_bar()+
+  scale_x_continuous(breaks =  c(2,4,6,8,10))+
+  facet_wrap(~year_factor)+
+  theme_bw()+
+  labs(x = "number of na counts per entry",
+       y= "Counts of missing data entries NA")
+
+########################################################################################################
+
+#check stuff 
+
+
+glimpse(yld_GPS_only_SAB)
+#julian days
+filter(yld_GPS_only_SAB,  POINT_X >0) %>%
+  ggplot( aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+#yield_t_ha
+filter(yld_GPS_only_SAB,  POINT_X >0) %>%
+  ggplot( aes(year_factor, Yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+#yield_kg_m
+filter(yld_GPS_only_SAB,  POINT_X >0) %>%
+  ggplot( aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+#yield_kg_m filter out zeros
+filter(yld_GPS_only_SAB,  POINT_X >0) %>%
+  filter(yield_kg_m != 0) %>% 
+  ggplot( aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "yield kg/m - Sauvignon Blanc")
+
+
+#brix - too many zero
+filter(yld_GPS_only_SAB,  POINT_X >0) %>%
+  ggplot( aes(year_factor, Brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+#brix - filter out high values
+filter(yld_GPS_only_SAB,  POINT_X >0) %>%
+  filter(Brix <40) %>% 
+  ggplot( aes(year_factor, Brix ))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+
+############################################################################## 
+########################    File to use   ####################################
+yld_GPS_only_SAB <- filter(yld_GPS_only_SAB,  POINT_X >0)
+str(yld_GPS_only_SAB)
+
+yld_GPS_only_SAB <- select(yld_GPS_only_SAB, -year_factor)
+glimpse(yld_GPS_only_SAB)
+write_csv(yld_GPS_only_SAB, "V:/Marlborough regional/working_jaxs/Wine_portfolio_yld_GPS_only_SAB.csv")
+############################################################################## 
