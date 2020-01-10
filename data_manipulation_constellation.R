@@ -473,10 +473,15 @@ constellation_yld2017_2019_spatial$ actual_T <- as.double(constellation_yld2017_
 constellation_yld2017_2019_spatial$ actual_ha <- as.double(constellation_yld2017_2019_spatial$ actual_ha)
 
 
+str(constellation_yld2017_2019_spatial)
 
 
 constellation_yld2017_2019_spatial <- mutate(constellation_yld2017_2019_spatial,
                                      #julian = as.numeric(format(constellation_yld2017_2019_spatial$harvest_date, "%j")),
+                                     harvest_date = NA,
+                                     julian = NA,
+                                     brix = NA,
+                                     pruning_style = NA,
                                      yield_t_ha = actual_T / actual_ha,
                                      meter_row_per_ha = 10000/row_spacing,
                                      yld_per_m_row_kg =  (yield_t_ha *1000) / 10000/row_spacing,
@@ -486,7 +491,33 @@ constellation_yld2017_2019_spatial <- mutate(constellation_yld2017_2019_spatial,
                                      x_coord =  POINT_Y ,
                                      yield_kg_m = NA,
                                      bunch_numb_m	 = NA,
-                                     yield_kg_m 	= ( yield_t_ha * 1000) / (10000/row_spacing))
+                                     yield_kg_m 	= ( yield_t_ha * 1000) / (10000/row_spacing),
+                                     ID_yr = paste0(block_code, "_", year)
+)
+constellation_yld2017_2019_spatial$na_count <- apply(is.na(constellation_yld2017_2019_spatial), 1, sum)
+
+constellation_yld2017_2019_spatial <- select(constellation_yld2017_2019_spatial,
+                                              company,
+                                              ID_yr, 
+                                              variety,
+                                              x_coord,
+                                              y_coord,
+                                              year,
+                                              harvest_date,
+                                              julian,
+                                              yield_t_ha,
+                                              yield_kg_m,
+                                              brix,
+                                              bunch_weight = bunch_wt,
+                                              berry_weight = berry_wt,
+                                              bunch_numb_m,
+                                              pruning_style,
+                                              row_width = row_spacing,
+                                              vine_spacing,
+                                              na_count)
+                                              
+                                              
+                                        
 
 
 str(constellation_yld2017_2019_spatial)
@@ -515,16 +546,16 @@ glimpse(constellation_yld2017_2019_spatial_SAU) #418 records
 max(constellation_yld2017_2019_spatial_SAU$year) #2018-2019
 min(constellation_yld2017_2019_spatial_SAU$year) #2017-2018
 #how many site are SAU with GPS
-count(filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0)) #297
+count(filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0)) #297
 
 
 
 #how many sites with GPS pts all varieties
 glimpse(constellation_yld2017_2019_spatial_SAU  )#418 records
 #how many sites with GPS pts all varieties
-count(filter(constellation_yld2017_2019_spatial,  POINT_X >0)) #399
+count(filter(constellation_yld2017_2019_spatial,  x_coord >0)) #399
 
-filter(constellation_yld2017_2019_spatial,  POINT_X >0) %>% 
+filter(constellation_yld2017_2019_spatial,  x_coord >0) %>% 
 ggplot( aes(variety))+
   geom_bar()+
   theme_bw()+
@@ -532,7 +563,7 @@ ggplot( aes(variety))+
   labs(y = "Count of sites with GPS coordinates")
 
 #how many sites with GPS pts by Variety by year
-filter(constellation_yld2017_2019_spatial,  POINT_X >0) %>% 
+filter(constellation_yld2017_2019_spatial,  x_coord >0) %>% 
 ggplot( aes(variety))+
   geom_bar()+
   theme_bw()+
@@ -550,25 +581,25 @@ constellation_yld2017_2019_spatial_SAU$year_factor <- as.factor(constellation_yl
 constellation_yld2017_2019_spatial_SAU
 
 #how many sites for Sauvignon Blanc by year
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>% 
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>% 
 group_by(year) %>% 
   count() # 2017 - 2018 = 164 and 2018 -2019 = 133
 
 ####################################################################################################
 
-constellation_yld2017_2019_spatial_SAU$na_count <- apply(is.na(constellation_yld2017_2019_spatial_SAU), 1, sum)
+
 
 str(constellation_yld2017_2019_spatial_SAU)
 
 #how many sites for Sauvignon Blanc have missing data - how much missing data?
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>% 
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>% 
 ggplot( aes(year_factor, na_count))+
   geom_col()+
   theme_bw()+
   labs(x = "Year",
        y= "Total counts of missing data entries NA - Sauvignon Blanc")
 #how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>%
 ggplot( aes(na_count))+
   geom_bar()+
   scale_x_continuous(breaks =  c(2,4,6,8,10))+
@@ -584,7 +615,7 @@ ggplot( aes(na_count))+
 
 glimpse(constellation_yld2017_2019_spatial_SAU)
 #julian days
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>%
 ggplot( aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -592,7 +623,7 @@ ggplot( aes(year_factor, julian))+
   labs(x = "Year",
        y= "Julian days - Sauvignon Blanc")
 #yield_t_ha
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>%
 ggplot( aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -600,7 +631,7 @@ ggplot( aes(year_factor, yield_t_ha))+
   labs(x = "Year",
        y= "Yield t/ha - Sauvignon Blanc")
 #yield_kg_m
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>%
 ggplot( aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -609,7 +640,7 @@ ggplot( aes(year_factor, yield_kg_m))+
        y= "yield kg/m - Sauvignon Blanc")
 
 #yield_kg_m filter out zeros
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>%
 filter(yield_kg_m != 0) %>% 
   ggplot( aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
@@ -620,7 +651,7 @@ filter(yield_kg_m != 0) %>%
 
 
 #brix - too many zero
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>%
 ggplot( aes(year_factor, brix))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -630,7 +661,7 @@ ggplot( aes(year_factor, brix))+
 
 
 #brix - filter out high values
-filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0) %>%
+filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0) %>%
 filter(brix <40) %>% 
   ggplot( aes(year_factor, brix))+
   geom_boxplot(alpha=0.1)+
@@ -643,7 +674,7 @@ filter(brix <40) %>%
 
 ############################################################################## 
 ########################    File to use   ####################################
-constellation_yld2017_2019_spatial_SAU_Gps <- filter(constellation_yld2017_2019_spatial_SAU,  POINT_X >0)
+constellation_yld2017_2019_spatial_SAU_Gps <- filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0)
 str(constellation_yld2017_2019_spatial_SAU_Gps)
 
  constellation_yld2017_2019_spatial_SAU_Gps <- select(constellation_yld2017_2019_spatial_SAU_Gps, -year_factor)
