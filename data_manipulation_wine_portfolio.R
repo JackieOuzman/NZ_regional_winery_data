@@ -115,7 +115,8 @@ Yld_pred_data <-   read_excel(paste0("V:/Marlborough regional/Regional winery da
 
 Yld_pred_data <- select(Yld_pred_data,
                         Block_name = `...9`,
-                        pruning_style = `...12`)
+                        pruning_style = `...12`,
+                        Bunches_per_Vine_nov = `...16`)
 
 #remove the summary data rows.
 
@@ -195,7 +196,8 @@ yld_import_2019_function <- function(file_name, file_name2, year_file){
   
   Yld_pred_data <- select(Yld_pred_data,
                           Block_name = `...9`,
-                          pruning_style = `...12`)
+                          pruning_style = `...12`,
+                          Bunches_per_Vine_nov = `...16`)
   
   #remove the summary data rows.
   
@@ -243,8 +245,10 @@ yld_GPS <- mutate(yld_GPS,
                ID_yr = paste0(Block_name, "_", year),
                yield_kg_m = NA,
                bunch_numb_m = NA,
+               #bunch_numb_m = Bunches_per_Vine_nov / vine_spacing_m,
                row_width = NA,
-               vine_spacing = NA)
+               vine_spacing = NA,
+               )
 
 
 yld_GPS <- mutate(yld_GPS,
