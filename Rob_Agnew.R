@@ -180,18 +180,31 @@ Yld_GPS_Rob_Agnew <- left_join(Yld_Rob_Agnew, GPS_Pts_Rob_Agnew_DD_df)
 str(Yld_GPS_Rob_Agnew)
 unique(Yld_GPS_Rob_Agnew$vineyard)
 
-Booker - alreday got missing some data for berry weight all years but not 2016
-McKean
-OYB
-Rarangi
-Rowley
-Seaview
-Seddon
-Squire
-Tohu
-Villa
+# Booker - #already got MV9_SBLK - some missing some data for berry weight all years but not 2016 2017. Bunchnumb_m all yrs
+# McKean
+# OYB
+# Rarangi #already got NRARSBC 
+# Rowley
+# Seaview #already got M10SBLF missing berry wt and bunch numb m 
+# Seddon # not GPS pts
+# Squire #already got MV7_SBLD missing berry wt (got 2011 and 2017) and bunch numb m
+# Tohu
+# Villa #already got MMBWSB missing harvest date 2018 missing yld for all, brix 2018, bunch wt 2018,17,15,13. Missing berry wt for all except 2016 and 2012. missing all bunch _m
 
 
+#safe to use...
+Yld_GPS_Rob_Agnew <- filter(Yld_GPS_Rob_Agnew,
+                            vineyard == "McKean" |
+                 vineyard == "OYB"|
+                 vineyard == "Rowley"|
+                 vineyard == "Tohuey")
+                 
+ 
+  
+ 
+ 
+ 
+ 
 ### Select clm I want
 str(Yld_GPS_Rob_Agnew)
 Yld_GPS_Rob_Agnew <- select(Yld_GPS_Rob_Agnew,
@@ -222,37 +235,37 @@ dim(Yld_GPS_Rob_Agnew)
 
 
 #how many entries with and without GPS for all years
-dim(Yld_GPS_Rob_Agnew)#1116
+dim(Yld_GPS_Rob_Agnew)#256
 unique(Yld_GPS_Rob_Agnew$variety)
 str(Yld_GPS_Rob_Agnew)
 
 
-dim(Yld_GPS_Rob_Agnew)#1116
+dim(Yld_GPS_Rob_Agnew)#256
 
 #how many entries with GPS for all years
-min(Yld_GPS_Rob_Agnew$x_coord)
+
 
 
 Yld_GPS_Rob_Agnew_GPS_SAB <- filter(Yld_GPS_Rob_Agnew,  x_coord       >0)
-dim(Yld_GPS_Rob_Agnew_GPS_SAB) #1104 Seddon is missing coordinates from Pernod Ricard
+dim(Yld_GPS_Rob_Agnew_GPS_SAB) #256 Seddon is missing coordinates from Pernod Ricard
 #how many site are SAU?
 unique(Yld_GPS_Rob_Agnew_GPS_SAB$variety)
 
 
 
 
-glimpse(Yld_GPS_Rob_Agnew) #1,116 records
+glimpse(Yld_GPS_Rob_Agnew) #256 records
 max(Yld_GPS_Rob_Agnew_GPS_SAB$year) #2018
 min(Yld_GPS_Rob_Agnew_GPS_SAB$year) #2005
 #how many records are SAU with GPS
-count(filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0)) #1104
+count(filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0)) #256
 
 
 
 #how many records with GPS pts all varieties
-glimpse(Yld_GPS_Rob_Agnew  )#1116 records
+glimpse(Yld_GPS_Rob_Agnew  )#256 records
 #how many records with GPS pts all varieties
-count(filter(Yld_GPS_Rob_Agnew,   x_coord >0)) #1104
+count(filter(Yld_GPS_Rob_Agnew,   x_coord >0)) #256
 
 filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0) %>% 
   ggplot( aes(variety ))+
@@ -282,7 +295,7 @@ Yld_GPS_Rob_Agnew_GPS_SAB
 #how many sites for Sauvignon Blanc by year
 filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>% 
   group_by(year) %>% 
-  count() # 2014 = 12, 2015 =12, 2016 =12, 2017 =10, 2018 =12, 2019 =12
+  count() # 
 
 ####################################################################################################
 
@@ -386,5 +399,5 @@ glimpse(Yld_GPS_Rob_Agnew_GPS_SAB)
 
 
 
-write_csv(Yld_GPS_Rob_Agnew_GPS_SAB, "V:/Marlborough regional/working_jaxs/Yld_GPS_Rob_Agnew_GPS_SAB.csv")
+write_csv(Yld_GPS_Rob_Agnew_GPS_SAB, "V:/Marlborough regional/working_jaxs/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
 ############################################################################## 
