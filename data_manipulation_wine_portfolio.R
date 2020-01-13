@@ -53,6 +53,7 @@ write_csv(centroid_df, "V:/Marlborough regional/working_jaxs/Wine_port_centroid_
 
 
 #for 2014-2018
+#Harvest yield data
 yld_import_function <- function(file_name, file_name2, year_file){
   
 Yld_data <-   read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/",file_name, ".xlsx"),
@@ -106,11 +107,12 @@ Yld_data <- select(
 #unique(Yld_data_2014$Block_name)
 Yld_data <- filter(Yld_data, Block_name != "NA")
 
+#yield prediction data
 
 #Yld_pred_data <-   read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/Kuranui Yield Prediction 2014-18.xlsx",
   #                            "2014" ,  col_names = FALSE,  range = "A3:L28" )
 Yld_pred_data <-   read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/",file_name2, ".xlsx"),
-                         year_file ,  col_names = FALSE,  range = "A3:L28" )
+                         year_file ,  col_names = FALSE,  range = "A3:p28" )
 
 
 Yld_pred_data <- select(Yld_pred_data,
@@ -191,7 +193,7 @@ yld_import_2019_function <- function(file_name, file_name2, year_file){
   
 
   Yld_pred_data <-   read_excel(paste0("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/",file_name2, ".xlsx"),
-                                "2018" ,  col_names = FALSE,  range = "A3:L28" )
+                                "file_name2" ,  col_names = FALSE,  range = "A3:p28" )
   
   
   Yld_pred_data <- select(Yld_pred_data,
@@ -219,7 +221,7 @@ yld_2015 <- yld_import_function("Kuranui Harvest data 2014-18", "Kuranui Yield P
 yld_2016 <- yld_import_function("Kuranui Harvest data 2014-18", "Kuranui Yield Prediction 2014-18", "2016")
 yld_2017 <- yld_import_function("Kuranui Harvest data 2014-18", "Kuranui Yield Prediction 2014-18", "2017")
 yld_2018 <- yld_import_function("Kuranui Harvest data 2014-18", "Kuranui Yield Prediction 2014-18", "2018")
-yld_2019 <- yld_import_2019_function("2019 Intake Harvest Data", "Kuranui Yield Prediction 2014-18", "2019")
+yld_2019 <- yld_import_function("2019 Intake Harvest Data", "V19 Yield Predictions_not_as_object", "2019")
 
 
                              
@@ -237,17 +239,34 @@ yld_GPS <- rbind(yld_2014,
                  yld_2017,
                  yld_2018, 
                  yld_2019)
+str(yld_GPS)
+
 ################################################################################################################
+ unique(yld_GPS$VAR)
+# Sauvignon Blanc - 2.2m x 1.8m = 2525 vines/ha (SAB)
+# Pinot Noir - 2.2m x 1.25 = 3636 vines/ha (PIN)
+# Pinot Gris - 2.2m x 1.5m = 3030 vines/ha (PIG)
 
-
+# add in vine spacing and row spacing
+yld_GPS <- mutate(yld_GPS, 
+                  vine_spacing = case_when(
+                  VAR == "PIN" ~ 1.25,
+                  VAR == "PIG" ~ 1.5,
+                  VAR == "SAB" ~ 1.8),
+                  row_width = 2.2
+                  )
+  
+  
+unique(yld_GPS$vine_spacing)
+unique(yld_GPS$row_width)
+             
 
 yld_GPS <- mutate(yld_GPS,
                ID_yr = paste0(Block_name, "_", year),
-               yield_kg_m = NA,
-               bunch_numb_m = NA,
-               #bunch_numb_m = Bunches_per_Vine_nov / vine_spacing_m,
-               row_width = NA,
-               vine_spacing = NA,
+               yield_kg_m = (Yield_t_ha * 1000) / (10000/row_width), #check this cal
+               bunch_numb_m = Bunches_per_Vine_nov / vine_spacing,
+               ID_yr = paste0(Block_name, "_", year)
+               
                )
 
 
@@ -275,7 +294,7 @@ yld_GPS <- select(yld_GPS,
                            vine_spacing)
 
 str(yld_GPS)
-
+dim(yld_GPS)
 
 
 ######################################################################################################################
@@ -292,7 +311,7 @@ yld_GPS_only <- filter(yld_GPS,  x_coord       >0)
 dim(yld_GPS_only) #136
 #how many site are SAU?
 unique(yld_GPS_only$variety)
-SAB
+#SAB
 yld_GPS_only_SAB <- filter(yld_GPS_only, variety == "SAB" )
 dim(yld_GPS_only_SAB) #70
 
@@ -358,7 +377,8 @@ filter(yld_GPS_only_SAB,  x_coord >0) %>%
 filter(yld_GPS_only_SAB,  x_coord >0) %>%
   ggplot( aes(na_count))+
   geom_bar()+
-  scale_x_continuous(breaks =  c(2,4,6,8,10))+
+  #xlim(0,10)+
+  scale_x_continuous(breaks =  c(0,2,4,6,8,10))+
   facet_wrap(~year_factor)+
   theme_bw()+
   labs(x = "number of na counts per entry",
