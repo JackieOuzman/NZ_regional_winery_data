@@ -23,7 +23,7 @@ wine_portfolio_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/Wine_por
 constellation_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/constellation_2017_2019_all_sau.csv")
 
 
-#sites added in 2020 Rob Not run yet
+#sites added in 2020 Rob 
 
 yealands_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated Yealands.xlsx",
                               sheet = "Updated other blocks All years")
@@ -38,7 +38,7 @@ yealands_2020 <- select(yealands_2020,
                         yield_kg_m = `Yield (kg/m)`,
                         bunch_weight = `Calculated Bunch mass (g)`, #check with ROB - ok to use
                         berry_weight = `Calculated Berry wt (g)`,
-                        bunch_per_vine = `Bunches Removed pre Veraison, post estimate`,
+                        bunch_per_vine = `Actual Bunch No`,
                         row_width = `row spacing (m)`,
                         vine_spacing = `In-row spacing (m)`)
                     
@@ -61,32 +61,56 @@ str(yealands_seaview_2020)
 yealands_seaview_2020 <- select(yealands_seaview_2020,
                         x_coord = POINT_X,
                         y_coord = POINT_Y ,
-                        #vineyard = VINEYARD,
                         year = Year,                                       
                         harvest_date = `Harvest Date`,
                         yield_t_ha = `Actual Harvested  T/ha`, #check with ROB - ok to use
                         yield_kg_m = `Yield (kg/m)`,
                         bunch_weight = `Calculated Bunch mass (g)`, #check with ROB - ok to use
                         berry_weight = `Calculated Berry wt (g)`,
-                        bunch_per_vine = `Bunches Removed pre Veraison, post estimate`,
-                        row_width = `row spacing (m)`,
-                        #vine_spacing = `In-row spacing (m)`)
+                        bunch_per_vine = `Actual Bunch No`,
+                        #row_width = `row spacing (m)`,
+                        vine_spacing = `In-row spacing (m)`)
 
-yealands_2020 <- mutate(yealands_2020,                      
+yealands_seaview_2020 <- mutate(yealands_seaview_2020,                      
                         company = "Yealands",
-                        vineyard = "seaview",
+                        vineyard = "Seaview",
                         ID_yr = paste0(vineyard, "_", year), 
                         variety = "Sauvignon Blanc",
                         julian = as.numeric(format(harvest_date, "%j")),
                         brix = NA,
                         bunch_numb_m = bunch_per_vine / vine_spacing,
-                        pruning_style = NA)
+                        pruning_style = NA,
+                        row_width = NA,
+                        na_count = NA) #not supplied I havent calulated
+
+yealands_seaview_2020 <- rbind(yealands_seaview_2020,yealands_2020 )
+yealands_seaview_2020 <- select(yealands_seaview_2020,
+                                company,
+                                ID_yr,
+                                variety,
+                                x_coord,
+                                y_coord,
+                                year,
+                                harvest_date,
+                                julian,
+                                yield_t_ha,
+                                yield_kg_m,
+                                brix,
+                                bunch_weight,
+                                berry_weight,
+                                bunch_numb_m,
+                                pruning_style,
+                                row_width,
+                                vine_spacing,
+                                na_count
+)
 
 
+############# Rob Giesen
 
 
-
-
+Giesen_2020 <-  read_csv("V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld.csv")
+dim(Giesen_2020)
 ####################################################################################################################
 ####################################    DELEGATES     ##############################################################
 ####################################################################################################################
@@ -144,8 +168,7 @@ glimpse(Rob_agnew_2020)#18
 delegate_pern <- rbind(delegates_april_2019,
                       pernod_ricard_april_2019)
 
-glimpse(delegate_pern)
-glimpse(Villia_maria_april_2019)
+
 delegate_pern_villia <- rbind(delegate_pern,
                               Villia_maria_april_2019)
 
@@ -164,6 +187,9 @@ del_pern_vill_white_wither_con_win_port <- rbind(del_pern_vill_white_wither_con,
 del_pern_vill_white_wither_con_win_port_RA <- rbind(del_pern_vill_white_wither_con_win_port, Rob_agnew_2020)
 glimpse(del_pern_vill_white_wither_con_win_port_RA)
 
+###site added in 2020 Rob
+del_pern_vill_white_wither_con_win_port_RA_yealands <- rbind(del_pern_vill_white_wither_con_win_port_RA, yealands_seaview_2020)
+del_pern_vill_white_wither_con_win_port_RA_yealands_Gie <- rbind(del_pern_vill_white_wither_con_win_port_RA_yealands, Giesen_2020)
 
 ####do na count again ####
 glimpse(del_pern_vill_white_wither_con_win_port_RA)
