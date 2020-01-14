@@ -473,7 +473,26 @@ constellation_yld2017_2019_spatial$ actual_T <- as.double(constellation_yld2017_
 constellation_yld2017_2019_spatial$ actual_ha <- as.double(constellation_yld2017_2019_spatial$ actual_ha)
 
 
+str(constellation_yld2017_2019_spatial$year)
+unique(constellation_yld2017_2019_spatial$year)
+constellation_yld2017_2019_spatial <- mutate(constellation_yld2017_2019_spatial,
+                                                             year_vintage =  case_when(
+                                                               year == "2017-18" ~ "2018",
+                                                               year == "2018-19" ~ "2019",
+                                                               TRUE ~ year))
+
+unique(constellation_yld2017_2019_spatial$year_vintage)
+#remove year clm
+constellation_yld2017_2019_spatial <- select(constellation_yld2017_2019_spatial,
+                                             -year)
+
+
+
+constellation_yld2017_2019_spatial <- mutate(constellation_yld2017_2019_spatial,
+                                             year = year_vintage)
+
 str(constellation_yld2017_2019_spatial)
+constellation_yld2017_2019_spatial$year <- as.double(constellation_yld2017_2019_spatial$year)
 
 
 constellation_yld2017_2019_spatial <- mutate(constellation_yld2017_2019_spatial,
@@ -494,7 +513,9 @@ constellation_yld2017_2019_spatial <- mutate(constellation_yld2017_2019_spatial,
                                      yield_kg_m 	= ( yield_t_ha * 1000) / (10000/row_spacing),
                                      ID_yr = paste0(block_code, "_", year)
 )
-constellation_yld2017_2019_spatial$na_count <- apply(is.na(constellation_yld2017_2019_spatial), 1, sum)
+
+
+
 
 constellation_yld2017_2019_spatial <- select(constellation_yld2017_2019_spatial,
                                               company,
@@ -513,12 +534,12 @@ constellation_yld2017_2019_spatial <- select(constellation_yld2017_2019_spatial,
                                               bunch_numb_m,
                                               pruning_style,
                                               row_width = row_spacing,
-                                              vine_spacing,
-                                              na_count)
+                                              vine_spacing
+                                              )
                                               
                                               
                                         
-
+constellation_yld2017_2019_spatial$na_count <- apply(is.na(constellation_yld2017_2019_spatial), 1, sum)
 
 str(constellation_yld2017_2019_spatial)
 ###################################################################################################
