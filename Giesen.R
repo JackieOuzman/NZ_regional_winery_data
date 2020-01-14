@@ -9,6 +9,9 @@ library(data.table)
 
 ## this file has boundries ID from row number on a pdf map and cal the ha for each subblock
 Giesen_shapefile =  st_read("V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Working_blk_bound/Giesen_Bay_blocks.shp")
+
+
+#bring in the shapefile and cal the centroids
 #some subblock have the same name so these should be aggreated before taking the centriod
 
 Giesen_shapefile_agg <- aggregate(Giesen_shapefile, list(Giesen_shapefile$Block ), function(x) x[1])
@@ -43,9 +46,12 @@ Giesen_site_centroid <- select(Giesen_site_centroid,
 ### what is the sum of the ha for the block with the same names?
 
 Giesen_shapefile_sum_ha <- group_by(Giesen_shapefile, Block) %>% 
-                                    summarise(ha_sum = mean(AREA_GEO))  
+                                    summarise(ha_sum = sum(AREA_GEO))  
 #remove the geometry
 Giesen_shapefile_sum_ha <- st_set_geometry(Giesen_shapefile_sum_ha, NULL)
+
+
+
 
 #join these data set togther again
 str(Giesen_shapefile_sum_ha)
@@ -54,9 +60,21 @@ str(Giesen_site_centroid)
 centroid_Giesen_shapefile_agg_ha <- left_join(Giesen_site_centroid, Giesen_shapefile_sum_ha)
 str(centroid_Giesen_shapefile_agg_ha)
 centroid_Giesen_shapefile_agg_ha <- select(centroid_Giesen_shapefile_agg_ha,block_ID = Block,  ha_sum, POINT_X, POINT_Y )
+## remove the objects I dont need
 
+rm(
+  list = c(
+    "centroid",
+    "centroid_df",
+    "geom",
+    "Giesen_shapefile",
+    "Giesen_shapefile_agg",
+    "Giesen_site_centroid",
+    "shapefile_df",
+    "Giesen_shapefile_sum_ha"
+  ) )   
 
-st_write(centroid_Giesen_shapefile, "centroid_Giesen_shapefile.csv", layer_options = "GEOMETRY=AS_XY")                               
+write.csv(centroid_Giesen_shapefile_agg_ha, "centroid_Giesen_shapefile_agg_ha.csv")                               
 
 Giesen_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen Bay Block Rob 2017-19.xlsx",
                             sheet = "Year_block totals")
@@ -152,9 +170,14 @@ row_width,
 vine_spacing,
 na_count)
 
+#remove missing data
 Giesen_2020_spatial_yld <- filter(Giesen_2020_spatial_yld, x_coord > 0)
+str(Giesen_2020_spatial_yld)
+#remove duplicates
+Giesen_2020_spatial_yld <- distinct(Giesen_2020_spatial_yld, ID_yr, .keep_all = TRUE)
 
 dim(Giesen_2020_spatial_yld)
+
 #merge of Rob and my work
 
 write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld.csv")
@@ -163,22 +186,3 @@ write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data
 
 
 
-
-check <- left_join(Giesen_2020,centroid_Giesen_shapefile_agg_ha)
-
-check <- mutate(check,
-                                  company = "Giesen",
-                                  ID_yr = paste0(block_ID, "_", year),
-                                  x_coord = POINT_X,
-                                  y_coord = POINT_Y,
-                                  julian = as.numeric(format(harvest_date, "%j")),
-                                  yield_t_ha = yield_t_total/ ha_sum, #ha is from spatial data
-                                  m_ha_vine = 1000/ row_width,
-                                  yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
-                                  bunch_weight = NA,
-                                  berry_weight = NA,
-                                  bunch_numb_m = NA,
-                                  pruning_style = NA,
-                                  na_count = NA
-                                  
-)
