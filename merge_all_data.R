@@ -165,43 +165,60 @@ glimpse(Rob_agnew_2020)#18
 ####################################    merge one step at a time   #################################################
 ####################################################################################################################
 ###site added in 2019
-delegate_pern <- rbind(delegates_april_2019,
-                      pernod_ricard_april_2019)
+# delegate_pern <- rbind(delegates_april_2019,
+#                       pernod_ricard_april_2019)
+# delegate_pern_villia <- rbind(delegate_pern,
+#                               Villia_maria_april_2019)
+# delegate_pern_villia_white_haven <- rbind(delegate_pern_villia,
+#                                           white_haven_april_2019)
+# del_pern_vill_white_wither <- rbind(delegate_pern_villia_white_haven,
+#                                     wither_hills_april_2019)
 
 
-delegate_pern_villia <- rbind(delegate_pern,
-                              Villia_maria_april_2019)
-
-delegate_pern_villia_white_haven <- rbind(delegate_pern_villia,
-                                          white_haven_april_2019)
-
-del_pern_vill_white_wither <- rbind(delegate_pern_villia_white_haven,
-                                    wither_hills_april_2019)
-
+site_add2019 <- rbind(delegates_april_2019,
+                      pernod_ricard_april_2019,
+                      Villia_maria_april_2019,
+                      white_haven_april_2019,
+                      wither_hills_april_2019)
 ####################################################################################################################
 ###site added in 2020 jaxs
 
-del_pern_vill_white_wither_con <- rbind(del_pern_vill_white_wither,
-                                        constellation_2020)
-del_pern_vill_white_wither_con_win_port <- rbind(del_pern_vill_white_wither_con, wine_portfolio_2020)
-del_pern_vill_white_wither_con_win_port_RA <- rbind(del_pern_vill_white_wither_con_win_port, Rob_agnew_2020)
-glimpse(del_pern_vill_white_wither_con_win_port_RA)
+# del_pern_vill_white_wither_con <- rbind(del_pern_vill_white_wither,
+#                                         constellation_2020)
+# del_pern_vill_white_wither_con_win_port <- rbind(del_pern_vill_white_wither_con, wine_portfolio_2020)
+# del_pern_vill_white_wither_con_win_port_RA <- rbind(del_pern_vill_white_wither_con_win_port, Rob_agnew_2020)
+# glimpse(del_pern_vill_white_wither_con_win_port_RA)
 
+
+site_add2020_jax <- rbind(constellation_2020,
+                          wine_portfolio_2020,
+                          Rob_agnew_2020)
+  
+  
 ###site added in 2020 Rob
 del_pern_vill_white_wither_con_win_port_RA_yealands <- rbind(del_pern_vill_white_wither_con_win_port_RA, yealands_seaview_2020)
 del_pern_vill_white_wither_con_win_port_RA_yealands_Gie <- rbind(del_pern_vill_white_wither_con_win_port_RA_yealands, Giesen_2020)
 
-####do na count again ####
-glimpse(del_pern_vill_white_wither_con_win_port_RA)
-del_pern_vill_white_wither_con_win_port_RA <- select(del_pern_vill_white_wither_con_win_port_RA, -na_count)
+site_add2020_rob <- rbind(yealands_seaview_2020, Giesen_2020)
 
-del_pern_vill_white_wither_con_win_port_RA$na_count <- apply(is.na(del_pern_vill_white_wither_con_win_port_RA), 1, sum)
+#### Merge site_add2020_jax site_add2020_rob and site_add2019
+site_Jan2020 <- rbind(site_add2020_jax,site_add2020_rob,  site_add2019)
+
+####do na count again ####
+glimpse(site_Jan2020)
+site_Jan2020 <- select(site_Jan2020, -na_count)
+
+site_Jan2020$na_count <- apply(is.na(site_Jan2020), 1, sum)
+
+
+
+
 ######   Recode variety column so that it is all the same
-group_by(del_pern_vill_white_wither_con_win_port_RA, variety) %>% 
+group_by(site_Jan2020, variety) %>% 
   count()
 
 
-del_pern_vill_white_wither_con_win_port_RA <- mutate(del_pern_vill_white_wither_con_win_port_RA,
+site_Jan2020 <- mutate(site_Jan2020,
                                      variety =  case_when(
                                        variety == "SAUV" ~ "Sauvignon Blanc",
                                        variety == "sb" ~ "Sauvignon Blanc",
@@ -209,12 +226,12 @@ del_pern_vill_white_wither_con_win_port_RA <- mutate(del_pern_vill_white_wither_
                                        variety == "SAB" ~ "Sauvignon Blanc",
                                        variety == "Sauvignon_blanc" ~ "Sauvignon Blanc",
                                        TRUE ~ variety))
-group_by(del_pern_vill_white_wither_con_win_port_RA, variety) %>% 
+group_by(site_Jan2020, variety) %>% 
   count()
-group_by(del_pern_vill_white_wither_con_win_port_RA, company) %>% 
+group_by(site_Jan2020, company) %>% 
   count()
 
-del_pern_vill_white_wither_con_win_port_RA <- mutate(del_pern_vill_white_wither_con_win_port_RA,
+site_Jan2020 <- mutate(site_Jan2020,
                                      company =  case_when(
                                        company == "Delegates" ~ "Delegat",
                                        company == "pernod_ricard" ~ "Pernod Ricard",
@@ -223,36 +240,35 @@ del_pern_vill_white_wither_con_win_port_RA <- mutate(del_pern_vill_white_wither_
                                        company == "Wither_Hills" ~ "Wither Hills",
                                        TRUE ~ company))
 
-write_csv(del_pern_vill_white_wither_con_win_port_RA, "V:/Marlborough regional/working_jaxs/del_pern_vill_white_wither_con_win_port_RA.csv")
+write_csv(site_Jan2020, "V:/Marlborough regional/working_jaxs/site_Jan2020.csv")
 
  
-del_pern_vill_white_wither_con_win_port_RA <- mutate(del_pern_vill_white_wither_con_win_port_RA,year = as.double(year))
+site_Jan2020 <- mutate(site_Jan2020,year = as.double(year))
 
 ##################################################################################################################
 ######################      Display data                   #####################################################
 ################################################################################################################
 
-dim(del_pern_vill_white_wither_con_win_port_RA)
+dim(site_Jan2020)
 #how many site?
-str(del_pern_vill_white_wither_con_win_port_RA)
-glimpse(del_pern_vill_white_wither_con_win_port_RA) #5,023 records
+str(site_Jan2020)
+glimpse(site_Jan2020) #5,254 records
 
 
 #how many sites by company by year
-ggplot(del_pern_vill_white_wither_con_win_port_RA, aes(company))+
+ggplot(site_Jan2020, aes(company))+
   geom_bar()+
   theme_bw()+
   theme(axis.text.x=element_text(angle=90))+
   labs(y = "Count of sites")+
   facet_wrap(~year)
 
+
 #how many sites by company by year with coods
-test <- filter(del_pern_vill_white_wither_con_win_port_RA, year_factor != "NA")
-glimpse(test)
-summary(del_pern_vill_white_wither_con_win_port_RA)
 
 
-filter(del_pern_vill_white_wither_con_win_port_RA,x_coord > 0) %>% 
+
+filter(site_Jan2020,x_coord > 0) %>% 
   filter( year != "NA") %>% 
    ggplot( aes(company))+
   geom_bar()+
@@ -262,9 +278,9 @@ filter(del_pern_vill_white_wither_con_win_port_RA,x_coord > 0) %>%
   facet_wrap(~year)
 
 ###Create a new column which changes company name
-unique(del_pern_vill_white_wither_con_win_port_RA$company)
+unique(site_Jan2020$company)
 
-del_pern_vill_white_wither_con_win_port_RA <- mutate(del_pern_vill_white_wither_con_win_port_RA,
+site_Jan2020 <- mutate(site_Jan2020,
                                      company_a =  case_when(
                                        company == "Delegat" ~ "a",
                                        company == "Pernod Ricard" ~ "b",
@@ -275,31 +291,31 @@ del_pern_vill_white_wither_con_win_port_RA <- mutate(del_pern_vill_white_wither_
                                        company == "wine_portfolio" ~ "g",
                                        company == "Matua" ~ "h",
                                        company == "Oyster Bay/ Delegat" ~ "i",
-                                       company == "Marlborough Research" ~ "j"
+                                       company == "Marlborough Research" ~ "j",
                                        #company == "Matua" ~ "k",
                                        TRUE ~ company))
 
 
 
 #create a new variable year_as_factor
-del_pern_vill_white_wither_con_win_port_RA$year_factor <- as.factor(del_pern_vill_white_wither_con_win_port_RA$year)
+site_Jan2020$year_factor <- as.factor(site_Jan2020$year)
 
 
-ggplot(del_pern_vill_white_wither_con_win_port_RA, aes(year_factor, na_count))+
+ggplot(site_Jan2020, aes(year_factor, na_count))+
   geom_col()+
   theme_bw()+
   labs(x = "Year",
        y= "Total counts of missing data entries NA - Sauvignon Blanc")
 
 #julian days
-ggplot(del_pern_vill_white_wither_con_win_port_RA, aes(year_factor, julian))+
+ggplot(site_Jan2020, aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
   labs(x = "Year",
        y= "Julian days - Sauvignon Blanc")
 ##### only display greater than 20 
-filter(del_pern_vill_white_wither_con_win_port_RA,julian > 20) %>% 
+filter(site_Jan2020,julian > 20) %>% 
   ggplot( aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -307,7 +323,7 @@ filter(del_pern_vill_white_wither_con_win_port_RA,julian > 20) %>%
   labs(x = "Year",
        y= "Julian days - Sauvignon Blanc")
 
-filter(del_pern_vill_white_wither_con_win_port_RA,julian > 20) %>% 
+filter(site_Jan2020,julian > 20) %>% 
   ggplot( aes(year_factor, julian, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -319,7 +335,7 @@ filter(del_pern_vill_white_wither_con_win_port_RA,julian > 20) %>%
   facet_wrap(.~ company)
 
 #yield_t_ha
-ggplot(del_pern_vill_white_wither_con_win_port_RA, aes(year_factor, yield_t_ha))+
+ggplot(site_Jan2020, aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -327,7 +343,7 @@ ggplot(del_pern_vill_white_wither_con_win_port_RA, aes(year_factor, yield_t_ha))
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(del_pern_vill_white_wither_con_win_port_RA,yield_t_ha > 0) %>% 
+filter(site_Jan2020,yield_t_ha > 0) %>% 
 ggplot( aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -336,7 +352,7 @@ ggplot( aes(year_factor, yield_t_ha))+
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(del_pern_vill_white_wither_con_win_port_RA,yield_t_ha > 0) %>% 
+filter(site_Jan2020,yield_t_ha > 0) %>% 
   ggplot( aes(year_factor, yield_t_ha, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
