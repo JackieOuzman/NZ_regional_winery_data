@@ -65,10 +65,10 @@ str(Giesen_2020)
 Giesen_2020 <- select(
   Giesen_2020,
   variety = Variety ,
-  Vineyard,
+  Block,
   year = Year,
   harvest_date = Date,
-  yield_t_total = `Nett (t)`,
+  yield_t_total = `Sum Nett (t)`,
   brix = `Brix (deg)`,
   row_width = `Row space`,
   vine_spacing = `Vine space`,
@@ -118,7 +118,7 @@ str(Giesen_2020_spatial_yld)
 
 Giesen_2020_spatial_yld <- mutate(Giesen_2020_spatial_yld,
                       company = "Giesen",
-                      ID_yr = paste0(Vineyard, "_", year),
+                      ID_yr = paste0(block_ID, "_", year),
                       x_coord = POINT_X,
                       y_coord = POINT_Y,
                       julian = as.numeric(format(harvest_date, "%j")),
@@ -152,6 +152,7 @@ row_width,
 vine_spacing,
 na_count)
 
+Giesen_2020_spatial_yld <- filter(Giesen_2020_spatial_yld, x_coord > 0)
 
 dim(Giesen_2020_spatial_yld)
 #merge of Rob and my work
@@ -163,5 +164,21 @@ write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data
 
 
 
+check <- left_join(Giesen_2020,centroid_Giesen_shapefile_agg_ha)
 
-
+check <- mutate(check,
+                                  company = "Giesen",
+                                  ID_yr = paste0(block_ID, "_", year),
+                                  x_coord = POINT_X,
+                                  y_coord = POINT_Y,
+                                  julian = as.numeric(format(harvest_date, "%j")),
+                                  yield_t_ha = yield_t_total/ ha_sum, #ha is from spatial data
+                                  m_ha_vine = 1000/ row_width,
+                                  yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
+                                  bunch_weight = NA,
+                                  berry_weight = NA,
+                                  bunch_numb_m = NA,
+                                  pruning_style = NA,
+                                  na_count = NA
+                                  
+)
