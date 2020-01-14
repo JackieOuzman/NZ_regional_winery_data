@@ -22,7 +22,8 @@ GPS_Pts_Rob_Agnew <- select(GPS_Pts_Rob_Agnew,
                             vineyard =phenology.vineyard.name,
                             winery,
                             latitude,
-                            longitude)  # new name = old name
+                            longitude
+                             )  # new name = old name
 #remove the missing data 
 GPS_Pts_Rob_Agnew <- filter(GPS_Pts_Rob_Agnew, latitude != "NA")
 str(GPS_Pts_Rob_Agnew)
@@ -133,8 +134,17 @@ Yld_Rob_Agnew <- select(
   bunch_weight = `calculated.good.bunch.weight.g`,
   berry_weight = `mean.berry.weight.harvest.sample.g`,
   vineyard = phenology.vineyard.name,
-  bunch_per_vine = calculated.bunches.per.vine
+  bunch_per_vine = calculated.bunches.per.vine,
+  month,
+  day
 )
+
+###make harvest date from day month year
+
+Yld_Rob_Agnew$date <- with(Yld_Rob_Agnew, ymd(sprintf('%04d%02d%02d', year, month, day)))
+str(Yld_Rob_Agnew$date)
+
+
 
 ##If in the missing company data with the values above.
 Yld_Rob_Agnew <- fill(Yld_Rob_Agnew,company )
@@ -163,9 +173,8 @@ yield_kg_m = (yield_t_ha * 1000) / (10000/row_width), #check this cal
 bunch_numb_m = bunch_per_vine / vine_spacing,
 brix = NA,
 pruning_style = NA,
-harvest_date = NA,
-julian = NA,
-#julian = as.numeric(format(Harvest_date, "%j")),
+harvest_date = date,
+julian = as.numeric(format(harvest_date, "%j")),
 variety = "Sauvignon_blanc")
 
 
