@@ -238,6 +238,14 @@ site_Jan2020 <- mutate(site_Jan2020,
                                        company == "Villa Maria" ~ "Villa Maria",
                                        company == "whitehaven" ~ "Whitehaven",
                                        company == "Wither_Hills" ~ "Wither Hills",
+                                       company == "constellation" ~ "Constellation",
+                                       company == "Giesen" ~ "Giesen",
+                                       company == "Marlborough Research" ~ "Marlborough Research",
+                                       company == "Matua" ~ "Matua",
+                                       company == "Oyster Bay/ Delegat" ~ "Oyster Bay/ Delegat",
+                                       company == "wine_portfolio" ~ "Wine Portfolio",
+                                       company == "Yealands" ~ "Yealands",
+                                       
                                        TRUE ~ company))
 
 write_csv(site_Jan2020, "V:/Marlborough regional/working_jaxs/site_Jan2020.csv")
@@ -252,7 +260,7 @@ site_Jan2020 <- mutate(site_Jan2020,year = as.double(year))
 dim(site_Jan2020)
 #how many site?
 str(site_Jan2020)
-glimpse(site_Jan2020) #5,254 records
+glimpse(site_Jan2020) #5,232 records
 
 
 #how many sites by company by year
@@ -263,24 +271,47 @@ ggplot(site_Jan2020, aes(company))+
   labs(y = "Count of sites")+
   facet_wrap(~year)
 
+#why do I have na for year?
+test <- filter(site_Jan2020, is.na(year))
+str(test)
+#these are 5 points for wither hills - just coord with no data can remove?
 
-#how many sites by company by year with coods
-
-
-
-filter(site_Jan2020,x_coord > 0) %>% 
-  filter( year != "NA") %>% 
-   ggplot( aes(company))+
+site_Jan2020 <- filter(site_Jan2020, !is.na(year))
+#Do again
+#how many sites by company by year - now without the no year data
+ggplot(site_Jan2020, aes(company))+
   geom_bar()+
   theme_bw()+
-  theme(axis.text.x=element_text(angle=0))+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(y = "Count of sites")+
+  facet_wrap(~year)
+########################################################################
+## just years 2014-2018
+site_Jan2020_yr_14_18 <- filter(site_Jan2020, between(site_Jan2020$year, 2014, 2018))
+
+#how many sites by company by year - now without the no year data and only between 2014 and 2018
+filter(site_Jan2020_yr_14_18,  x_coord >0) %>% 
+  ggplot( aes(company))+
+  geom_bar()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90))+
   labs(y = "Count of sites")+
   facet_wrap(~year)
 
-###Create a new column which changes company name
-unique(site_Jan2020$company)
 
-site_Jan2020 <- mutate(site_Jan2020,
+site_table <- filter(site_Jan2020_yr_14_18,  x_coord >0) %>% 
+group_by(year, company) %>% 
+  count() # 
+write.csv(site_table, "V:/Marlborough regional/working_jaxs/site_table.csv")
+
+
+
+
+
+###Create a new column which changes company name
+unique(site_Jan2020_yr_14_18$company)
+
+site_Jan2020_yr_14_18 <- mutate(site_Jan2020_yr_14_18,
                                      company_a =  case_when(
                                        company == "Delegat" ~ "a",
                                        company == "Pernod Ricard" ~ "b",
@@ -288,43 +319,36 @@ site_Jan2020 <- mutate(site_Jan2020,
                                        company == "Whitehaven" ~ "d",
                                        company == "Wither Hills" ~ "e",
                                        company == "constellation" ~ "f",
-                                       company == "wine_portfolio" ~ "g",
+                                       company == "Wine Portfolio" ~ "g",
                                        company == "Matua" ~ "h",
                                        company == "Oyster Bay/ Delegat" ~ "i",
                                        company == "Marlborough Research" ~ "j",
-                                       #company == "Matua" ~ "k",
+                                       company == "Giesen" ~ "k",
+                                       company == "Yealands" ~ "l",
                                        TRUE ~ company))
 
 
-
 #create a new variable year_as_factor
-site_Jan2020$year_factor <- as.factor(site_Jan2020$year)
+site_Jan2020_yr_14_18$year_factor <- as.factor(site_Jan2020_yr_14_18$year)
 
 
-ggplot(site_Jan2020, aes(year_factor, na_count))+
+ggplot(site_Jan2020_yr_14_18, aes(year_factor, na_count))+
   geom_col()+
   theme_bw()+
   labs(x = "Year",
        y= "Total counts of missing data entries NA - Sauvignon Blanc")
 
 #julian days
-ggplot(site_Jan2020, aes(year_factor, julian))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days - Sauvignon Blanc")
-##### only display greater than 20 
-filter(site_Jan2020,julian > 20) %>% 
-  ggplot( aes(year_factor, julian))+
+ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
   labs(x = "Year",
        y= "Julian days - Sauvignon Blanc")
 
-filter(site_Jan2020,julian > 20) %>% 
-  ggplot( aes(year_factor, julian, colour= company))+
+
+
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
   theme_bw()+
@@ -335,7 +359,7 @@ filter(site_Jan2020,julian > 20) %>%
   facet_wrap(.~ company)
 
 #yield_t_ha
-ggplot(site_Jan2020, aes(year_factor, yield_t_ha))+
+ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -343,7 +367,7 @@ ggplot(site_Jan2020, aes(year_factor, yield_t_ha))+
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(site_Jan2020,yield_t_ha > 0) %>% 
+filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>% 
 ggplot( aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -352,7 +376,7 @@ ggplot( aes(year_factor, yield_t_ha))+
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(site_Jan2020,yield_t_ha > 0) %>% 
+filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>% 
   ggplot( aes(year_factor, yield_t_ha, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+

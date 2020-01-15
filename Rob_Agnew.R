@@ -140,7 +140,7 @@ Yld_Rob_Agnew <- select(
 )
 
 ###make harvest date from day month year
-
+as.Date(paste(dt$mon,dt$day,dt$year,sep="-"),format = "%m-%d-%Y")
 Yld_Rob_Agnew$date <- with(Yld_Rob_Agnew, ymd(sprintf('%04d%02d%02d', year, month, day)))
 str(Yld_Rob_Agnew$date)
 
