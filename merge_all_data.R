@@ -21,8 +21,8 @@ wither_hills_april_2019 <-  read_csv("V:/Marlborough regional/working_jaxs/withe
 Rob_agnew_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
 wine_portfolio_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/Wine_portfolio_yld_GPS_only_SAB.csv")
 constellation_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/constellation_2017_2019_all_sau.csv")
-
-
+cloudyBay_2020 <- read_csv("C:/Users/ouz001/working_from_home/NZ_regional_winery_data/yld_spatial_cloudy_bay_2004_19.csv")
+#dim(cloudyBay_2020)
 #sites added in 2020 Rob 
 
 yealands_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated Yealands.xlsx",
@@ -192,7 +192,8 @@ site_add2019 <- rbind(delegates_april_2019,
 
 site_add2020_jax <- rbind(constellation_2020,
                           wine_portfolio_2020,
-                          Rob_agnew_2020)
+                          Rob_agnew_2020,
+                          cloudyBay_2020)
   
   
 ###site added in 2020 Rob
@@ -245,6 +246,7 @@ site_Jan2020 <- mutate(site_Jan2020,
                                        company == "Oyster Bay/ Delegat" ~ "Oyster Bay/ Delegat",
                                        company == "wine_portfolio" ~ "Wine Portfolio",
                                        company == "Yealands" ~ "Yealands",
+                                       company == "Cloudy_bay" ~ "Cloudy Bay",
                                        
                                        TRUE ~ company))
 
@@ -260,7 +262,7 @@ site_Jan2020 <- mutate(site_Jan2020,year = as.double(year))
 dim(site_Jan2020)
 #how many site?
 str(site_Jan2020)
-glimpse(site_Jan2020) #5,232 records
+glimpse(site_Jan2020) #5,808 records
 
 
 #how many sites by company by year
@@ -274,6 +276,7 @@ ggplot(site_Jan2020, aes(company))+
 #why do I have na for year?
 test <- filter(site_Jan2020, is.na(year))
 str(test)
+dim(test)
 #these are 5 points for wither hills - just coord with no data can remove?
 
 site_Jan2020 <- filter(site_Jan2020, !is.na(year))
@@ -386,3 +389,20 @@ filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>%
   labs(x = "Year",
        y= "Yield t/ha - Sauvignon Blanc")+
   facet_wrap(.~ company)
+
+str(site_Jan2020_yr_14_18)
+
+#yield_km_m
+filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>% 
+  ggplot( aes(year_factor, yield_kg_m, colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Yield kg/m - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+
+

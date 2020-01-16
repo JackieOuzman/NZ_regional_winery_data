@@ -141,7 +141,7 @@ Giesen_2020_spatial_yld <- mutate(Giesen_2020_spatial_yld,
                       y_coord = POINT_Y,
                       julian = as.numeric(format(harvest_date, "%j")),
                       yield_t_ha = yield_t_total/ ha_sum, #ha is from spatial data
-                      m_ha_vine = 1000/ row_width,
+                      m_ha_vine = 10000/ row_width,
                       yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
                       bunch_weight = NA,
                       berry_weight = NA,
