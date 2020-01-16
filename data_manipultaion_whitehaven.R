@@ -206,9 +206,44 @@ white_haven_2019 <- mutate(white_haven,
                       ID = paste0(vineyard_abb, "_", block_abb, "_", tolower(Variety)),
                       year = 2019,
                       ID_yr = paste0(ID, "_", year),
-                      julian = as.numeric(format(`V2019 Harvest Date`, "%j")),
+                      harvest_date = as.Date(`V2019 Harvest Date`),
+                      #julian = as.numeric(format(`V2019 Harvest Date`, "%j")),
                       bunch_numb_m = NA)
-glimpse(white_haven_2019)
+str(white_haven_2019)
+
+white_haven_2019 <- mutate(white_haven_2019,
+               harvest_date = case_when(
+                 ID_yr == "alton down_2_sb_2019" ~ as.Date("2019-04-04"),
+                 ID_yr == "alton down_8_sb_2019" ~ as.Date("2019-04-04"),
+                 ID_yr == "alton down_10_sb_2019" ~ as.Date("2019-04-04"),
+                 ID_yr == "alton down_13_sb_2019" ~ as.Date("2019-04-04"),
+                 ID_yr == "alton down_14_sb_2019" ~ as.Date("2019-04-04"),
+                 ID_yr == "alton down_15_sb_2019" ~ as.Date("2019-04-04"),
+                 ID_yr == "alton down_16c/s_sb_2019" ~ as.Date("2019-04-04"),
+                 ID_yr == "alton down_19_sb_2019" ~ as.Date("2019-04-04"),
+               TRUE ~ as.Date(harvest_date)))
+
+white_haven_2019 <- mutate(white_haven_2019,
+                           harvest_date = case_when(
+                             ID_yr == "gray_1_sb_2019" ~ as.Date("2019-04-01"), #year month day
+                             ID_yr == "gray_2_sb_2019" ~ as.Date("2019-04-01"),
+                             ID_yr == "gray_2young_sb_2019" ~ as.Date("2019-04-01"),
+                             ID_yr == "gray_4_sb_2019" ~ as.Date("2019-04-01"),
+                             
+                             ID_yr == "stanley es_redwoodeast_sb_2019" ~ as.Date("2019-04-06"),
+                             ID_yr == "stanley es_redwoodwest_sb_2019" ~ as.Date("2019-04-06"),
+                             TRUE ~ as.Date(harvest_date)))
+
+
+
+
+
+
+
+white_haven_2019 <- mutate(white_haven_2019,
+              julian = as.numeric(format(harvest_date, "%j"))
+                           )
+
 
 white_haven_2019_1 <- select(white_haven_2019,
                            ID,
@@ -217,7 +252,7 @@ white_haven_2019_1 <- select(white_haven_2019,
                            Vineyard,
                            Block,
                            Variety,
-                           harvest_date = `V2019 Harvest Date`,
+                           harvest_date ,
                            julian ,
                            yield_t_ha =   `V2019 t/ha`,
                            yield_kg_m =   `V2019 kg/m`,
@@ -229,6 +264,7 @@ white_haven_2019_1 <- select(white_haven_2019,
                            row_width =`Row Spacing`,
                            vine_spacing = `Vine Spacing`)
 glimpse(white_haven_2019_1)
+
 
 
 #some brix have 0 values that need to be replaced with NA 
@@ -266,6 +302,16 @@ glimpse(white_haven_2019_GPS)
 #white_haven_2019_GPS_anti <- anti_join(white_haven_2019_1,white_haven_GPS_DD1_df )
 #print(white_haven_2019_GPS_anti)
 #print(white_haven_2019_GPS)
+
+### Lots of really early harvest dates in this year emial from Mike 16/1/2020 suggests that some sites should be changed.
+
+
+
+
+
+
+
+
 
 ######################################################################################################################
 ################                         Make DF 2018                                                #################
@@ -630,12 +676,22 @@ glimpse(white_haven_2017_GPS)
 glimpse(white_haven_2018_GPS)
 glimpse(white_haven_2019_GPS)
 
+test <- filter(white_haven_2019_GPS,
+               ID_yr == "alton down_2_sb_2019")
+
+print(test)
+
 white_haven_2019to2014_GPS <- rbind(white_haven_2014_GPS,
                                     white_haven_2015_GPS,
                                     white_haven_2016_GPS,
                                     white_haven_2017_GPS,
                                     white_haven_2018_GPS,
                                     white_haven_2019_GPS)
+
+test2 <- filter(white_haven_2019to2014_GPS,
+               ID_yr == "alton down_2_sb_2019")
+print(test2)
+
 
 glimpse(white_haven_2019to2014_GPS)
 
