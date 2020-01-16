@@ -22,7 +22,11 @@ Rob_agnew_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/Yld_GPS_Rob_A
 wine_portfolio_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/Wine_portfolio_yld_GPS_only_SAB.csv")
 constellation_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/constellation_2017_2019_all_sau.csv")
 cloudyBay_2020 <- read_csv("C:/Users/ouz001/working_from_home/NZ_regional_winery_data/yld_spatial_cloudy_bay_2004_19.csv")
-#dim(cloudyBay_2020)
+str(cloudyBay_2020)
+cloudyBay_2020$harvest_date <- as.Date(cloudyBay_2020$harvest_date,
+                                             origin = "1970-01-01") #this is the starting date value in R
+
+
 #sites added in 2020 Rob 
 
 yealands_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated Yealands.xlsx",
@@ -117,12 +121,20 @@ dim(Giesen_2020)
 glimpse(delegates_april_2019) #19
 #need to drop ID_temp
 delegates_april_2019 <- select(delegates_april_2019, - ID_temp)
+###what is the date format?
+str(delegates_april_2019)
+delegates_april_2019$harvest_date <- as.Date(delegates_april_2019$harvest_date,
+                                               origin = "1970-01-01") #this is the starting date value in R
 ####################################################################################################################
 ####################################    Pern          ##############################################################
 ####################################################################################################################
 glimpse(pernod_ricard_april_2019) #20
 #need to drop ID and number_canes
 pernod_ricard_april_2019 <- select(pernod_ricard_april_2019, -  ID, -number_canes)
+str(pernod_ricard_april_2019)
+pernod_ricard_april_2019$harvest_date <- as.Date(pernod_ricard_april_2019$harvest_date,
+                                             origin = "1970-01-01") #this is the starting date value in R
+
 ####################################################################################################################
 ####################################    Villia Maria    ############################################################
 ####################################################################################################################
@@ -130,6 +142,9 @@ glimpse(Villia_maria_april_2019) #18
 Villia_maria_april_2019 <- Villia_maria_april_2019 %>% 
   mutate(ID_yr = paste0(ID,"_", year))
 Villia_maria_april_2019 <- select(Villia_maria_april_2019, -  ID)
+str(Villia_maria_april_2019)
+Villia_maria_april_2019$harvest_date <- as.Date(Villia_maria_april_2019$harvest_date,
+                                                 origin = "1970-01-01") #this is the starting date value in R
 ####################################################################################################################
 ####################################    wither_hills   ############################################################
 ####################################################################################################################
@@ -138,6 +153,9 @@ glimpse(wither_hills_april_2019) #18
 wither_hills_april_2019 <- wither_hills_april_2019 %>% 
   mutate(ID_yr = paste0(ID,"_", year))
 wither_hills_april_2019 <- select(wither_hills_april_2019, -  ID)
+str(wither_hills_april_2019)
+wither_hills_april_2019$harvest_date <- as.Date(wither_hills_april_2019$harvest_date,
+                                                origin = "1970-01-01") #this is the starting date value in R
 ####################################################################################################################
 ####################################    white_haven     ############################################################
 ####################################################################################################################
@@ -145,22 +163,29 @@ glimpse(white_haven_april_2019) #21
 white_haven_april_2019 <- select(white_haven_april_2019, -Vineyard, -Block, -ID)
 
 glimpse(wither_hills_april_2019)
-
+white_haven_april_2019$harvest_date <- as.Date(white_haven_april_2019$harvest_date,
+                                                origin = "1970-01-01") #this is the starting date value in R
 
 ####################################################################################################################
 ####################################    constellation     ############################################################
 ####################################################################################################################
-glimpse(constellation_2020) #18
+str(constellation_2020) #18
 
+## No harvest date
 
 ####################################    wine_portfolio_2020     ############################################################
 ####################################################################################################################
-glimpse(wine_portfolio_2020) #18
+str(wine_portfolio_2020) #18
+
+wine_portfolio_2020$harvest_date <- as.Date(wine_portfolio_2020$harvest_date,
+                                               origin = "1970-01-01") #this is the starting date value in R
+
 
 ####################################    Rob_agnew_2020     ############################################################
 ####################################################################################################################
-glimpse(Rob_agnew_2020)#18
-
+str(Rob_agnew_2020)#18
+Rob_agnew_2020$harvest_date <- as.Date(Rob_agnew_2020$harvest_date,
+                                            origin = "1970-01-01") #this is the starting date value in R
 ####################################################################################################################
 ####################################    merge one step at a time   #################################################
 ####################################################################################################################
@@ -189,12 +214,17 @@ site_add2019 <- rbind(delegates_april_2019,
 # del_pern_vill_white_wither_con_win_port_RA <- rbind(del_pern_vill_white_wither_con_win_port, Rob_agnew_2020)
 # glimpse(del_pern_vill_white_wither_con_win_port_RA)
 
+#Merge all the Rob Angrew sites into one
+str(Rob_agnew_2020)
+Rob_agnew_2020 <- mutate(Rob_agnew_2020,
+                         company = "Rob_Agnew")
 
-site_add2020_jax <- rbind(constellation_2020,
+site_add2020_jax <- rbind(cloudyBay_2020,
+                          constellation_2020,
                           wine_portfolio_2020,
-                          Rob_agnew_2020,
-                          cloudyBay_2020)
-  
+                          Rob_agnew_2020
+                          )
+str(site_add2020_jax)
   
 ###site added in 2020 Rob
 del_pern_vill_white_wither_con_win_port_RA_yealands <- rbind(del_pern_vill_white_wither_con_win_port_RA, yealands_seaview_2020)
@@ -204,7 +234,7 @@ site_add2020_rob <- rbind(yealands_seaview_2020, Giesen_2020)
 
 #### Merge site_add2020_jax site_add2020_rob and site_add2019
 site_Jan2020 <- rbind(site_add2020_jax,site_add2020_rob,  site_add2019)
-
+str(site_Jan2020)
 ####do na count again ####
 glimpse(site_Jan2020)
 site_Jan2020 <- select(site_Jan2020, -na_count)
@@ -232,6 +262,7 @@ group_by(site_Jan2020, variety) %>%
 group_by(site_Jan2020, company) %>% 
   count()
 
+
 site_Jan2020 <- mutate(site_Jan2020,
                                      company =  case_when(
                                        company == "Delegates" ~ "Delegat",
@@ -241,9 +272,10 @@ site_Jan2020 <- mutate(site_Jan2020,
                                        company == "Wither_Hills" ~ "Wither Hills",
                                        company == "constellation" ~ "Constellation",
                                        company == "Giesen" ~ "Giesen",
-                                       company == "Marlborough Research" ~ "Marlborough Research",
-                                       company == "Matua" ~ "Matua",
-                                       company == "Oyster Bay/ Delegat" ~ "Oyster Bay/ Delegat",
+                                       #company == "Marlborough Research" ~ "Marlborough Research",
+                                       #company == "Matua" ~ "Matua",
+                                       #company == "Oyster Bay/ Delegat" ~ "Oyster Bay/ Delegat",
+                                       company == "Rob_Agnew" ~ "Rob Agnew",
                                        company == "wine_portfolio" ~ "Wine Portfolio",
                                        company == "Yealands" ~ "Yealands",
                                        company == "Cloudy_bay" ~ "Cloudy Bay",
@@ -316,18 +348,17 @@ unique(site_Jan2020_yr_14_18$company)
 
 site_Jan2020_yr_14_18 <- mutate(site_Jan2020_yr_14_18,
                                      company_a =  case_when(
-                                       company == "Delegat" ~ "a",
-                                       company == "Pernod Ricard" ~ "b",
-                                       company == "Villa Maria" ~ "c",
-                                       company == "Whitehaven" ~ "d",
-                                       company == "Wither Hills" ~ "e",
-                                       company == "constellation" ~ "f",
-                                       company == "Wine Portfolio" ~ "g",
-                                       company == "Matua" ~ "h",
-                                       company == "Oyster Bay/ Delegat" ~ "i",
-                                       company == "Marlborough Research" ~ "j",
-                                       company == "Giesen" ~ "k",
-                                       company == "Yealands" ~ "l",
+                                       company == "Cloudy Bay" ~     "a",
+                                       company == "Constellation" ~  "b",
+                                       company == "Delegat" ~        "c",
+                                       company == "Giesen" ~         "d",
+                                       company == "Rob Agnew" ~      "e",
+                                       company == "Pernod Ricard" ~  "f",
+                                       company == "Villa Maria" ~    "g",
+                                       company == "Whitehaven" ~     "h",
+                                       company == "Wine Portfolio" ~ "i",
+                                       company == "Wither Hills" ~   "j",
+                                       company == "Yealands" ~       "k",
                                        TRUE ~ company))
 
 
@@ -360,8 +391,19 @@ ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian))+
   labs(x = "Year",
        y= "Julian days - Sauvignon Blanc")+
   facet_wrap(.~ company)
-
-#yield_t_ha
+###No names 
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian, colour= company_a))+
+    geom_boxplot(alpha=0.1)+
+    geom_point( alpha = 0.1)+
+    theme_bw()+
+    theme(legend.position="none")+
+    theme(axis.text.x=element_text(angle=90,hjust=1)) +
+    labs(x = "Year",
+         y= "Julian days - Sauvignon Blanc")+
+    facet_wrap(.~ company_a)
+  
+  
+  #yield_t_ha
 ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -390,7 +432,17 @@ filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>%
        y= "Yield t/ha - Sauvignon Blanc")+
   facet_wrap(.~ company)
 
-str(site_Jan2020_yr_14_18)
+#yield_t_ha with no id
+filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>% 
+  ggplot( aes(year_factor, yield_t_ha, colour= company_a))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")+
+  facet_wrap(.~ company_a)
 
 #yield_km_m
 filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>% 
@@ -405,4 +457,15 @@ filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>%
   facet_wrap(.~ company)
 
 
+#yield_km_m no id
+filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>% 
+  ggplot( aes(year_factor, yield_kg_m, colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Yield kg/m - Sauvignon Blanc")+
+  facet_wrap(.~ company_a)
 
