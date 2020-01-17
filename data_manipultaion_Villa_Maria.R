@@ -167,7 +167,7 @@ Villia_maria_2014_15 <- select(Villia_maria_2014_15,
 
 #####################                               2014                             ##################################
 
-Villia_maria_2013_14 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Data For Mike Trought historical_Oct 2018.xlsx", 
+Villia_maria_2013_14 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Data For Mike Trought historical_Oct 2018.xlsx", 
                                    sheet = "2013-14")
 glimpse(Villia_maria_2013_14)
 Villia_maria_2013_14 <- select(Villia_maria_2013_14,
@@ -273,15 +273,17 @@ glimpse(Villia_maria_2017_2012_all)
 
 ####cal a few extra columns
 
+
+
 Villia_maria_2017_2012_all <- mutate(Villia_maria_2017_2012_all,
                        julian = as.numeric(format(Villia_maria_2017_2012_all$harvest_date, "%j")),
-                       #meter_row_per_ha = 10000/row_width,
-                       #yld_per_m_row_kg =  (yield_t_ha *1000) / 10000/row_width,
+                       meter_row_per_ha = 10000/row_width,
+                       yield_kg_m =  (yield_t_ha *1000) / meter_row_per_ha,
                        #bunch_m = (yld_per_m_row_kg * 1000)/ bunch_wt_g,
                        company = "Villa Maria",
                        y_coord = lat,
                        x_coord = long,
-                       yield_kg_m = NA,
+                       #yield_kg_m = NA,
                        bunch_numb_m	 = NA
                        )
 glimpse(Villia_maria_2017_2012_all)
@@ -290,7 +292,8 @@ glimpse(Villia_maria_2017_2012_all)
 Villia_maria_2017_2012_all <- 
   select(Villia_maria_2017_2012_all, company, ID, variety , x_coord, y_coord,
          year , harvest_date, julian,
-         yield_t_ha, yield_kg_m,
+         yield_t_ha, 
+         yield_kg_m,
          brix,bunch_weight = bunch_wt_g, berry_weight = berry_wt_g,
          pruning_style = trellis,
          row_width,
@@ -301,7 +304,7 @@ Villia_maria_2017_2012_all <-
 glimpse(Villia_maria_2017_2012_all)
 
 Villia_maria_2017_2012_all$na_count <- apply(is.na(Villia_maria_2017_2012_all), 1, sum)
-write_csv(Villia_maria_2017_2012_all, "Villia_maria_2017_2012_april_2019.csv")
+write_csv(Villia_maria_2017_2012_all, "V:/Marlborough regional/working_jaxs/Villia_maria_2017_2012_all_sau.csv")
                        
 ######################################################################################################################
 ################                         view and summaries DF 2019 -2014                            #################

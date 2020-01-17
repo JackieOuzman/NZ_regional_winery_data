@@ -145,6 +145,7 @@ Villia_maria_april_2019 <- select(Villia_maria_april_2019, -  ID)
 str(Villia_maria_april_2019)
 Villia_maria_april_2019$harvest_date <- as.Date(Villia_maria_april_2019$harvest_date,
                                                  origin = "1970-01-01") #this is the starting date value in R
+
 ####################################################################################################################
 ####################################    wither_hills   ############################################################
 ####################################################################################################################
@@ -156,6 +157,8 @@ wither_hills_april_2019 <- select(wither_hills_april_2019, -  ID)
 str(wither_hills_april_2019)
 wither_hills_april_2019$harvest_date <- as.Date(wither_hills_april_2019$harvest_date,
                                                 origin = "1970-01-01") #this is the starting date value in R
+
+
 ####################################################################################################################
 ####################################    white_haven     ############################################################
 ####################################################################################################################
@@ -198,7 +201,11 @@ Rob_agnew_2020$harvest_date <- as.Date(Rob_agnew_2020$harvest_date,
 #                                           white_haven_april_2019)
 # del_pern_vill_white_wither <- rbind(delegate_pern_villia_white_haven,
 #                                     wither_hills_april_2019)
-
+dim(delegates_april_2019)
+dim(pernod_ricard_april_2019)
+dim(Villia_maria_april_2019)
+dim(white_haven_april_2019)
+dim(wither_hills_april_2019)
 
 site_add2019 <- rbind(delegates_april_2019,
                       pernod_ricard_april_2019,
