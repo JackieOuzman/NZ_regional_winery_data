@@ -53,7 +53,8 @@ variety = "Sauvignon Blanc",
 julian = as.numeric(format(harvest_date, "%j")),
 brix = NA,
 bunch_numb_m = bunch_per_vine / vine_spacing,
-pruning_style = NA)
+pruning_style = NA,
+na_count = NA)
 
 
 
@@ -87,7 +88,52 @@ yealands_seaview_2020 <- mutate(yealands_seaview_2020,
                         row_width = NA,
                         na_count = NA) #not supplied I havent calulated
 
+str(yealands_seaview_2020)
+str(yealands_2020)
+
+yealands_seaview_2020 <- select(yealands_seaview_2020,
+                                company,
+                                ID_yr,
+                                variety,
+                                x_coord,
+                                y_coord,
+                                year,
+                                harvest_date,
+                                julian,
+                                yield_t_ha,
+                                yield_kg_m,
+                                brix,
+                                bunch_weight,
+                                berry_weight,
+                                bunch_numb_m,
+                                pruning_style,
+                                row_width,
+                                vine_spacing,
+                                na_count
+)
+yealands_2020 <- select(yealands_2020,
+                                company,
+                                ID_yr,
+                                variety,
+                                x_coord,
+                                y_coord,
+                                year,
+                                harvest_date,
+                                julian,
+                                yield_t_ha,
+                                yield_kg_m,
+                                brix,
+                                bunch_weight,
+                                berry_weight,
+                                bunch_numb_m,
+                                pruning_style,
+                                row_width,
+                                vine_spacing,
+                                na_count
+)
 yealands_seaview_2020 <- rbind(yealands_seaview_2020,yealands_2020 )
+
+
 yealands_seaview_2020 <- select(yealands_seaview_2020,
                                 company,
                                 ID_yr,
@@ -301,7 +347,7 @@ site_Jan2020 <- mutate(site_Jan2020,year = as.double(year))
 dim(site_Jan2020)
 #how many site?
 str(site_Jan2020)
-glimpse(site_Jan2020) #5,808 records
+glimpse(site_Jan2020) #5,952 records
 
 
 #how many sites by company by year
@@ -330,7 +376,8 @@ ggplot(site_Jan2020, aes(company))+
 ########################################################################
 ## just years 2014-2018
 site_Jan2020_yr_14_18 <- filter(site_Jan2020, between(site_Jan2020$year, 2014, 2018))
-
+str(site_Jan2020_yr_14_18)
+dim(site_Jan2020_yr_14_18)
 #how many sites by company by year - now without the no year data and only between 2014 and 2018
 filter(site_Jan2020_yr_14_18,  x_coord >0) %>% 
   ggplot( aes(company))+
@@ -341,12 +388,13 @@ filter(site_Jan2020_yr_14_18,  x_coord >0) %>%
   facet_wrap(~year)
 
 
-site_table <- filter(site_Jan2020_yr_14_18,  x_coord >0) %>% 
-group_by(year, company) %>% 
-  count() # 
+
+
+site_table <- with(filter(site_Jan2020_yr_14_18,  x_coord >0), table(company, year))
+site_table_with_noGPS <- with(site_Jan2020_yr_14_18,  table(company, year))
 write.csv(site_table, "V:/Marlborough regional/working_jaxs/site_table.csv")
 
-
+write.csv(site_table_with_noGPS, "V:/Marlborough regional/working_jaxs/site_table_with_withoutGPS.csv")
 
 
 
@@ -371,12 +419,13 @@ site_Jan2020_yr_14_18 <- mutate(site_Jan2020_yr_14_18,
 
 #create a new variable year_as_factor
 site_Jan2020_yr_14_18$year_factor <- as.factor(site_Jan2020_yr_14_18$year)
+site_Jan2020_yr_14_18$na_count_factor <- as.factor(site_Jan2020_yr_14_18$na_count)
 
-
-ggplot(site_Jan2020_yr_14_18, aes(year_factor, na_count))+
+ggplot(site_Jan2020_yr_14_18, aes(na_count_factor, na_count))+
   geom_col()+
   theme_bw()+
-  labs(x = "Year",
+  facet_wrap(.~ year)+
+  labs(x = "count of missing data entries",
        y= "Total counts of missing data entries NA - Sauvignon Blanc")
 
 #julian days
@@ -419,7 +468,7 @@ ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_t_ha))+
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>% 
+filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>% 
 ggplot( aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -428,7 +477,7 @@ ggplot( aes(year_factor, yield_t_ha))+
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>% 
+filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>% 
   ggplot( aes(year_factor, yield_t_ha, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -440,7 +489,7 @@ filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>%
   facet_wrap(.~ company)
 
 #yield_t_ha with no id
-filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>% 
+filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>% 
   ggplot( aes(year_factor, yield_t_ha, colour= company_a))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -450,6 +499,15 @@ filter(site_Jan2020_yr_14_18,yield_t_ha > 0) %>%
   labs(x = "Year",
        y= "Yield t/ha - Sauvignon Blanc")+
   facet_wrap(.~ company_a)
+
+
+ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield kg/m - Sauvignon Blanc")
+
 
 #yield_km_m
 filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>% 
@@ -475,4 +533,20 @@ filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>%
   labs(x = "Year",
        y= "Yield kg/m - Sauvignon Blanc")+
   facet_wrap(.~ company_a)
+
+str(site_Jan2020_yr_14_18)
+summary(site_Jan2020_yr_14_18$brix)
+###two site at Villia maria with data enetry problems
+#MFOWSB01_2016 and MTEMSB02_2017
+
+filter(site_Jan2020_yr_14_18,brix < 100) %>% 
+  ggplot( aes(year_factor, brix , colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Brix  - Sauvignon Blanc")+
+  facet_wrap(.~ company)
 
