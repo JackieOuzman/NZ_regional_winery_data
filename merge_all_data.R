@@ -29,131 +29,10 @@ cloudyBay_2020$harvest_date <- as.Date(cloudyBay_2020$harvest_date,
 
 #sites added in 2020 Rob 
 
-yealands_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated Yealands.xlsx",
-                              sheet = "Updated other blocks All years")
-str(yealands_2020)
-yealands_2020 <- select(yealands_2020,
-                        x_coord = POINT_X,
-                        y_coord = POINT_Y ,
-                        vineyard = VINEYARD,
-                        year = Year,                                       
-                        harvest_date = `Harvest date`,
-                        yield_t_ha = `Actual Harvested  T/ha`, #check with ROB - ok to use
-                        yield_kg_m = `Yield (kg/m)`,
-                        bunch_weight = `Calculated Bunch mass (g)`, #check with ROB - ok to use
-                        berry_weight = `Calculated Berry wt (g)`,
-                        bunch_per_vine = `Actual Bunch No`,
-                        row_width = `row spacing (m)`,
-                        vine_spacing = `In-row spacing (m)`)
-                    
-yealands_2020 <- mutate(yealands_2020,                      
-company = "Yealands",
-ID_yr = paste0(vineyard, "_", year), 
-variety = "Sauvignon Blanc",
-julian = as.numeric(format(harvest_date, "%j")),
-brix = NA,
-bunch_numb_m = bunch_per_vine / vine_spacing,
-pruning_style = NA,
-na_count = NA)
-
-
-
-str(yealands_2020)
-#######Up to here need to cal the vine spacing
-yealands_seaview_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated Yealands.xlsx",
-                              sheet = "Updated Seaview all years")
-str(yealands_seaview_2020)
-yealands_seaview_2020 <- select(yealands_seaview_2020,
-                        x_coord = POINT_X,
-                        y_coord = POINT_Y ,
-                        year = Year,                                       
-                        harvest_date = `Harvest Date`,
-                        yield_t_ha = `Actual Harvested  T/ha`, #check with ROB - ok to use
-                        yield_kg_m = `Yield (kg/m)`,
-                        bunch_weight = `Calculated Bunch mass (g)`, #check with ROB - ok to use
-                        berry_weight = `Calculated Berry wt (g)`,
-                        bunch_per_vine = `Actual Bunch No`,
-                        #row_width = `row spacing (m)`,
-                        vine_spacing = `In-row spacing (m)`)
-
-yealands_seaview_2020 <- mutate(yealands_seaview_2020,                      
-                        company = "Yealands",
-                        vineyard = "Seaview",
-                        ID_yr = paste0(vineyard, "_", year), 
-                        variety = "Sauvignon Blanc",
-                        julian = as.numeric(format(harvest_date, "%j")),
-                        brix = NA,
-                        bunch_numb_m = bunch_per_vine / vine_spacing,
-                        pruning_style = NA,
-                        row_width = NA,
-                        na_count = NA) #not supplied I havent calulated
-
-str(yealands_seaview_2020)
-str(yealands_2020)
-
-yealands_seaview_2020 <- select(yealands_seaview_2020,
-                                company,
-                                ID_yr,
-                                variety,
-                                x_coord,
-                                y_coord,
-                                year,
-                                harvest_date,
-                                julian,
-                                yield_t_ha,
-                                yield_kg_m,
-                                brix,
-                                bunch_weight,
-                                berry_weight,
-                                bunch_numb_m,
-                                pruning_style,
-                                row_width,
-                                vine_spacing,
-                                na_count
-)
-yealands_2020 <- select(yealands_2020,
-                                company,
-                                ID_yr,
-                                variety,
-                                x_coord,
-                                y_coord,
-                                year,
-                                harvest_date,
-                                julian,
-                                yield_t_ha,
-                                yield_kg_m,
-                                brix,
-                                bunch_weight,
-                                berry_weight,
-                                bunch_numb_m,
-                                pruning_style,
-                                row_width,
-                                vine_spacing,
-                                na_count
-)
-yealands_seaview_2020 <- rbind(yealands_seaview_2020,yealands_2020 )
-
-
-yealands_seaview_2020 <- select(yealands_seaview_2020,
-                                company,
-                                ID_yr,
-                                variety,
-                                x_coord,
-                                y_coord,
-                                year,
-                                harvest_date,
-                                julian,
-                                yield_t_ha,
-                                yield_kg_m,
-                                brix,
-                                bunch_weight,
-                                berry_weight,
-                                bunch_numb_m,
-                                pruning_style,
-                                row_width,
-                                vine_spacing,
-                                na_count
-)
+yealands_2020 <-  read_csv( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated_Yealands_jax.csv")
+dim(yealands_2020)
+yealands_2020$harvest_date <- as.Date(yealands_2020$harvest_date,
+                                             origin = "1970-01-01") #this is the starting date value in R
 
 
 ############# Rob Giesen
@@ -280,10 +159,10 @@ site_add2020_jax <- rbind(cloudyBay_2020,
 str(site_add2020_jax)
   
 ###site added in 2020 Rob
-del_pern_vill_white_wither_con_win_port_RA_yealands <- rbind(del_pern_vill_white_wither_con_win_port_RA, yealands_seaview_2020)
-del_pern_vill_white_wither_con_win_port_RA_yealands_Gie <- rbind(del_pern_vill_white_wither_con_win_port_RA_yealands, Giesen_2020)
 
-site_add2020_rob <- rbind(yealands_seaview_2020, Giesen_2020)
+dim(yealands_2020)
+dim(Giesen_2020)
+site_add2020_rob <- rbind(yealands_2020, Giesen_2020)
 
 #### Merge site_add2020_jax site_add2020_rob and site_add2019
 site_Jan2020 <- rbind(site_add2020_jax,site_add2020_rob,  site_add2019)
@@ -334,6 +213,11 @@ site_Jan2020 <- mutate(site_Jan2020,
                                        company == "Cloudy_bay" ~ "Cloudy Bay",
                                        
                                        TRUE ~ company))
+
+
+str(site_Jan2020)
+test <- filter(site_Jan2020, company == "Yealands")
+str(test)
 
 write_csv(site_Jan2020, "V:/Marlborough regional/working_jaxs/site_Jan2020.csv")
 
@@ -387,7 +271,11 @@ filter(site_Jan2020_yr_14_18,  x_coord >0) %>%
   labs(y = "Count of sites")+
   facet_wrap(~year)
 
-
+test <- filter(site_Jan2020_yr_14_18, company == "Yealands")
+dim(test)
+with(test,  table(company, year))
+test2 <- filter(test,  x_coord >0)
+with(test2,  table(company, year))
 
 
 site_table <- with(filter(site_Jan2020_yr_14_18,  x_coord >0), table(company, year))
@@ -500,7 +388,7 @@ filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>%
        y= "Yield t/ha - Sauvignon Blanc")+
   facet_wrap(.~ company_a)
 
-
+##yld kg
 ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -540,6 +428,15 @@ summary(site_Jan2020_yr_14_18$brix)
 #MFOWSB01_2016 and MTEMSB02_2017
 
 filter(site_Jan2020_yr_14_18,brix < 100) %>% 
+ggplot( aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+filter(site_Jan2020_yr_14_18,brix < 100) %>% 
   ggplot( aes(year_factor, brix , colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -550,3 +447,111 @@ filter(site_Jan2020_yr_14_18,brix < 100) %>%
        y= "Brix  - Sauvignon Blanc")+
   facet_wrap(.~ company)
 
+
+filter(site_Jan2020_yr_14_18,brix < 100) %>% 
+  ggplot( aes(year_factor, brix , colour= company_a))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Brix  - Sauvignon Blanc")+
+  facet_wrap(.~ company_a)
+
+str(site_Jan2020_yr_14_18)
+#filter(site_Jan2020_yr_14_18,bunch_weight < 100) %>% 
+  ggplot( site_Jan2020_yr_14_18, aes(year_factor, bunch_weight))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Bunch weight - Sauvignon Blanc")
+
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_weight , colour= company))+
+    geom_boxplot(alpha=0.1)+
+    geom_point( alpha = 0.1)+
+    theme_bw()+
+    theme(legend.position="none")+
+    theme(axis.text.x=element_text(angle=90,hjust=1)) +
+    labs(x = "Year",
+         y= "Bunch weight  - Sauvignon Blanc")+
+    facet_wrap(.~ company)
+  
+  
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_weight , colour= company_a))+
+    geom_boxplot(alpha=0.1)+
+    geom_point( alpha = 0.1)+
+    theme_bw()+
+    theme(legend.position="none")+
+    theme(axis.text.x=element_text(angle=90,hjust=1)) +
+    labs(x = "Year",
+         y= "Bunch weight  - Sauvignon Blanc")+
+    facet_wrap(.~ company_a)
+  
+  str(site_Jan2020_yr_14_18$berry_weight)
+  
+  site_Jan2020_yr_14_18$berry_weight <- as.double(site_Jan2020_yr_14_18$berry_weight)
+  
+  #filter(site_Jan2020_yr_14_18,bunch_weight < 100) %>% 
+  ggplot( site_Jan2020_yr_14_18, aes(year_factor, berry_weight))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    labs(x = "Year",
+         y= "Berry weight - Sauvignon Blanc")
+  
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, berry_weight , colour= company))+
+    geom_boxplot(alpha=0.1)+
+    geom_point( alpha = 0.1)+
+    theme_bw()+
+    theme(legend.position="none")+
+    theme(axis.text.x=element_text(angle=90,hjust=1)) +
+    labs(x = "Year",
+         y= "Berry weight  - Sauvignon Blanc")+
+    facet_wrap(.~ company)
+  
+  
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, berry_weight , colour= company_a))+
+    geom_boxplot(alpha=0.1)+
+    geom_point( alpha = 0.1)+
+    theme_bw()+
+    theme(legend.position="none")+
+    theme(axis.text.x=element_text(angle=90,hjust=1)) +
+    labs(x = "Year",
+         y= "Berry weight  - Sauvignon Blanc")+
+    facet_wrap(.~ company_a)
+  
+  
+  
+  
+  #bunch_numb_m 
+  
+  ggplot( site_Jan2020_yr_14_18, aes(year_factor, bunch_numb_m))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    labs(x = "Year",
+         y= "Bunch number per m - Sauvignon Blanc")
+  
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_numb_m , colour= company))+
+    geom_boxplot(alpha=0.1)+
+    geom_point( alpha = 0.1)+
+    theme_bw()+
+    theme(legend.position="none")+
+    theme(axis.text.x=element_text(angle=90,hjust=1)) +
+    labs(x = "Year",
+         y= "Bunch number per m  - Sauvignon Blanc")+
+    facet_wrap(.~ company)
+  
+  
+  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_numb_m , colour= company_a))+
+    geom_boxplot(alpha=0.1)+
+    geom_point( alpha = 0.1)+
+    theme_bw()+
+    theme(legend.position="none")+
+    theme(axis.text.x=element_text(angle=90,hjust=1)) +
+    labs(x = "Year",
+         y= "Bunch number per m  - Sauvignon Blanc")+
+    facet_wrap(.~ company_a)
+  
