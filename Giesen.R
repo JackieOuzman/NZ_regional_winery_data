@@ -7,6 +7,8 @@ library(sf)
 library(rgdal)
 library(data.table)
 
+
+
 ## this file has boundries ID from row number on a pdf map and cal the ha for each subblock
 Giesen_shapefile =  st_read("V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Working_blk_bound/Giesen_Bay_blocks.shp")
 
