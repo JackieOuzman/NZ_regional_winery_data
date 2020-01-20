@@ -67,8 +67,8 @@ import_shapefile_function <- function (site = site){
   centroid_df <- data.frame(matrix(unlist(centroid), nrow=length(centroid), byrow=T))
   Object_ID <- c(unique(shapefile1$OBJECTID)) 
   centroid_df <- mutate(centroid_df, OBJECTID = Object_ID,
-                               POINT_X = X1,
-                               POINT_Y = X2,
+                               POINT_X = X2,
+                               POINT_Y = X1,
                                Block_name = site)
   shapefile_df <- st_drop_geometry(shapefile1)
   constellation_site_centroid <- full_join(shapefile_df,centroid_df )

@@ -50,6 +50,9 @@ delegates_april_2019 <- select(delegates_april_2019, - ID_temp)
 str(delegates_april_2019)
 delegates_april_2019$harvest_date <- as.Date(delegates_april_2019$harvest_date,
                                                origin = "1970-01-01") #this is the starting date value in R
+delegates_april_2019$bunch_weight[delegates_april_2019$bunch_weight == 0] <- NA
+delegates_april_2019$julian[delegates_april_2019$julian == 1] <- NA
+
 ####################################################################################################################
 ####################################    Pern          ##############################################################
 ####################################################################################################################
@@ -59,6 +62,11 @@ pernod_ricard_april_2019 <- select(pernod_ricard_april_2019, -  ID, -number_cane
 str(pernod_ricard_april_2019)
 pernod_ricard_april_2019$harvest_date <- as.Date(pernod_ricard_april_2019$harvest_date,
                                              origin = "1970-01-01") #this is the starting date value in R
+
+###Extra stuff lat Jan 2020
+#note for "Pernod Ricard" we have lots of zero values for brix and yield kg/m and brix
+pernod_ricard_april_2019$brix[pernod_ricard_april_2019$brix == 0] <- NA
+pernod_ricard_april_2019$yield_kg_m[pernod_ricard_april_2019$yield_kg_m == 0] <- NA
 
 ####################################################################################################################
 ####################################    Villia Maria    ############################################################
@@ -71,6 +79,16 @@ str(Villia_maria_april_2019)
 Villia_maria_april_2019$harvest_date <- as.Date(Villia_maria_april_2019$harvest_date,
                                                  origin = "1970-01-01") #this is the starting date value in R
 
+#I have some high values for birx - this seems to be a data entry problem
+Villia_maria_april_2019$brix[Villia_maria_april_2019$brix == 1945.00] <- NA
+Villia_maria_april_2019$brix[Villia_maria_april_2019$brix == 198.00] <- NA
+Villia_maria_april_2019$yield_t_ha[Villia_maria_april_2019$yield_t_ha == 0] <- NA
+Villia_maria_april_2019$yield_kg_m[Villia_maria_april_2019$yield_kg_m == 0] <- NA
+Villia_maria_april_2019$bunch_weight[Villia_maria_april_2019$bunch_weight == 12439.0000] <- NA
+Villia_maria_april_2019$bunch_weight[Villia_maria_april_2019$bunch_weight == 0] <- NA
+Villia_maria_april_2019$berry_weight[Villia_maria_april_2019$berry_weight == 0] <- NA
+
+
 ####################################################################################################################
 ####################################    wither_hills   ############################################################
 ####################################################################################################################
@@ -82,6 +100,13 @@ wither_hills_april_2019 <- select(wither_hills_april_2019, -  ID)
 str(wither_hills_april_2019)
 wither_hills_april_2019$harvest_date <- as.Date(wither_hills_april_2019$harvest_date,
                                                 origin = "1970-01-01") #this is the starting date value in R
+
+wither_hills_april_2019$yield_t_ha[wither_hills_april_2019$yield_t_ha == 0] <- NA
+wither_hills_april_2019$yield_kg_m[wither_hills_april_2019$yield_kg_m == 0] <- NA
+wither_hills_april_2019$brix[wither_hills_april_2019$brix == 0] <- NA
+wither_hills_april_2019$bunch_weight[wither_hills_april_2019$bunch_weight == 0] <- NA
+wither_hills_april_2019$berry_weight[wither_hills_april_2019$berry_weight == 0] <- NA
+wither_hills_april_2019$bunch_numb_m[wither_hills_april_2019$bunch_numb_m == 0] <- NA
 
 
 ####################################################################################################################
@@ -100,6 +125,11 @@ white_haven_april_2019$harvest_date <- as.Date(white_haven_april_2019$harvest_da
 str(constellation_2020) #18
 
 ## No harvest date
+constellation_2020$yield_t_ha[constellation_2020$yield_t_ha == 0] <- NA
+constellation_2020$yield_kg_m[constellation_2020$yield_kg_m == 0] <- NA
+constellation_2020$berry_weight[constellation_2020$berry_weight == 0] <- NA
+
+str(constellation_2020)
 
 ####################################    wine_portfolio_2020     ############################################################
 ####################################################################################################################
@@ -132,6 +162,8 @@ dim(Villia_maria_april_2019)
 dim(white_haven_april_2019)
 dim(wither_hills_april_2019)
 
+
+
 site_add2019 <- rbind(delegates_april_2019,
                       pernod_ricard_april_2019,
                       Villia_maria_april_2019,
@@ -163,6 +195,10 @@ str(site_add2020_jax)
 dim(yealands_2020)
 dim(Giesen_2020)
 site_add2020_rob <- rbind(yealands_2020, Giesen_2020)
+site_add2020_rob$yield_kg_m[site_add2020_rob$yield_kg_m == 0] <- NA
+site_add2020_rob$bunch_numb_m[site_add2020_rob$bunch_numb_m == 0] <- NA
+
+
 
 #### Merge site_add2020_jax site_add2020_rob and site_add2019
 site_Jan2020 <- rbind(site_add2020_jax,site_add2020_rob,  site_add2019)
@@ -223,6 +259,10 @@ write_csv(site_Jan2020, "V:/Marlborough regional/working_jaxs/site_Jan2020.csv")
 
  
 site_Jan2020 <- mutate(site_Jan2020,year = as.double(year))
+
+
+
+
 
 ##################################################################################################################
 ######################      Display data                   #####################################################
@@ -554,4 +594,332 @@ str(site_Jan2020_yr_14_18)
     labs(x = "Year",
          y= "Bunch number per m  - Sauvignon Blanc")+
     facet_wrap(.~ company_a)
+  
+  
+  
+  
+  
+  
+  
+  
+  ##############################################################################################################
+  ############             site by site check               ##########################################
+  #############################################################################################################
+  
+  #install.packages("plotly")
+  library(plotly)
+  
+  site_Jan2020$na_count_factor <- as.factor(site_Jan2020$na_count)
+  site_Jan2020$year_factor <- as.factor(site_Jan2020$year)
+  
+  
+  str(site_Jan2020)
+  dim(site_Jan2020)
+  unique(site_Jan2020$company)
+  #1. Whitehaven
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Whitehaven" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Pernod Ricard" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Villa Maria" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wither Hills" )
+  # site_Jan2020_to_plot <- filter(site_Jan2020, company == "Delegat" ) %>% 
+  # filter( x_coord > 0)
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Constellation" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Giesen" )
+  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Yealands" )
+  
+  with(site_Jan2020_to_plot,  table(  year, company))
+  
+  dim(site_Jan2020_to_plot) #780
+  filter(site_Jan2020_to_plot, x_coord > 0) #780
+  
+  ggplot(site_Jan2020_to_plot, aes(na_count_factor, na_count))+
+    geom_col()+
+    theme_bw()+
+    facet_wrap(.~ year)+
+    labs(x = "count of missing data entries",
+         y= "Total counts of missing data entries NA - Sauvignon Blanc")
+  #what is the missing data?
+  
+  #1. Harvest date juilan days 
+  str(site_Jan2020_to_plot)
+  Julian <- ggplot( site_Jan2020_to_plot, aes(year_factor, julian))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    theme(axis.text=element_text(size=8),
+          axis.title=element_text(size=10,))+
+    labs(x = "",
+         y= "Julian days")
+  Julian_plotly <- ggplotly(Julian)
+  Julian_plotly
+  Julian
+ #how much data is missing for julian days?
+  missing_data <- site_Jan2020_to_plot %>%
+    group_by(year ) %>% 
+    summarise(count = sum(is.na(julian)))  
+  missing_data
+  #2. yield_t_ha 
+  
+  yield_t_ha <- ggplot( site_Jan2020_to_plot, aes(year_factor, yield_t_ha))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    theme(axis.text=element_text(size=8),
+          axis.title=element_text(size=10,))+
+    labs(x = "",
+         y= "yield t/ha")
+  yield_t_ha_plotly <- ggplotly(yield_t_ha)
+  yield_t_ha_plotly
+  yield_t_ha
+  #how much data is missing for ?
+  missing_data <- site_Jan2020_to_plot %>%
+    group_by(year ) %>% 
+    summarise(count = sum(is.na(yield_t_ha)))  
+  missing_data
+  
+  
+  #3.  yield_kg_m 
+  
+  yield_kg_m <- ggplot( site_Jan2020_to_plot, aes(year_factor, yield_kg_m))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    theme(axis.text=element_text(size=8),
+          axis.title=element_text(size=10,))+
+    labs(x = "",
+         y= "yield kg/m")
+  yield_kg_m_plotly <- ggplotly(yield_kg_m)
+  yield_kg_m_plotly
+  yield_kg_m
+  #how much data is missing for ?
+  missing_data <- site_Jan2020_to_plot %>%
+    group_by(year ) %>% 
+    summarise(count = sum(is.na(yield_kg_m)))  
+  missing_data
+  
+  #4.  brix 
+  
+  brix <- ggplot( site_Jan2020_to_plot, aes(year_factor, brix))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    theme(axis.text=element_text(size=8),
+          axis.title=element_text(size=10,))+
+    labs(x = "",
+         y= "brix")
+  brix_plotly <- ggplotly(brix)
+  brix_plotly
+  brix
+  #how much data is missing for ?
+  missing_data <- site_Jan2020_to_plot %>%
+    group_by(year ) %>% 
+    summarise(count = sum(is.na(brix)))  
+  missing_data
+  
+  #5. bunch_weight 
+  
+  bunch_weight <- ggplot( site_Jan2020_to_plot, aes(year_factor, bunch_weight))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    theme(axis.text=element_text(size=8),
+          axis.title=element_text(size=10,))+
+    labs(x = "",
+         y= "Bunch weight")
+  bunch_weight_plotly <- ggplotly(bunch_weight)
+  bunch_weight_plotly
+  bunch_weight
+  #how much data is missing?
+  missing_data <- site_Jan2020_to_plot %>%
+    group_by(year ) %>% 
+    summarise(count = sum(is.na(bunch_weight)))  
+  missing_data
+  
+  #6. berry_weight 
+  
+  site_Jan2020_to_plot$berry_weight <- as.double(site_Jan2020_to_plot$berry_weight)
+  
+  berry_weight <-  ggplot( site_Jan2020_to_plot, aes(year_factor, berry_weight))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    theme(axis.text=element_text(size=8),
+    axis.title=element_text(size=10,))+
+        labs(x = "",
+         y= "Berry weight")
+  berry_weight
+  berry_weight_plotly <- ggplotly(berry_weight)
+  berry_weight_plotly
+  
+  #how much data s?
+  missing_data <- site_Jan2020_to_plot %>%
+    group_by(year ) %>% 
+    summarise(count = sum(is.na(berry_weight)))  
+  missing_data
+  
+  
+ 
+  #6. bunch_numb_m 
+  
+  site_Jan2020_to_plot$berry_weight <- as.double(site_Jan2020_to_plot$berry_weight)
+  
+  bunch_numb_m <-  ggplot( site_Jan2020_to_plot, aes(year_factor, bunch_numb_m))+
+    geom_boxplot(alpha=0.1)+
+    geom_point(colour = "blue", alpha = 0.1)+
+    theme_bw()+
+    theme(axis.text=element_text(size=8),
+          axis.title=element_text(size=10,))+
+    labs(x = "",
+         y= "bunch numb m")
+  bunch_numb_m_plotly <- ggplotly(bunch_numb_m)
+  bunch_numb_m_plotly
+  bunch_numb_m
+  #how much data s?
+  missing_data <- site_Jan2020_to_plot %>%
+    group_by(year ) %>% 
+    summarise(count = sum(is.na(bunch_numb_m)))  
+  missing_data
+  
+  #install.packages("cowplot")
+  #library(cowplot)
+  
+  Yealands<-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
+            #labels = c("A", "B", "C", "D", "E", "F"),
+            ncol = 2, nrow = 3)
+  
+  
+  
+  # Site 1.
+  Whitehaven
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Whitehaven.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_whitehaven.csv")
+  #NB save yield data only
+  site_Jan2020_to_plot_yld <- filter(site_Jan2020_to_plot,
+                                     yield_t_ha != "NA")
+  write_csv(site_Jan2020_to_plot_yld, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_whitehaven_yld.csv")
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  # Site 2.
+  Pernod_Ricard
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Pernod_Ricard.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Pernod_Ricard.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  # Site 3.
+  Villa_Maria
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Villa_Maria.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Villa_Maria.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  
+  # Site 4.
+  Wither_Hills
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Wither_Hills.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Wither_Hills.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  
+  # Site 5.
+  Delegat
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Delegats.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Delegat.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  
+  # Site 6.
+  Constellation
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Constellation.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Constellation.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  
+  # Site 7.
+  Giesen
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Giesen.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Giesen.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  # Site 8.
+  Yealands
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Yealands.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Yealands.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
   
