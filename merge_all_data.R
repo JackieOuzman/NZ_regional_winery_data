@@ -1,6 +1,8 @@
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
+#install.packages("cowplot")
+library(cowplot)
 
 library(readxl)
 #V:/Marlborough regional/working_jaxs/pernod_ricard1_sau.csv
@@ -625,7 +627,10 @@ str(site_Jan2020_yr_14_18)
   # filter( x_coord > 0)
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Constellation" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Giesen" )
-  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Yealands" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Yealands" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wine Portfolio" )
+  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
+  
   
   with(site_Jan2020_to_plot,  table(  year, company))
   
@@ -780,10 +785,9 @@ str(site_Jan2020_yr_14_18)
     summarise(count = sum(is.na(bunch_numb_m)))  
   missing_data
   
-  #install.packages("cowplot")
-  #library(cowplot)
   
-  Yealands<-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
+  
+  Rob_Agnew<-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
             #labels = c("A", "B", "C", "D", "E", "F"),
             ncol = 2, nrow = 3)
   
@@ -913,6 +917,38 @@ str(site_Jan2020_yr_14_18)
   ggsave(path= graph_path, filename = "Yealands.png", device = "png" ,
          width = 20, height = 18, units = "cm")
   write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Yealands.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  # Site 9.
+  Wine_Portfolio
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Wine_Portfolio.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Wine_Portfolio.csv")
+  
+  
+  rm(list = c("Julian", 
+              "yield_t_ha", 
+              "yield_kg_m" , 
+              "brix", 
+              "bunch_weight", 
+              "berry_weight", 
+              "bunch_numb_m"))
+  
+  # Site 10.
+  Rob_Agnew
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Rob_Agnew.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Rob_Agnew.csv")
   
   
   rm(list = c("Julian", 

@@ -168,7 +168,8 @@ str(Yld_Rob_Agnew)
 
 Yld_Rob_Agnew <- mutate(
   Yld_Rob_Agnew,       
-ID_yr = paste0(vineyard, "_", year),                      
+ID_yr = paste0(vineyard, "_", date, "_", year), 
+ID_harvest_date = paste0(vineyard, "_", date), 
 yield_kg_m = (yield_t_ha * 1000) / (10000/row_width), #check this cal
 bunch_numb_m = bunch_per_vine / vine_spacing,
 brix = NA,
@@ -184,6 +185,17 @@ str(Yld_Rob_Agnew)
 str(GPS_Pts_Rob_Agnew_DD_df)
 
 Yld_GPS_Rob_Agnew <- left_join(Yld_Rob_Agnew, GPS_Pts_Rob_Agnew_DD_df)
+
+###################### seems that we have multiple entries for the same site.
+## I think we need to average sites with the same harvest dates.
+#df %>% group_by(grp) %>% summarise_all(funs(mean))
+
+str(Yld_GPS_Rob_Agnew)
+dim(Yld_GPS_Rob_Agnew)
+Yld_GPS_Rob_Agnew <- group_by(Yld_GPS_Rob_Agnew, ID_harvest_date, vineyard, variety, winery, company, ID_yr ) %>% 
+  summarise_all(funs(mean)) 
+
+Yld_GPS_Rob_Agnew  <- ungroup(Yld_GPS_Rob_Agnew)
 
 ### note that there are multiple sites which are alreday in database.
 str(Yld_GPS_Rob_Agnew)
@@ -206,7 +218,7 @@ Yld_GPS_Rob_Agnew <- filter(Yld_GPS_Rob_Agnew,
                             vineyard == "McKean" |
                  vineyard == "OYB"|
                  vineyard == "Rowley"|
-                 vineyard == "Tohuey")
+                 vineyard == "Tohu")
                  
  
   
