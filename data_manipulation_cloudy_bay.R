@@ -414,9 +414,11 @@ str(yld_spatial_cloudy_bay_2004_19)
 
 
 getwd()
-#write_csv(yld_spatial_cloudy_bay_2004_19, "V:/Marlborough regional/Regional winery data/working_jaxs/yld_spatial_cloudy_bay_2004_19.csv")
-write_csv(yld_spatial_cloudy_bay_2004_19,
-            "C:/Users/ouz001/working_from_home/NZ_regional_winery_data/yld_spatial_cloudy_bay_2004_19.csv")
+
+
+write_csv(yld_spatial_cloudy_bay_2004_19, "V:/Marlborough regional/working_jaxs/yld_spatial_cloudy_bay_2004_19.csv")
+# write_csv(yld_spatial_cloudy_bay_2004_19,
+#             "C:/Users/ouz001/working_from_home/NZ_regional_winery_data/yld_spatial_cloudy_bay_2004_19.csv")
           
           
         

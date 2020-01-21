@@ -23,7 +23,7 @@ wither_hills_april_2019 <-  read_csv("V:/Marlborough regional/working_jaxs/withe
 Rob_agnew_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
 wine_portfolio_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/Wine_portfolio_yld_GPS_only_SAB.csv")
 constellation_2020 <-  read_csv( "V:/Marlborough regional/working_jaxs/constellation_2017_2019_all_sau.csv")
-cloudyBay_2020 <- read_csv("C:/Users/ouz001/working_from_home/NZ_regional_winery_data/yld_spatial_cloudy_bay_2004_19.csv")
+cloudyBay_2020 <- read_csv("V:/Marlborough regional/working_jaxs/yld_spatial_cloudy_bay_2004_19.csv")
 str(cloudyBay_2020)
 cloudyBay_2020$harvest_date <- as.Date(cloudyBay_2020$harvest_date,
                                              origin = "1970-01-01") #this is the starting date value in R
@@ -273,7 +273,7 @@ site_Jan2020 <- mutate(site_Jan2020,year = as.double(year))
 dim(site_Jan2020)
 #how many site?
 str(site_Jan2020)
-glimpse(site_Jan2020) #5,952 records
+glimpse(site_Jan2020) #5,717 records
 
 
 #how many sites by company by year
@@ -337,8 +337,8 @@ site_Jan2020_yr_14_18 <- mutate(site_Jan2020_yr_14_18,
                                        company == "Constellation" ~  "b",
                                        company == "Delegat" ~        "c",
                                        company == "Giesen" ~         "d",
-                                       company == "Rob Agnew" ~      "e",
-                                       company == "Pernod Ricard" ~  "f",
+                                       company == "Pernod Ricard" ~  "e",
+                                       company == "Rob Agnew" ~      "f",
                                        company == "Villa Maria" ~    "g",
                                        company == "Whitehaven" ~     "h",
                                        company == "Wine Portfolio" ~ "i",
@@ -629,8 +629,8 @@ str(site_Jan2020_yr_14_18)
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Giesen" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Yealands" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wine Portfolio" )
-  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
-  
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
+  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Cloudy Bay" )
   
   with(site_Jan2020_to_plot,  table(  year, company))
   
@@ -787,7 +787,7 @@ str(site_Jan2020_yr_14_18)
   
   
   
-  Rob_Agnew<-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
+  Cloudy_Bay <-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
             #labels = c("A", "B", "C", "D", "E", "F"),
             ncol = 2, nrow = 3)
   
@@ -958,4 +958,11 @@ str(site_Jan2020_yr_14_18)
               "bunch_weight", 
               "berry_weight", 
               "bunch_numb_m"))
+  
+  #Site 11.
+  Cloudy_Bay
+  graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
+  ggsave(path= graph_path, filename = "Cloudy_Bay.png", device = "png" ,
+         width = 20, height = 18, units = "cm")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Cloudy_Bay.csv")
   
