@@ -300,12 +300,19 @@ ggplot(site_Jan2020, aes(company))+
   labs(y = "Count of sites")+
   facet_wrap(~year)
 ########################################################################
-## just years 2014-2018
-site_Jan2020_yr_14_18 <- filter(site_Jan2020, between(site_Jan2020$year, 2014, 2018))
-str(site_Jan2020_yr_14_18)
-dim(site_Jan2020_yr_14_18)
+## just years 2014-2019
+site_Jan2020_yr_14_19 <- filter(site_Jan2020, between(site_Jan2020$year, 2014, 2019))
+site_Jan2020_yr_19 <- filter(site_Jan2020, year == 2019)
+
+#with(site_Jan2020,  table(company, year))
+site_table_yr <- with(filter(site_Jan2020,  x_coord >0), table(company, year))
+site_table_yr
+write.csv(site_table_yr, "V:/Marlborough regional/working_jaxs/site_table_yr.csv")
+
+str(site_Jan2020_yr_14_19)
+dim(site_Jan2020_yr_14_19)
 #how many sites by company by year - now without the no year data and only between 2014 and 2018
-filter(site_Jan2020_yr_14_18,  x_coord >0) %>% 
+filter(site_Jan2020_yr_14_19,  x_coord >0) %>% 
   ggplot( aes(company))+
   geom_bar()+
   theme_bw()+
@@ -313,15 +320,15 @@ filter(site_Jan2020_yr_14_18,  x_coord >0) %>%
   labs(y = "Count of sites")+
   facet_wrap(~year)
 
-test <- filter(site_Jan2020_yr_14_18, company == "Yealands")
+test <- filter(site_Jan2020_yr_14_19, company == "Yealands")
 dim(test)
 with(test,  table(company, year))
 test2 <- filter(test,  x_coord >0)
 with(test2,  table(company, year))
 
 
-site_table <- with(filter(site_Jan2020_yr_14_18,  x_coord >0), table(company, year))
-site_table_with_noGPS <- with(site_Jan2020_yr_14_18,  table(company, year))
+site_table <- with(filter(site_Jan2020_yr_14_19,  x_coord >0), table(company, year))
+site_table_with_noGPS <- with(site_Jan2020_yr_14_19,  table(company, year))
 write.csv(site_table, "V:/Marlborough regional/working_jaxs/site_table.csv")
 
 write.csv(site_table_with_noGPS, "V:/Marlborough regional/working_jaxs/site_table_with_withoutGPS.csv")
@@ -331,7 +338,7 @@ write.csv(site_table_with_noGPS, "V:/Marlborough regional/working_jaxs/site_tabl
 ###Create a new column which changes company name
 unique(site_Jan2020_yr_14_18$company)
 
-site_Jan2020_yr_14_18 <- mutate(site_Jan2020_yr_14_18,
+site_Jan2020_yr_14_19 <- mutate(site_Jan2020_yr_14_19,
                                      company_a =  case_when(
                                        company == "Cloudy Bay" ~     "a",
                                        company == "Constellation" ~  "b",
@@ -348,10 +355,10 @@ site_Jan2020_yr_14_18 <- mutate(site_Jan2020_yr_14_18,
 
 
 #create a new variable year_as_factor
-site_Jan2020_yr_14_18$year_factor <- as.factor(site_Jan2020_yr_14_18$year)
-site_Jan2020_yr_14_18$na_count_factor <- as.factor(site_Jan2020_yr_14_18$na_count)
+site_Jan2020_yr_14_19$year_factor <- as.factor(site_Jan2020_yr_14_19$year)
+site_Jan2020_yr_14_19$na_count_factor <- as.factor(site_Jan2020_yr_14_19$na_count)
 
-ggplot(site_Jan2020_yr_14_18, aes(na_count_factor, na_count))+
+ggplot(site_Jan2020_yr_14_19, aes(na_count_factor, na_count))+
   geom_col()+
   theme_bw()+
   facet_wrap(.~ year)+
@@ -359,7 +366,7 @@ ggplot(site_Jan2020_yr_14_18, aes(na_count_factor, na_count))+
        y= "Total counts of missing data entries NA - Sauvignon Blanc")
 
 #julian days
-ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian))+
+ggplot(site_Jan2020_yr_14_19, aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -368,7 +375,7 @@ ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian))+
 
 
 
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian, colour= company))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, julian, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
   theme_bw()+
@@ -378,7 +385,7 @@ ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian))+
        y= "Julian days - Sauvignon Blanc")+
   facet_wrap(.~ company)
 ###No names 
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian, colour= company_a))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, julian, colour= company_a))+
     geom_boxplot(alpha=0.1)+
     geom_point( alpha = 0.1)+
     theme_bw()+
@@ -387,10 +394,11 @@ ggplot(site_Jan2020_yr_14_18, aes(year_factor, julian))+
     labs(x = "Year",
          y= "Julian days - Sauvignon Blanc")+
     facet_wrap(.~ company_a)
-  
+ str(site_Jan2020_yr_14_19) 
   
   #yield_t_ha
-ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_t_ha))+
+  
+ggplot(site_Jan2020_yr_14_19, aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -398,7 +406,7 @@ ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_t_ha))+
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>% 
+filter(site_Jan2020_yr_14_19,yield_t_ha > 2 & yield_t_ha < 100 ) %>% 
 ggplot( aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -407,7 +415,7 @@ ggplot( aes(year_factor, yield_t_ha))+
        y= "Yield t/ha - Sauvignon Blanc")
 
 #yield_t_ha
-filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>% 
+filter(site_Jan2020_yr_14_19,yield_t_ha > 2 & yield_t_ha < 100) %>% 
   ggplot( aes(year_factor, yield_t_ha, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -419,7 +427,7 @@ filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>%
   facet_wrap(.~ company)
 
 #yield_t_ha with no id
-filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>% 
+filter(site_Jan2020_yr_14_19,yield_t_ha > 2& yield_t_ha < 100) %>% 
   ggplot( aes(year_factor, yield_t_ha, colour= company_a))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -431,7 +439,7 @@ filter(site_Jan2020_yr_14_18,yield_t_ha > 2) %>%
   facet_wrap(.~ company_a)
 
 ##yld kg
-ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_kg_m))+
+ggplot(site_Jan2020_yr_14_19, aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -440,7 +448,7 @@ ggplot(site_Jan2020_yr_14_18, aes(year_factor, yield_kg_m))+
 
 
 #yield_km_m
-filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>% 
+filter(site_Jan2020_yr_14_19,yield_kg_m > 0) %>% 
   ggplot( aes(year_factor, yield_kg_m, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -453,7 +461,7 @@ filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>%
 
 
 #yield_km_m no id
-filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>% 
+filter(site_Jan2020_yr_14_19,yield_kg_m > 0) %>% 
   ggplot( aes(year_factor, yield_kg_m, colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -464,12 +472,12 @@ filter(site_Jan2020_yr_14_18,yield_kg_m > 0) %>%
        y= "Yield kg/m - Sauvignon Blanc")+
   facet_wrap(.~ company_a)
 
-str(site_Jan2020_yr_14_18)
-summary(site_Jan2020_yr_14_18$brix)
+str(site_Jan2020_yr_14_19)
+summary(site_Jan2020_yr_14_19$brix)
 ###two site at Villia maria with data enetry problems
 #MFOWSB01_2016 and MTEMSB02_2017
 
-filter(site_Jan2020_yr_14_18,brix < 100) %>% 
+filter(site_Jan2020_yr_14_19,brix < 100) %>% 
 ggplot( aes(year_factor, brix))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -478,7 +486,7 @@ ggplot( aes(year_factor, brix))+
        y= "Brix - Sauvignon Blanc")
 
 
-filter(site_Jan2020_yr_14_18,brix < 100) %>% 
+filter(site_Jan2020_yr_14_19,brix < 100) %>% 
   ggplot( aes(year_factor, brix , colour= company))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -490,7 +498,7 @@ filter(site_Jan2020_yr_14_18,brix < 100) %>%
   facet_wrap(.~ company)
 
 
-filter(site_Jan2020_yr_14_18,brix < 100) %>% 
+filter(site_Jan2020_yr_14_19,brix < 100) %>% 
   ggplot( aes(year_factor, brix , colour= company_a))+
   geom_boxplot(alpha=0.1)+
   geom_point( alpha = 0.1)+
@@ -501,16 +509,16 @@ filter(site_Jan2020_yr_14_18,brix < 100) %>%
        y= "Brix  - Sauvignon Blanc")+
   facet_wrap(.~ company_a)
 
-str(site_Jan2020_yr_14_18)
+str(site_Jan2020_yr_14_19)
 #filter(site_Jan2020_yr_14_18,bunch_weight < 100) %>% 
-  ggplot( site_Jan2020_yr_14_18, aes(year_factor, bunch_weight))+
+  ggplot( site_Jan2020_yr_14_19, aes(year_factor, bunch_weight))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
   labs(x = "Year",
        y= "Bunch weight - Sauvignon Blanc")
 
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_weight , colour= company))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, bunch_weight , colour= company))+
     geom_boxplot(alpha=0.1)+
     geom_point( alpha = 0.1)+
     theme_bw()+
@@ -521,7 +529,7 @@ str(site_Jan2020_yr_14_18)
     facet_wrap(.~ company)
   
   
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_weight , colour= company_a))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, bunch_weight , colour= company_a))+
     geom_boxplot(alpha=0.1)+
     geom_point( alpha = 0.1)+
     theme_bw()+
@@ -531,19 +539,19 @@ str(site_Jan2020_yr_14_18)
          y= "Bunch weight  - Sauvignon Blanc")+
     facet_wrap(.~ company_a)
   
-  str(site_Jan2020_yr_14_18$berry_weight)
+  str(site_Jan2020_yr_14_19$berry_weight)
   
-  site_Jan2020_yr_14_18$berry_weight <- as.double(site_Jan2020_yr_14_18$berry_weight)
+  site_Jan2020_yr_14_19$berry_weight <- as.double(site_Jan2020_yr_14_19$berry_weight)
   
   #filter(site_Jan2020_yr_14_18,bunch_weight < 100) %>% 
-  ggplot( site_Jan2020_yr_14_18, aes(year_factor, berry_weight))+
+  ggplot( site_Jan2020_yr_14_19, aes(year_factor, berry_weight))+
     geom_boxplot(alpha=0.1)+
     geom_point(colour = "blue", alpha = 0.1)+
     theme_bw()+
     labs(x = "Year",
          y= "Berry weight - Sauvignon Blanc")
   
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, berry_weight , colour= company))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, berry_weight , colour= company))+
     geom_boxplot(alpha=0.1)+
     geom_point( alpha = 0.1)+
     theme_bw()+
@@ -554,7 +562,7 @@ str(site_Jan2020_yr_14_18)
     facet_wrap(.~ company)
   
   
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, berry_weight , colour= company_a))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, berry_weight , colour= company_a))+
     geom_boxplot(alpha=0.1)+
     geom_point( alpha = 0.1)+
     theme_bw()+
@@ -569,14 +577,14 @@ str(site_Jan2020_yr_14_18)
   
   #bunch_numb_m 
   
-  ggplot( site_Jan2020_yr_14_18, aes(year_factor, bunch_numb_m))+
+  ggplot( site_Jan2020_yr_14_19, aes(year_factor, bunch_numb_m))+
     geom_boxplot(alpha=0.1)+
     geom_point(colour = "blue", alpha = 0.1)+
     theme_bw()+
     labs(x = "Year",
          y= "Bunch number per m - Sauvignon Blanc")
   
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_numb_m , colour= company))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, bunch_numb_m , colour= company))+
     geom_boxplot(alpha=0.1)+
     geom_point( alpha = 0.1)+
     theme_bw()+
@@ -587,7 +595,7 @@ str(site_Jan2020_yr_14_18)
     facet_wrap(.~ company)
   
   
-  ggplot(site_Jan2020_yr_14_18, aes(year_factor, bunch_numb_m , colour= company_a))+
+  ggplot(site_Jan2020_yr_14_19, aes(year_factor, bunch_numb_m , colour= company_a))+
     geom_boxplot(alpha=0.1)+
     geom_point( alpha = 0.1)+
     theme_bw()+
@@ -620,7 +628,7 @@ str(site_Jan2020_yr_14_18)
   unique(site_Jan2020$company)
   #1. Whitehaven
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Whitehaven" )
-  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Pernod Ricard" )
+  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Pernod Ricard" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Villa Maria" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wither Hills" )
   # site_Jan2020_to_plot <- filter(site_Jan2020, company == "Delegat" ) %>% 
@@ -630,7 +638,7 @@ str(site_Jan2020_yr_14_18)
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Yealands" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wine Portfolio" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
-  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Cloudy Bay" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Cloudy Bay" )
   
   with(site_Jan2020_to_plot,  table(  year, company))
   
@@ -665,7 +673,9 @@ str(site_Jan2020_yr_14_18)
   missing_data
   #2. yield_t_ha 
   
-  yield_t_ha <- ggplot( site_Jan2020_to_plot, aes(year_factor, yield_t_ha))+
+ # yield_t_ha <- ggplot( site_Jan2020_to_plot, aes(year_factor, yield_t_ha))+
+  yield_t_ha <- filter(site_Jan2020_to_plot, yield_t_ha <100 ) %>% 
+     ggplot(  aes(year_factor, yield_t_ha))+
     geom_boxplot(alpha=0.1)+
     geom_point(colour = "blue", alpha = 0.1)+
     theme_bw()+
@@ -787,11 +797,11 @@ str(site_Jan2020_yr_14_18)
   
   
   
-  Cloudy_Bay <-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
+  Pernod_Ricard <-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
             #labels = c("A", "B", "C", "D", "E", "F"),
             ncol = 2, nrow = 3)
   
-  
+  Pernod_Ricard
   
   # Site 1.
   Whitehaven
