@@ -118,7 +118,7 @@ glimpse(GPS_Pts_Rob_Agnew_DD_df)
 
 write_csv(GPS_Pts_Rob_Agnew_DD_df, "V:/Marlborough regional/working_jaxs/GPS_Pts_Rob_Agnew_check.csv")
 
-rm(list = c( "wgs84CRS", "mapCRS"))
+rm(list = c( "wgs84CRS", "mapCRS", "GPS_Pts_Rob_Agnew", "GPS_Pts_Rob_Agnew_DD1"))
 #########################################################################################################
 
 Yld_Rob_Agnew <-   read_excel("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/Regional winery data/Raw_data/Rob Agnew data/Updated Rob Agnew All Marlborough Sav Blanc _Yield_data for GYA Project mct_v2.xlsx",
@@ -140,7 +140,7 @@ Yld_Rob_Agnew <- select(
 )
 
 ###make harvest date from day month year
-as.Date(paste(dt$mon,dt$day,dt$year,sep="-"),format = "%m-%d-%Y")
+#as.Date(paste(dt$mon,dt$day,dt$year,sep="-"),format = "%m-%d-%Y")
 Yld_Rob_Agnew$date <- with(Yld_Rob_Agnew, ymd(sprintf('%04d%02d%02d', year, month, day)))
 str(Yld_Rob_Agnew$date)
 
@@ -194,7 +194,7 @@ Yld_GPS_Rob_Agnew <- left_join(Yld_Rob_Agnew, GPS_Pts_Rob_Agnew_DD_df)
 str(Yld_GPS_Rob_Agnew)
 dim(Yld_GPS_Rob_Agnew)
 Yld_GPS_Rob_Agnew <- group_by(Yld_GPS_Rob_Agnew, ID_harvest_date, vineyard, variety, winery, company, ID_yr ) %>% 
-  summarise_all(funs(mean)) 
+  summarise_all(funs(mean), na.rm = TRUE) 
 
 Yld_GPS_Rob_Agnew  <- ungroup(Yld_GPS_Rob_Agnew)
 
@@ -215,11 +215,13 @@ unique(Yld_GPS_Rob_Agnew$vineyard)
 
 
 #safe to use...
-Yld_GPS_Rob_Agnew <- filter(Yld_GPS_Rob_Agnew,
-                            vineyard == "McKean" |
-                 vineyard == "OYB"|
-                 vineyard == "Rowley"|
-                 vineyard == "Tohu")
+Yld_GPS_Rob_Agnew <- filter(
+  Yld_GPS_Rob_Agnew,
+  vineyard == "McKean" |
+    vineyard == "OYB" |
+    vineyard == "Rowley" |
+    vineyard == "Tohu"
+)
                  
  
   
@@ -277,7 +279,7 @@ unique(Yld_GPS_Rob_Agnew_GPS_SAB$variety)
 
 
 glimpse(Yld_GPS_Rob_Agnew) #256 records
-max(Yld_GPS_Rob_Agnew_GPS_SAB$year) #2018
+max(Yld_GPS_Rob_Agnew_GPS_SAB$year) #2019
 min(Yld_GPS_Rob_Agnew_GPS_SAB$year) #2005
 #how many records are SAU with GPS
 count(filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0)) #256
@@ -287,7 +289,7 @@ count(filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0)) #256
 #how many records with GPS pts all varieties
 glimpse(Yld_GPS_Rob_Agnew  )#256 records
 #how many records with GPS pts all varieties
-count(filter(Yld_GPS_Rob_Agnew,   x_coord >0)) #256
+count(filter(Yld_GPS_Rob_Agnew,   x_coord >0)) #256 now #29
 
 filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0) %>% 
   ggplot( aes(variety ))+

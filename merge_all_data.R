@@ -336,7 +336,7 @@ write.csv(site_table_with_noGPS, "V:/Marlborough regional/working_jaxs/site_tabl
 
 
 ###Create a new column which changes company name
-unique(site_Jan2020_yr_14_18$company)
+unique(site_Jan2020_yr_14_19$company)
 
 site_Jan2020_yr_14_19 <- mutate(site_Jan2020_yr_14_19,
                                      company_a =  case_when(
@@ -628,7 +628,7 @@ str(site_Jan2020_yr_14_19)
   unique(site_Jan2020$company)
   #1. Whitehaven
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Whitehaven" )
-  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Pernod Ricard" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Pernod Ricard" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Villa Maria" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wither Hills" )
   # site_Jan2020_to_plot <- filter(site_Jan2020, company == "Delegat" ) %>% 
@@ -637,7 +637,7 @@ str(site_Jan2020_yr_14_19)
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Giesen" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Yealands" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wine Portfolio" )
-  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
+  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Cloudy Bay" )
   
   with(site_Jan2020_to_plot,  table(  year, company))
@@ -797,7 +797,7 @@ str(site_Jan2020_yr_14_19)
   
   
   
-  Pernod_Ricard <-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
+  Rob_Agnew <-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
             #labels = c("A", "B", "C", "D", "E", "F"),
             ncol = 2, nrow = 3)
   
