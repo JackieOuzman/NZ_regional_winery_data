@@ -631,13 +631,13 @@ str(site_Jan2020_yr_14_19)
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Pernod Ricard" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Villa Maria" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wither Hills" )
-  # site_Jan2020_to_plot <- filter(site_Jan2020, company == "Delegat" ) %>% 
-  # filter( x_coord > 0)
+  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Delegat" ) %>% 
+   filter( x_coord > 0)
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Constellation" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Giesen" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Yealands" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Wine Portfolio" )
-  site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
+  #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Rob Agnew" )
   #site_Jan2020_to_plot <- filter(site_Jan2020, company == "Cloudy Bay" )
   
   with(site_Jan2020_to_plot,  table(  year, company))
@@ -797,11 +797,11 @@ str(site_Jan2020_yr_14_19)
   
   
   
-  Rob_Agnew <-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
+  Delegat <-  plot_grid(Julian, yield_t_ha, yield_kg_m , brix, bunch_weight, berry_weight, bunch_numb_m,
             #labels = c("A", "B", "C", "D", "E", "F"),
             ncol = 2, nrow = 3)
   
-  Pernod_Ricard
+  Delegat
   
   # Site 1.
   Whitehaven
@@ -876,7 +876,7 @@ str(site_Jan2020_yr_14_19)
   graph_path <- file.path("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites")
   ggsave(path= graph_path, filename = "Delegats.png", device = "png" ,
          width = 20, height = 18, units = "cm")
-  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Delegat.csv")
+  write_csv(site_Jan2020_to_plot, "//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/working_jaxs/check_sites/site_Jan2020_to_plot_Delegat_v2.csv")
   
   
   rm(list = c("Julian", 
