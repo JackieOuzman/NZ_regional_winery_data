@@ -19,13 +19,13 @@ delegates_GPS <- delegates_GPS1 %>%
 
 glimpse(delegates_GPS)
 
-
+rm(list= "delegates_GPS1")
 ######################################################################################################################
 ################                         Make DF of block info                              #################
 ######################################################################################################################
 
 ####Bring in the sub_block info#####
-delegates_sub_block1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Delegat For MRC Project RGVB rev.xlsx", 
+delegates_sub_block1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Mike Trought Yield Data V19_2.xlsx", 
                                    sheet = "Sub Block info")
 glimpse(delegates_sub_block1)
 
@@ -36,7 +36,7 @@ delegates_sub_block <- delegates_sub_block1 %>%
          row_width = `Row Spacing (m) (Block)`,
          vine_spacing = `Vine Spacing (m) (Block)`)
 glimpse(delegates_sub_block)
-
+rm(list = "delegates_sub_block1")
 ######################################################################################################################
 ################                         join GPS and block info                              #################
 ######################################################################################################################
@@ -47,7 +47,7 @@ glimpse(delegates_GPS) #339
 delegates_GPS_sub_block <- full_join(delegates_GPS, delegates_sub_block, by= "ID_temp")
 glimpse(delegates_GPS_sub_block) #357
 
-
+rm(list = c("delegates_GPS", "delegates_sub_block"))
 ######################################################################################################################
 ################                         bring in the yield data                             #################
 ######################################################################################################################
@@ -55,8 +55,16 @@ glimpse(delegates_GPS_sub_block) #357
 
 delegates_yld_data1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Delegat For MRC Project RGVB rev.xlsx", 
                              sheet = "Yield Info")
-glimpse(delegates_yld_data1)
+delegates_yld_data2019 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Mike Trought Yield Data V19_2.xlsx", 
+                                  sheet = "2019 Yield Data")
 
+glimpse(delegates_yld_data1)
+glimpse(delegates_yld_data2019)
+
+#join / bind the yrs together
+delegates_yld_data1 <- rbind(delegates_yld_data1, delegates_yld_data2019)
+unique(delegates_yld_data1$Vintage)
+rm(list = c("delegates_yld_data2019"))
 ######################################################################################################################
 ################                         filter the harvest data only                             ####################
 
@@ -87,6 +95,7 @@ delegates_yld_data_harvest <- delegates_yld_data_harvest1 %>%
   mutate(julian = as.numeric(format(harvest_date, "%j")))
 glimpse(delegates_yld_data_harvest) #has yield tha here
 
+rm(list = "delegates_yld_data_harvest1")
 
 ######################################################################################################################
 ################                         bring in the Pre - Harvest data                            #################
@@ -107,14 +116,15 @@ delegates_yld_data_pre_harvest <- delegates_yld_data_pre_harvest %>%
 glimpse(delegates_yld_data_pre_harvest)
 
 #join pre harvest and yield data togther
-glimpse(delegates_yld_data_pre_harvest) #514
-glimpse(delegates_yld_data_harvest) # 540
+glimpse(delegates_yld_data_pre_harvest) #556
+glimpse(delegates_yld_data_harvest) # 582
 
 delegates_yld_data <- full_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
 #check <- full_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
 #glimpse(check)
 glimpse(delegates_yld_data)
 
+rm(list = c("delegates_yld_data_harvest", "delegates_yld_data_pre_harvest" ))
 
 ######################################################################################################################
 ################                         join GPS data to Pre and Harvest data                            #################
@@ -122,11 +132,13 @@ glimpse(delegates_yld_data)
 
 
 glimpse(delegates_GPS_sub_block) #357
-glimpse(delegates_yld_data) # 524
+glimpse(delegates_yld_data) # 584
 
 delegates_GPS_sub_block_yld <- full_join(delegates_yld_data,delegates_GPS_sub_block, by= "ID_temp" )
 glimpse(delegates_GPS_sub_block_yld) #853
 
+
+rm(list = c("delegates_yld_data","delegates_GPS_sub_block" ))
 
 #### ADD Some extra data clms - need to check this #####
 glimpse(delegates_GPS_sub_block_yld)
@@ -145,7 +157,7 @@ delegates_GPS_sub_block_yld <- delegates_GPS_sub_block_yld %>%
          vine_spacing )
 glimpse(delegates_GPS_sub_block_yld)
 
-delegates_april_2019 <- delegates_GPS_sub_block_yld %>% 
+delegates_feb_2020 <- delegates_GPS_sub_block_yld %>% 
 select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
        year, harvest_date, julian,yield_t_ha,yield_kg_m,
        brix,bunch_weight, berry_weight,
@@ -154,8 +166,8 @@ select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
        pruning_style,
        row_width,
        vine_spacing)
-glimpse(delegates_april_2019)
-delegates_april_2019$na_count <- apply(is.na(delegates_april_2019), 1, sum)
+glimpse(delegates_feb_2020)
+delegates_feb_2020$na_count <- apply(is.na(delegates_feb_2020), 1, sum)
 
 #glimpse(delegates_april_2019)
 #write_csv(delegates_april_2019, "delegates_april_2019.csv")
@@ -168,25 +180,25 @@ delegates_april_2019$na_count <- apply(is.na(delegates_april_2019), 1, sum)
 ######################################################################################################################
 
 
-dim(delegates_april_2019)
+dim(delegates_feb_2020)
 #how many site?
-dim(delegates_april_2019)
-glimpse(delegates_april_2019$year) #853 records
+dim(delegates_feb_2020)
+glimpse(delegates_feb_2020$year) #895 records
 
-max(delegates_april_2019$year, na.rm = TRUE) #2006 -2018
-min(delegates_april_2019$year, na.rm = TRUE) #2006 -2018
+max(delegates_feb_2020$year, na.rm = TRUE) #2006 -2019
+min(delegates_feb_2020$year, na.rm = TRUE) #2006 -2019
 
 
 #how many sites with GPS pts
-glimpse(delegates_april_2019)#853 all records records
-colSums(is.na(delegates_april_2019)) #218 with missing GPS records
-GPS_only_delegates <- filter(delegates_april_2019, x_coord> 0)
-glimpse(GPS_only_delegates) #635
+glimpse(delegates_feb_2020)#853 all records records
+colSums(is.na(delegates_feb_2020)) #236 with missing GPS records
+GPS_only_delegates <- filter(delegates_feb_2020, x_coord> 0)
+glimpse(GPS_only_delegates) #659
 
 
 
 #how many sites with GPS pts by Variety using filter
-filter(delegates_april_2019, x_coord > 0) %>% 
+filter(delegates_feb_2020, x_coord > 0) %>% 
   ggplot( aes(variety))+
   geom_bar()+
   theme_bw()+
@@ -211,7 +223,7 @@ ggplot(GPS_only_delegates, aes(variety))+
   facet_wrap(~year)
 
 #how many sites by Variety with just the GPS data all the data by year
-ggplot(delegates_april_2019, aes(variety))+
+ggplot(delegates_feb_2020, aes(variety))+
   geom_bar()+
   theme_bw()+
   theme(axis.text.x=element_text(angle=90))+
@@ -219,30 +231,30 @@ ggplot(delegates_april_2019, aes(variety))+
   facet_wrap(~year)
 
 #how many sites by Variety with just the GPS data all the data
-ggplot(delegates_april_2019, aes(variety))+
+ggplot(delegates_feb_2020, aes(variety))+
   geom_bar()+
   theme_bw()+
   theme(axis.text.x=element_text(angle=90))+
   labs(y = "Count of sites")
 
 #create a new variable year_as_factor
-delegates_april_2019$year_factor <- as.factor(delegates_april_2019$year)
-glimpse(delegates_april_2019)
+delegates_feb_2020$year_factor <- as.factor(delegates_feb_2020$year)
+glimpse(delegates_feb_2020)
 #filter data for Sauvignon Blanc
-delegates_april_2019_sau <- filter(delegates_april_2019, variety == "Sauvignon Blanc") 
-glimpse(delegates_april_2019_sau)
+delegates_feb_2020_sau <- filter(delegates_feb_2020, variety == "Sauvignon Blanc") 
+glimpse(delegates_feb_2020_sau)
 
 #how many sites for Sauvignon Blanc by year
-group_by(delegates_april_2019_sau, year) %>% 
+group_by(delegates_feb_2020_sau, year) %>% 
   count()
 #how many sites for Sauvignon Blanc have missing data - how much missing data?
-ggplot(delegates_april_2019_sau, aes(year_factor, na_count))+
+ggplot(delegates_feb_2020_sau, aes(year_factor, na_count))+
   geom_col()+
   theme_bw()+
   labs(x = "Year",
        y= "Total counts of missing data entries NA - Sauvignon Blanc")
 #how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-ggplot(delegates_april_2019_sau, aes(na_count))+
+ggplot(delegates_feb_2020_sau, aes(na_count))+
   geom_bar()+
   scale_x_continuous(breaks =  c(2,4,6,8,10))+
   facet_wrap(~year_factor)+
@@ -251,9 +263,9 @@ ggplot(delegates_april_2019_sau, aes(na_count))+
        y= "Counts of missing data entries NA")
 
 
-glimpse(delegates_april_2019_sau)
+glimpse(delegates_feb_2020_sau)
 #julian days
-ggplot(delegates_april_2019_sau, aes(year_factor, julian))+
+ggplot(delegates_feb_2020_sau, aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -262,7 +274,7 @@ ggplot(delegates_april_2019_sau, aes(year_factor, julian))+
 
 #julian days with zero filtered out
 
-filter(delegates_april_2019_sau,julian >20 ) %>% 
+filter(delegates_feb_2020_sau,julian >20 ) %>% 
   ggplot( aes(year_factor, julian))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -276,14 +288,14 @@ filter(delegates_april_2019_sau,julian >20 ) %>%
   
   
 #yield_t_ha
-ggplot(delegates_april_2019_sau, aes(year_factor, yield_t_ha))+
+ggplot(delegates_feb_2020_sau, aes(year_factor, yield_t_ha))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
   labs(x = "Year",
        y= "Yield t/ha - Sauvignon Blanc")
 #yield_kg_m
-ggplot(delegates_april_2019_sau, aes(year_factor, yield_kg_m))+
+ggplot(delegates_feb_2020_sau, aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -291,7 +303,7 @@ ggplot(delegates_april_2019_sau, aes(year_factor, yield_kg_m))+
        y= "yield kg/m - Sauvignon Blanc")
 
 #yield_kg_m filter out zeros
-filter(delegates_april_2019_sau,yield_kg_m != 0) %>% 
+filter(delegates_feb_2020_sau,yield_kg_m != 0) %>% 
   ggplot( aes(year_factor, yield_kg_m))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -301,7 +313,7 @@ filter(delegates_april_2019_sau,yield_kg_m != 0) %>%
 
 
 #brix - too many zero
-ggplot(delegates_april_2019_sau, aes(year_factor, brix))+
+ggplot(delegates_feb_2020_sau, aes(year_factor, brix))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
   theme_bw()+
@@ -310,7 +322,7 @@ ggplot(delegates_april_2019_sau, aes(year_factor, brix))+
 
 
 #brix - filter out zero
-filter(delegates_april_2019_sau,brix != 0) %>% 
+filter(delegates_feb_2020_sau,brix != 0) %>% 
   ggplot( aes(year_factor, brix))+
   geom_boxplot(alpha=0.1)+
   geom_point(colour = "blue", alpha = 0.1)+
@@ -321,9 +333,9 @@ filter(delegates_april_2019_sau,brix != 0) %>%
 
 ############################################################################## 
 ########################    File to use   ####################################
-delegates_april_2019_sau <- select(delegates_april_2019_sau, -year_factor)
-glimpse(delegates_april_2019_sau)
-write_csv(delegates_april_2019_sau, "V:/Marlborough regional/working_jaxs/delegates_april_2019_sau.csv")
+delegates_feb_2020_sau <- select(delegates_feb_2020_sau, -year_factor)
+glimpse(delegates_feb_2020_sau)
+write_csv(delegates_feb_2020_sau, "V:/Marlborough regional/working_jaxs/delegates_april_2019_sau.csv")
 ##############################################################################   
 
 
