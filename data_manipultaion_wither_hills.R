@@ -32,7 +32,7 @@ wither_hills_block_info <- read_excel("V:/Marlborough regional/Regional winery d
 glimpse(wither_hills_block_info)
 wither_hills_block_info <- wither_hills_block_info %>% 
                             select(
-                            ID_temp = X__1, 
+                            ID_temp = `...1`, 
                             variety,
                             row_spacing = `row spacing (m)`) %>% 
                             mutate(ID_temp = tolower(gsub( "-", "_", ID_temp)))
@@ -88,8 +88,9 @@ glimpse(wither_hills_harvest_details_step2)
 
 
 
-####Note that there is something wrong with the imput date clm we have lots of wrong dates
+####Note that there is something wrong with the input date clm we have lots of wrong dates
 # replace date error with NA
+
 
 wither_hills_harvest_details <- wither_hills_harvest_details_step2 %>% 
     mutate(
@@ -168,6 +169,149 @@ wither_hills_GPS_block_info_harvest$year <- as.double(wither_hills_GPS_block_inf
 wither_hills_GPS_block_info_harvest$na_count <- apply(is.na(wither_hills_GPS_block_info_harvest), 1, sum)
 
 glimpse(wither_hills_GPS_block_info_harvest)
+
+######################################################################################################################
+##############         we have 2019 yield data ############################################################################
+
+wither2019_hills_harvest_details <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/V15-V19 Mapping Project Data.xlsx", 
+                                           sheet = "15,16,17,18,19 ", skip = 3)
+glimpse(wither2019_hills_harvest_details)
+unique(wither2019_hills_harvest_details$Variety)
+
+#bm_02_(spur09)_pn is only block name on the harvest data, and GPS point only have bm_02_pn – make the assumption that they are the same?
+wither2019_hills_harvest_details <- mutate(wither2019_hills_harvest_details,
+                                       Block =  case_when(
+                                         Block == "BM 02 (spur 09)" ~ "BM 02",
+                                         TRUE ~ Block))
+
+## only keep the 2019 data V19
+wither2019_hills_harvest_details <- filter(wither2019_hills_harvest_details,
+                                           Vintage == "V19" )
+
+#Create an ID clm
+str(wither2019_hills_harvest_details)
+wither2019_hills_harvest_details_step1 <- wither2019_hills_harvest_details %>% 
+  mutate(vineyard_lower =str_to_lower(Vineyard, locale = "en"),
+         block_lower =str_to_lower(Block, locale = "en"),
+         Variety_lower =str_to_lower(Variety, locale = "en"),
+         year = gsub( "V|v", "20", wither2019_hills_harvest_details$Vintage))
+glimpse(wither2019_hills_harvest_details_step1)
+unique(wither2019_hills_harvest_details_step1$Variety)
+
+
+wither2019_hills_harvest_details_step2 <- wither2019_hills_harvest_details_step1 %>% 
+  mutate(ID_temp1 = gsub( " ", "_", wither2019_hills_harvest_details_step1$block_lower),
+         ID_temp = paste0(ID_temp1,"_", Variety_lower),
+         ID_yr = paste0(ID_temp,"_", year))  
+glimpse(wither2019_hills_harvest_details_step2)
+unique(wither2019_hills_harvest_details_step2$Variety)
+
+
+####Note that there is something wrong with the input date clm we have lots of wrong dates
+# replace date error with NA
+
+
+wither_hills2019_harvest_details <- wither2019_hills_harvest_details_step2 %>% 
+  mutate(
+    harvest_date1 = ifelse(Harvest < 1980, NA , Harvest))
+
+wither_hills2019_harvest_details$harvest_date1 <- as_datetime(wither_hills2019_harvest_details$harvest_date1)
+glimpse(wither_hills2019_harvest_details)
+unique(wither_hills2019_harvest_details$Variety)
+#####################################################################################################################
+##############################           Add in the calulated yield measures 2019 #########################################################
+#########################################################################################################################
+
+
+#cals and selected clm - need to double check cals
+wither_hills2019_harvest_details <- wither_hills2019_harvest_details %>% 
+  select(ID_yr,ID_temp, 
+         #Variety = Variety_lower,
+         year,
+         brix = `Harvest brix` , #no data in the input file
+         harvest_date = harvest_date1, #something wrong here the input file has this problem
+         yield_t_ha = `Actual T/Ha`,
+         #metres_row_ha =`metres row/ha`, there is an error in the input data file dont use this clm
+         vine_spacing = `Vine Spacing` ,
+         row_width = `Row Width` ,
+         pruning_style = `Pruning style`, 
+         bunch_numb_per_vine = `Ave Pre-Harvest Bunch #`,
+         bunch_weight = `Ave Pre-Harvest Bunch weight`,
+         berry_weight = `Ave Pre-Harvest Berry weight`) 
+
+glimpse(wither_hills2019_harvest_details)
+
+wither_hills2019_harvest_details <- wither_hills2019_harvest_details %>%  
+  mutate(pruning_style = as.double(gsub( " cane", "", pruning_style)),
+         yield_kg_m = (yield_t_ha * 1000) / (10000/row_width), #check this cal
+         bunch_numb_m = bunch_numb_per_vine / vine_spacing , #check this cal
+         bunch_mass_g = 1000 * yield_kg_m /bunch_numb_m, #check this cal
+         berry_bunch = bunch_weight / berry_weight,
+         berry_wt = bunch_mass_g / berry_bunch,
+         julian = as.numeric(format(harvest_date, "%j")))
+
+
+glimpse(wither_hills2019_harvest_details)
+
+#####################################################################################################################
+##############################           Join yield measures to GPS data 2019  #########################################################
+#########################################################################################################################
+
+
+#### join the GPS files to the harvest data files
+glimpse(wither_hills_GPS_block_info) #85
+glimpse(wither_hills2019_harvest_details) #142
+wither_hills2019_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills2019_harvest_details,
+                                                 by= "ID_temp") %>% 
+  mutate(company = "Wither_Hills")
+glimpse(wither_hills2019_GPS_block_info_harvest) #160
+
+#we have a heap of sites with no coodinates for 2019 data
+
+
+wither_hills2019_GPS_block_info_harvest <- wither_hills2019_GPS_block_info_harvest %>% 
+  select(company, ID = ID_temp, variety, x_coord, y_coord,
+         year,harvest_date, julian,yield_t_ha,yield_kg_m,
+         brix,bunch_weight, berry_weight,pruning_style,
+         bunch_numb_m,
+         row_width, vine_spacing
+         #bunch_mass_g, berry_bunch, berry_wt,
+  )
+glimpse(wither_hills2019_GPS_block_info_harvest)
+
+
+#the date is not set as such need to be fixed up
+
+glimpse(wither_hills2019_GPS_block_info_harvest$year)
+
+wither_hills2019_GPS_block_info_harvest$year <- as.double(wither_hills2019_GPS_block_info_harvest$year)
+
+
+wither_hills2019_GPS_block_info_harvest$na_count <- apply(is.na(wither_hills2019_GPS_block_info_harvest), 1, sum)
+
+glimpse(wither_hills2019_GPS_block_info_harvest)
+
+
+#####################################################################################################################
+#### join the two togther pre 2019 and 2019#####
+str(wither_hills2019_GPS_block_info_harvest)
+write_csv(wither_hills2019_GPS_block_info_harvest, "V:/Marlborough regional/working_jaxs/wither_hills2019_GPS_block_info_harvest.csv")
+str(wither_hills_GPS_block_info_harvest)
+
+
+############################################################################## 
+########################    File to use   ####################################
+wither_hills_GPS_block_info_harvest_sau <- select(wither_hills_GPS_block_info_harvest_sau, -year_factor)
+glimpse(wither_hills_GPS_block_info_harvest_sau)
+write_csv(wither_hills_GPS_block_info_harvest_sau, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
+##############################################################################   
+
+
+
+
+
+
+
 
 ######################################################################################################################
 ################                         view and summaries DF                             #################
