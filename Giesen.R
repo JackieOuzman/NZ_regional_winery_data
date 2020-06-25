@@ -180,7 +180,112 @@ Giesen_2020_spatial_yld <- distinct(Giesen_2020_spatial_yld, ID_yr, .keep_all = 
 
 dim(Giesen_2020_spatial_yld)
 
-#merge of Rob and my work
+
+### In 2020 we got a few more sites
+
+
+Giesen_more_data2020 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_more_data2020.xlsx", 
+                                   sheet = "use")
+str(Giesen_more_data2020)
+str(Giesen_2020_spatial_yld)
+
+#select only the clms with data and make some new ones.
+
+Giesen_more_data2020 <- dplyr::select (Giesen_more_data2020, 
+                                       Subblock,
+                                       variety = Variety,
+                                       Subregion,
+                                       Latitude,
+                                       Longitude,
+                                       size_ha = "Size (ha)",
+                                       row_width = "In-row spacing (m)",
+                                       vine_ha = "Vines/Ha",
+                                       year = "Harvest year",
+                                       yield_t_ha = "Harvested T/Ha",
+                                       yield_t_total = "Harvested Total Tonnes",
+                                       harvest_date ="harvest date")
+                                       
+
+#remove the non SB sites
+unique(Giesen_more_data2020$variety)
+Giesen_more_data2020 <- filter(Giesen_more_data2020,variety== "SB")
+
+Giesen_more_data2020 <- mutate(Giesen_more_data2020,
+                                  company = "Giesen",
+                                  ID_yr = paste0(Subblock, "_", variety,"_", year),
+                                  #x_coord = POINT_X,
+                                  #y_coord = POINT_Y, 
+                                  julian = as.numeric(format(harvest_date, "%j")),
+                                  m_ha_vine = 10000/ row_width,
+                                  yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
+                                  bunch_weight = NA,
+                                  berry_weight = NA,
+                                  bunch_numb_m = NA,
+                                  pruning_style = NA,
+                                  na_count = NA,
+                                  brix = NA,
+                                  vine_spacing = NA
+                               )
+
+#now get my coordinate into the correct format...
+
+#test out my approach...
+#test <- Giesen_more_data2020 %>% dplyr::select(ID_yr,Latitude,Longitude  )
+
+
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+#proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
+coordinates(Giesen_more_data2020) <- ~Longitude+Latitude
+proj4string(Giesen_more_data2020) <- wgs84CRS   # assume input lat and longs are WGS84
+Giesen_more_data2020 <- spTransform(Giesen_more_data2020, mapCRS)
+
+glimpse(Giesen_more_data2020)
+Giesen_more_data2020_df = as.data.frame(Giesen_more_data2020) #this has the new coordinates projected !YES!!
+glimpse(Giesen_more_data2020_df)
+Giesen_more_data2020_df <- mutate(Giesen_more_data2020_df,
+                                  x_coord = Longitude,
+                                  y_coord = Latitude) 
+Giesen_more_data2020_df <- dplyr::select(Giesen_more_data2020_df, -Longitude,-Latitude )
+str(Giesen_more_data2020_df)                                
+Giesen_more_data2020_df <- select(Giesen_more_data2020_df,
+                                  company,
+                                  ID_yr,
+                                  variety,
+                                  x_coord,
+                                  y_coord,
+                                  year,
+                                  harvest_date,
+                                  julian,
+                                  yield_t_ha,
+                                  yield_kg_m,
+                                  brix,
+                                  bunch_weight,
+                                  berry_weight,
+                                  bunch_numb_m,
+                                  pruning_style,
+                                  row_width,
+                                  vine_spacing,
+                                  na_count)
+
+
+
+#join the two together
+str(Giesen_more_data2020_df)
+str(Giesen_2020_spatial_yld)
+
+Giesen_2020_spatial_yld_upadted2020 <- bind_rows(Giesen_2020_spatial_yld, Giesen_more_data2020_df)
+#looks like there is some duplication and I should remove some of the bay data 
+
+unique(Giesen_2020_spatial_yld_upadted2020$ID_yr)
+
+Giesen_2020_spatial_yld_upadted2020 <- filter(Giesen_2020_spatial_yld_upadted2020,
+               ID_yr != "Bay Block_SB_2017",
+               ID_yr != "Bay Block_SB_2018",
+               ID_yr != "Bay Block_SB_2019")
+
+
 
 write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld.csv")
 
