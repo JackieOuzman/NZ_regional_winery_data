@@ -69,23 +69,59 @@ wither_hills_harvest_details <- mutate(wither_hills_harvest_details,
                                          Block == "BM 02 (spur 09)" ~ "BM 02",
                                          TRUE ~ Block))
 
+## A few needs a name change...SC01 to SC 01 and SC05 to SC 05 and SC06 to SC 06 OR 04a&b, OR03, OR 01a&b
 
-
+wither_hills_harvest_details <- mutate(wither_hills_harvest_details,
+                                       Block =  case_when(
+                                         Block == "SC01" ~ "SC 01",
+                                         Block == "SC05" ~ "SC 05",
+                                         Block == "SC06" ~ "SC 06",
+                                         Block == "OR 04a&b" ~ "OR 04",
+                                         Block == "OR03" ~ "OR 03",
+                                         Block == "OR04" ~ "OR 04",
+                                         Block == "OR 01a&b" ~ "OR 01",
+                                         TRUE ~ Block))
 
 #Create an ID clm
 wither_hills_harvest_details_step1 <- wither_hills_harvest_details %>% 
          mutate(vineyard_lower =str_to_lower(Vineyard, locale = "en"),
          block_lower =str_to_lower(Block, locale = "en"),
          Variety_lower =str_to_lower(Variety, locale = "en"),
-         year = gsub( "V|v", "20", wither_hills_harvest_details$Vintage))
+         year = gsub( "V|v", "20", wither_hills_harvest_details$Vintage),
+         ha =`Area \r\n(ha)`)
 glimpse(wither_hills_harvest_details_step1)
 
 wither_hills_harvest_details_step2 <- wither_hills_harvest_details_step1 %>% 
          mutate(ID_temp1 = gsub( " ", "_", wither_hills_harvest_details_step1$block_lower),
          ID_temp = paste0(ID_temp1,"_", Variety_lower),
-         ID_yr = paste0(ID_temp,"_", year))  
+         ID_yr = paste0(ID_temp,"_", year),
+         ID_yr_ha = paste0(ID_yr, "_", ha))  
 glimpse(wither_hills_harvest_details_step2)
 
+
+
+### what are the reps?? and keep only the ones with the largest ha
+what_reps <- wither_hills_harvest_details_step2 %>% group_by(ID_yr) %>% 
+  filter(n() > 1)
+
+what_reps <-mutate(what_reps,
+                   ID_yr_ha = paste0(ID_yr, "_", ha)) 
+print(what_reps)
+
+#Yes there are a few lets just use the one that has tne biggest ha...
+biggest_rep <- what_reps %>% 
+  group_by(ID_yr) %>%
+  summarise(value = max(ha, na.rm = FALSE))
+biggest_rep <- mutate(biggest_rep,
+                      ID_yr_ha = paste0(ID_yr, "_", value))  
+
+print(biggest_rep)
+#use this to make a list of sites I dont want to use in analysis
+what_to_chuck <- what_reps %>%
+  filter(!ID_yr_ha %in% biggest_rep$ID_yr_ha)
+#This is removing the sites I dont want to use
+wither_hills_harvest_details_step2 <- wither_hills_harvest_details_step2 %>%
+  filter(!ID_yr_ha %in% what_to_chuck$ID_yr_ha)
 
 
 ####Note that there is something wrong with the input date clm we have lots of wrong dates
@@ -183,6 +219,20 @@ wither2019_hills_harvest_details <- mutate(wither2019_hills_harvest_details,
                                        Block =  case_when(
                                          Block == "BM 02 (spur 09)" ~ "BM 02",
                                          TRUE ~ Block))
+## A few needs a name change...SC01 to SC 01 and SC05 to SC 05 and SC06 to SC 06 OR 04a&b, OR03
+
+wither2019_hills_harvest_details <- mutate(wither2019_hills_harvest_details,
+                                       Block =  case_when(
+                                         Block == "SC01" ~ "SC 01",
+                                         Block == "SC05" ~ "SC 05",
+                                         Block == "SC06" ~ "SC 06",
+                                         Block == "OR 04a&b" ~ "OR 04",
+                                         Block == "OR03" ~ "OR 03",
+                                         Block == "OR04" ~ "OR 04",
+                                         Block == "OR 01a&b" ~ "OR 01",
+                                         TRUE ~ Block))
+
+
 
 ## only keep the 2019 data V19
 wither2019_hills_harvest_details <- filter(wither2019_hills_harvest_details,
@@ -194,7 +244,8 @@ wither2019_hills_harvest_details_step1 <- wither2019_hills_harvest_details %>%
   mutate(vineyard_lower =str_to_lower(Vineyard, locale = "en"),
          block_lower =str_to_lower(Block, locale = "en"),
          Variety_lower =str_to_lower(Variety, locale = "en"),
-         year = gsub( "V|v", "20", wither2019_hills_harvest_details$Vintage))
+         year = gsub( "V|v", "20", wither2019_hills_harvest_details$Vintage),
+         ha =`Area \r\n(ha)`)
 glimpse(wither2019_hills_harvest_details_step1)
 unique(wither2019_hills_harvest_details_step1$Variety)
 
@@ -202,9 +253,14 @@ unique(wither2019_hills_harvest_details_step1$Variety)
 wither2019_hills_harvest_details_step2 <- wither2019_hills_harvest_details_step1 %>% 
   mutate(ID_temp1 = gsub( " ", "_", wither2019_hills_harvest_details_step1$block_lower),
          ID_temp = paste0(ID_temp1,"_", Variety_lower),
-         ID_yr = paste0(ID_temp,"_", year))  
+         ID_yr = paste0(ID_temp,"_", year),
+         ID_yr_ha = paste0(ID_yr, "_", ha))
 glimpse(wither2019_hills_harvest_details_step2)
 unique(wither2019_hills_harvest_details_step2$Variety)
+
+#This is removing the sites I dont want to use
+wither2019_hills_harvest_details_step2 <- wither2019_hills_harvest_details_step2 %>%
+  filter(!ID_yr_ha %in% what_to_chuck$ID_yr_ha)
 
 
 ####Note that there is something wrong with the input date clm we have lots of wrong dates
@@ -295,21 +351,58 @@ glimpse(wither_hills2019_GPS_block_info_harvest)
 #####################################################################################################################
 #### join the two togther pre 2019 and 2019#####
 str(wither_hills2019_GPS_block_info_harvest)
-write_csv(wither_hills2019_GPS_block_info_harvest, "V:/Marlborough regional/working_jaxs/wither_hills2019_GPS_block_info_harvest.csv")
+#write_csv(wither_hills2019_GPS_block_info_harvest, "V:/Marlborough regional/working_jaxs/wither_hills2019_GPS_block_info_harvest.csv")
 str(wither_hills_GPS_block_info_harvest)
 
+wither_hills_GPS_block_info_harvest_all_yrs <- bind_rows(wither_hills_GPS_block_info_harvest,wither_hills2019_GPS_block_info_harvest)
+unique(wither_hills_GPS_block_info_harvest_all_yrs$variety)
 
 ############################################################################## 
 ########################    File to use   ####################################
-wither_hills_GPS_block_info_harvest_sau <- select(wither_hills_GPS_block_info_harvest_sau, -year_factor)
-glimpse(wither_hills_GPS_block_info_harvest_sau)
-write_csv(wither_hills_GPS_block_info_harvest_sau, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
+wither_hills_GPS_block_info_harvest_all_yrs_all_var <- wither_hills_GPS_block_info_harvest_all_yrs
+#write_csv(wither_hills_GPS_block_info_harvest_all_yrs_all_var, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
+write_csv(wither_hills_GPS_block_info_harvest_all_yrs_all_var, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_all_yrs_all_var.csv")
 ##############################################################################   
 
+#Only keep sb
+wither_hills_GPS_block_info_harvest_all_yrs_sb <- mutate(wither_hills_GPS_block_info_harvest_all_yrs_all_var,
+               variety_check = 
+                 str_sub(wither_hills_GPS_block_info_harvest_all_yrs_all_var$ID,-2,-1))
+wither_hills_GPS_block_info_harvest_all_yrs_sb <- filter(wither_hills_GPS_block_info_harvest_all_yrs_sb, variety_check == "sb")
+wither_hills_GPS_block_info_harvest_all_yrs_sb <- dplyr::select(wither_hills_GPS_block_info_harvest_all_yrs_sb,
+                                                                -variety_check)
+############################################################################## 
+########################    File to use just sb  ####################################
+
+write_csv(wither_hills_GPS_block_info_harvest_all_yrs_sb, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
+
+####################################################################################################################
+
+##note we have heaps of missing coordinates this seem to relate to when the block have beeb split up for a trial or something like this
+## so what should we do about it?
+## how many are for the variety we are intersreted in?
+# need to make a new clm for variety at the monmnet this datset is comming from the GPS pts but it also is in the ID clm - let get it!
+wither_hills_GPS_block_info_harvest_all_yrs_all_var
+test <- mutate(wither_hills_GPS_block_info_harvest_all_yrs_all_var,
+                                                              variety_check = 
+                                                                str_sub(wither_hills_GPS_block_info_harvest_all_yrs_all_var$ID,-2,-1))
+                                                                
+
+unique(test$variety)
+unique(test$variety_check)
 
 
+test_sb <- filter(test, variety_check == "sb")
+str(test_sb)
+unique(test_sb$x_coord)
+test_sb_missing_coord <- test_sb %>%  filter(is.na(x_coord))
 
 
+test_sb_missing_coord_sites <- distinct(test_sb_missing_coord, ID, .keep_all = FALSE)
+dim(test_sb_missing_coord_sites)
+write_csv(test_sb_missing_coord_sites, 
+          "V:/Marlborough regional/working_jaxs/wither_hills_sb_missing_coord_sites.csv")
+#there are 23 sites with no GPS pts
 
 
 
@@ -447,12 +540,82 @@ filter(wither_hills_GPS_block_info_harvest_sau,brix != 0) %>%
        y= "Brix - Sauvignon Blanc")
 
 
-############################################################################## 
-########################    File to use   ####################################
-wither_hills_GPS_block_info_harvest_sau <- select(wither_hills_GPS_block_info_harvest_sau, -year_factor)
-glimpse(wither_hills_GPS_block_info_harvest_sau)
-write_csv(wither_hills_GPS_block_info_harvest_sau, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
-##############################################################################   
+###########################################################################################################################################
+##############   how do I know if the sites are doubled up?? and what to do about it?   ###################################################
+
+check_double_up <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/V15-V19 Mapping Project Data.xlsx", 
+                                               sheet = "15,16,17,18,19 ", skip = 3)
+glimpse(check_double_up)
+unique(check_double_up$Variety)
+
+check_double_up_sb <- filter(check_double_up,Variety == "SB" )
+check_double_up_sb
+#bm_02_(spur09)_pn is only block name on the harvest data, and GPS point only have bm_02_pn – make the assumption that they are the same?
+check_double_up_sb <- mutate(check_double_up_sb,
+                                           Block =  case_when(
+                                             Block == "BM 02 (spur 09)" ~ "BM 02",
+                                             TRUE ~ Block))
+## A few needs a name change...SC01 to SC 01 and SC05 to SC 05 and SC06 to SC 06 OR 04a&b, OR03
+
+check_double_up_sb <- mutate(check_double_up_sb,
+                                           Block =  case_when(
+                                             Block == "SC01" ~ "SC 01",
+                                             Block == "SC05" ~ "SC 05",
+                                             Block == "SC06" ~ "SC 06",
+                                             Block == "OR 04a&b" ~ "OR 04",
+                                             Block == "OR03" ~ "OR 03",
+                                             Block == "OR04" ~ "OR 04",
+                                             Block == "OR 01a&b" ~ "OR 01",
+                                             TRUE ~ Block))
 
 
 
+
+#Create an ID clm
+str(check_double_up_sb)
+check_double_up_sb_step1 <- check_double_up_sb %>% 
+  mutate(vineyard_lower =str_to_lower(Vineyard, locale = "en"),
+         block_lower =str_to_lower(Block, locale = "en"),
+         Variety_lower =str_to_lower(Variety, locale = "en"),
+         year = gsub( "V|v", "20", check_double_up_sb$Vintage))
+glimpse(check_double_up_sb_step1)
+
+
+
+check_double_up_sb_step2 <- check_double_up_sb_step1 %>% 
+  mutate(ID_temp1 = gsub( " ", "_", check_double_up_sb_step1$block_lower),
+         ID_temp = paste0(ID_temp1,"_", Variety_lower),
+         ID_yr = paste0(ID_temp,"_", year))  
+glimpse(check_double_up_sb_step2)
+
+
+check_double_up_sb_step2 <- dplyr::select(check_double_up_sb_step2,
+                                          Vineyard,
+                                          Region,
+                                          Block,
+                                          ha = `Area \r\n(ha)`,
+                                          ID_yr,
+                                          ID_temp)
+check_double_up_sb_step2
+
+#what are the replicates?
+what_reps <- check_double_up_sb_step2 %>% group_by(ID_yr) %>% 
+  filter(n() > 1)
+
+what_reps <-mutate(what_reps,
+       ID_yr_ha = paste0(ID_yr, "_", ha)) 
+print(what_reps)
+
+#Yes there are a few lets just use the one that has tne biggest ha...
+biggest_rep <- what_reps %>% 
+  group_by(ID_yr) %>%
+  summarise(value = max(ha, na.rm = FALSE))
+biggest_rep <- mutate(biggest_rep,
+       ID_yr_ha = paste0(ID_yr, "_", value))  
+
+print(biggest_rep)
+
+
+#use this to make a list of sites I dont want to use in analysis
+what_to_chuck <- what_reps %>%
+filter(!ID_yr_ha %in% biggest_rep$ID_yr_ha)
