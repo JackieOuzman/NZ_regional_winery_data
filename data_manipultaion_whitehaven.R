@@ -27,24 +27,44 @@ library(sf)
 ################  Bring in data file   and reformat coodinates clms      ################ ###############     #################
 
 
-white_haven_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Whitehaven/Harvest  Mapping Data Whitehaven.xlsx", 
-                              sheet = "All - Data",
-                              col_types = c("text", "text", "text", 
-                                            "text", "text", "text", "text", "text", 
-                                            "numeric", "numeric", "numeric", 
-                                            "numeric", "text", "text", "text", 
-                                            "text", "date", "numeric", "numeric", 
-                                            "text", "numeric", "numeric", "numeric", 
-                                            "date", "text", "numeric", "numeric", 
-                                            "numeric", "date", "text", "numeric", 
-                                            "numeric", "numeric", "text", "date", 
-                                            "text", "numeric", "numeric", "numeric", 
-                                            "date", "text", "numeric", "numeric", 
-                                            "numeric", "date", "text", "numeric", 
-                                            "numeric", "numeric", "numeric", 
-                                            "numeric", "numeric", "numeric", 
-                                            "numeric", "numeric", "numeric", 
-                                            "numeric", "numeric"))
+# white_haven_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Whitehaven/Harvest  Mapping Data Whitehaven.xlsx", 
+#                               sheet = "All - Data",
+#                               col_types = c("text", "text", "text", 
+#                                             "text", "text", "text", "text", "text", 
+#                                             "numeric", "numeric", "numeric", 
+#                                             "numeric", "text", "text", "text", 
+#                                             "text", "date", "numeric", "numeric", 
+#                                             "text", "numeric", "numeric", "numeric", 
+#                                             "date", "text", "numeric", "numeric", 
+#                                             "numeric", "date", "text", "numeric", 
+#                                             "numeric", "numeric", "text", "date", 
+#                                             "text", "numeric", "numeric", "numeric", 
+#                                             "date", "text", "numeric", "numeric", 
+#                                             "numeric", "date", "text", "numeric", 
+#                                             "numeric", "numeric", "numeric", 
+#                                             "numeric", "numeric", "numeric", 
+#                                             "numeric", "numeric", "numeric", 
+#                                             "numeric", "numeric"))
+
+
+white_haven_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Whitehaven/Harvest  Mapping Data whitehaven 25052020.xlsx", 
+                                                       sheet = "All - Data", col_types = c("text", 
+                                                                                           "text", "text", "text", "text", "text", 
+                                                                                           "text", "text", "numeric", "numeric", 
+                                                                                           "numeric", "numeric", "text", "text", 
+                                                                                           "text", "text", "date", "numeric", 
+                                                                                           "numeric", "text", "numeric", "numeric", 
+                                                                                           "numeric", "date", "text", "numeric", 
+                                                                                           "numeric", "numeric", "date", "text", 
+                                                                                           "numeric", "numeric", "numeric", 
+                                                                                           "text", "date", "text", "numeric", 
+                                                                                           "numeric", "numeric", "date", "text", 
+                                                                                           "numeric", "numeric", "numeric", 
+                                                                                           "date", "text", "numeric", "numeric", 
+                                                                                           "numeric", "numeric", "numeric", 
+                                                                                           "numeric", "numeric", "numeric", 
+                                                                                           "numeric", "numeric", "numeric", 
+                                                                                           "numeric"))
 
 white_haven_GPS_1 <-  select(white_haven_GPS,Vineyard,
                              Block,
@@ -169,27 +189,36 @@ glimpse(white_haven_GPS_DD1_df)
 
 #write_csv(white_haven_GPS_DD1_df, "white_haven_GPS_DD1_df.csv") #I have written it to csv and pulled into arcmap to do a check - mostly looks ok.
 
+#remove the files I dont need.
+
+rm(mapCRS, wgs84CRS, 
+            white_haven_GPS_1, 
+            white_haven_GPS_DD, 
+            white_haven_GPS_DD1,
+            white_haven_GPS_DD)
 
 
+###########################################################################################################################
+white_haven <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Whitehaven/Harvest  Mapping Data whitehaven 25052020.xlsx", 
+                              sheet = "All - Data", col_types = c("text", 
+                                                                  "text", "text", "text", "text", "text", 
+                                                                  "text", "text", "numeric", "numeric", 
+                                                                  "numeric", "numeric", "text", "text", 
+                                                                  "text", "text", "date", "numeric", 
+                                                                  "numeric", "text", "numeric", "numeric", 
+                                                                  "numeric", "date", "text", "numeric", 
+                                                                  "numeric", "numeric", "date", "text", 
+                                                                  "numeric", "numeric", "numeric", 
+                                                                  "text", "date", "text", "numeric", 
+                                                                  "numeric", "numeric", "date", "text", 
+                                                                  "numeric", "numeric", "numeric", 
+                                                                  "date", "text", "numeric", "numeric", 
+                                                                  "numeric", "numeric", "numeric", 
+                                                                  "numeric", "numeric", "numeric", 
+                                                                  "numeric", "numeric", "numeric", 
+                                                                  "numeric"))
 
-white_haven <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Whitehaven/Harvest  Mapping Data Whitehaven.xlsx", 
-                                              sheet = "All - Data",
-                                              col_types = c("text", "text", "text", 
-                                                            "text", "text", "text", "text", "text", 
-                                                            "numeric", "numeric", "numeric", 
-                                                            "numeric", "text", "text", "text", 
-                                                            "text", "date", "numeric", "numeric", 
-                                                            "text", "numeric", "numeric", "numeric", 
-                                                            "date", "text", "numeric", "numeric", 
-                                                            "numeric", "date", "text", "numeric", 
-                                                            "numeric", "numeric", "text", "date", 
-                                                            "text", "numeric", "numeric", "numeric", 
-                                                            "date", "text", "numeric", "numeric", 
-                                                            "numeric", "date", "text", "numeric", 
-                                                            "numeric", "numeric", "numeric", 
-                                                            "numeric", "numeric", "numeric", 
-                                                            "numeric", "numeric", "numeric", 
-                                                            "numeric", "numeric"))
+
 
 
 
@@ -265,7 +294,7 @@ white_haven_2019_1 <- select(white_haven_2019,
                            vine_spacing = `Vine Spacing`)
 glimpse(white_haven_2019_1)
 
-
+summary(white_haven_2019_1)
 
 #some brix have 0 values that need to be replaced with NA 
 #some brix have multiple readings eg 22.4/22.5 this needs to be averaged
@@ -293,7 +322,7 @@ glimpse(white_haven_2019_1)
 
 ####add in the GPS coords####
 glimpse(white_haven_2019_1)
-glimpse(white_haven_GPS_DD1_df) #something wrong here??
+glimpse(white_haven_GPS_DD1_df) #something wrong here?? - umm looks ok
 
 
 
@@ -304,7 +333,7 @@ glimpse(white_haven_2019_GPS)
 #print(white_haven_2019_GPS)
 
 ### Lots of really early harvest dates in this year emial from Mike 16/1/2020 suggests that some sites should be changed.
-
+## I have an updated sheet from 2020 so I am working with this one.
 
 
 
@@ -724,8 +753,8 @@ white_haven_2019to2014_GPS$na_count <- apply(is.na(white_haven_2019to2014_GPS), 
 glimpse(white_haven_2019to2014_GPS)
 
 
-
-#write_csv(white_haven_2019to2014_GPS, "white_haven_2019to2014_GPS.csv")
+getwd()
+write_csv(white_haven_2019to2014_GPS, "V:/Marlborough regional/working_jaxs/white_haven_2019to2014_GPS_updated.csv")
 
 
 
