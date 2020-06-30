@@ -1,0 +1,212 @@
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(sf)
+library(rgdal)
+library(data.table)
+
+
+##########################################################################################################################
+################### 2019 block data ######################################################################################
+
+Grower_coop_V2019 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Grape MASTER V2019.xlsx", 
+                                 sheet = "Block Master 2019 ", skip = 2)
+str(Grower_coop_V2019)
+Grower_coop_V2019_block_info <- dplyr::select(Grower_coop_V2019,
+                                         Sub_Region = "Sub Region",
+                                         Grower,
+                                         Block,
+                                         SWNZ_Vineyard_ID = "SWNZ Vineyard ID",
+                                         Ha = Hectares,
+                                         row_width = "Row Spacing",
+                                         vine_Spacing = "Vine Spacing",
+                                         vines_ha = "Vines/ha"
+                                         )
+
+# remove the no data - eg the summary row at the end.
+Grower_coop_V2019_block_info <- filter(Grower_coop_V2019_block_info,
+                                       Sub_Region != "NA")
+#make a temp ID clm which is the grower and the block
+
+Grower_coop_V2019_block_info <- mutate(Grower_coop_V2019_block_info,
+                                       Temp_ID = paste0(Grower, "_", Block))
+#just some formatting adding in _
+Grower_coop_V2019_block_info$Temp_ID <-str_replace(Grower_coop_V2019_block_info$Temp_ID, ",", "_")
+Grower_coop_V2019_block_info$Temp_ID <-str_replace_all(Grower_coop_V2019_block_info$Temp_ID, " ", "_")
+Grower_coop_V2019_block_info$Temp_ID <-str_replace_all(Grower_coop_V2019_block_info$Temp_ID, "__", "_")
+
+Grower_coop_V2019_block_info <- mutate(Grower_coop_V2019_block_info,
+                                       company = "Grower_coop",
+                                       year = 2019,
+                                       ID_yr = paste0(Temp_ID, "_", year))
+
+
+#############################################################################################################
+######## still need the variety - harvest date and GPS locations ############################################
+############################################################################################################
+
+
+
+
+###########################################################################################################
+################     add in the 2019 yield data ##########################################################
+
+
+Grower_coop_V2019_yld_data <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Grape MASTER V2019.xlsx", 
+                                sheet = "Crop Estimate MASTER 2019", skip = 2)
+str(Grower_coop_V2019_yld_data)
+Grower_coop_V2019_yld_data <- dplyr::select(Grower_coop_V2019_yld_data,
+                                            Sub_Region = "Sub Region",
+                                            Grower,
+                                            Block,
+                                            Ha = Hectares,
+                                            vines_ha = "Vines / ha",
+                                            bunches_per_vine = "Average bunches / vine (Nov)",
+                                            nunb_bunches_collected ="Number bunches collected",
+                                            total_weight_bunches = "Total weight of bunches (g)",
+                                            total_weight_berry_sample ="Total weight of berry sample (g)" ,
+                                            total_weight_berry = "Total weight of berry sample (g)",
+                                            no_berry_in_sample = "No. berry's in sample (5 berry's / bunch)",
+                                            yield_t_ha = "Harvested T/ha")
+
+Grower_coop_V2019_yld_data <- filter(Grower_coop_V2019_yld_data,
+                                       Sub_Region != "NA")
+#make a temp ID clm which is the grower and the block
+
+Grower_coop_V2019_yld_data <- mutate(Grower_coop_V2019_yld_data,
+                                       Temp_ID = paste0(Grower, "_", Block))
+#just some formatting adding in _
+Grower_coop_V2019_yld_data$Temp_ID <-str_replace(Grower_coop_V2019_yld_data$Temp_ID, ",", "_")
+Grower_coop_V2019_yld_data$Temp_ID <-str_replace_all(Grower_coop_V2019_yld_data$Temp_ID, " ", "_")
+Grower_coop_V2019_yld_data$Temp_ID <-str_replace_all(Grower_coop_V2019_yld_data$Temp_ID, "__", "_")
+
+Grower_coop_V2019_yld_data <- mutate(Grower_coop_V2019_yld_data,
+                                       company = "Grower_coop",
+                                       year = 2019,
+                                       ID_yr = paste0(Temp_ID, "_", year))
+
+
+str(Grower_coop_V2019_yld_data)
+### Bring in the block data 
+
+str(Grower_coop_V2019_block_info)
+#just keep a few clms 
+Grower_coop_V2019_block_info_selection <- dplyr::select(Grower_coop_V2019_block_info,
+                                                        ID_yr,
+                                                        SWNZ_Vineyard_ID,
+                                                        row_width,
+                                                        vine_Spacing,
+                                                        )
+                                                        
+
+str(Grower_coop_V2019_yld_data)
+
+Grower_coop_V2019_join <- full_join(Grower_coop_V2019_block_info_selection, Grower_coop_V2019_yld_data)                                                     
+                                                     
+
+
+#### Add in the calulations
+Grower_coop_V2019_join <- mutate(Grower_coop_V2019_join,
+                                     harvest_date= NA,
+                                     julian = NA, #julian = as.numeric(format(harvest_date, "%j")),
+                                     m_ha_vine = 10000/ row_width,
+                                     yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
+                                     bunch_weight = total_weight_bunches / nunb_bunches_collected, #the data sheet has -4 from this cal ?why
+                                     berry_weight_1 = total_weight_berry / no_berry_in_sample,
+                                     berry_per_bunch = bunch_weight / berry_weight_1, 
+                                     berry_weight_2 = (yield_t_ha/vines_ha/bunches_per_vine/berry_per_bunch)*1000000, #this is in the data sheet - check
+                                     bunches_per_vine = NA, #??not sure I can cal this?? help
+                                     pruning_style = NA,
+                                     brix = NA,
+                                     meter_row_per_ha = 10000/row_width,
+                                     yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width,
+                                     bunch_m = (yld_per_m_row_kg * 1000)/ bunch_weight)
+
+
+
+str(Grower_coop_V2019_join)
+Grower_coop_V2019 <- select(Grower_coop_V2019_join,
+                                             company,
+                                             ID_yr, 
+                                             #variety,
+                                             #x_coord,
+                                             #y_coord,
+                                             year,
+                                             harvest_date, #missing
+                                             julian, #missing
+                                             yield_t_ha,
+                                             yield_kg_m,
+                                             brix, #missing
+                                             bunch_m,
+                                             #pruning_style,
+                                             row_width ,
+                                             vine_spacing = vine_Spacing
+)
+
+
+##############################################################################################################################
+############ 2018 data ######################################################################################################
+
+
+Grower_coop_V2018_part1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Member Harvest Summary 2018 01052018.xlsx", 
+                                                   sheet = "Shelley - TWG Fruit Receival An")
+#remove the missing rows
+Grower_coop_V2018_part1 <- filter(Grower_coop_V2018_part1,
+                                  Block != "NA")
+str(Grower_coop_V2018_part1)
+Grower_coop_V2018_part1 <- dplyr::select(Grower_coop_V2018_part1, Vineyard,
+                                         Block,
+                                         brix = "Brix (deg)",
+                                         Date)
+
+Grower_coop_V2018_part1 <- mutate(Grower_coop_V2018_part1,
+                                  ID_yr = paste0( Block,  "_2018")) #paste0(Grower, "_", Block))
+
+#average the data per block
+Grower_coop_V2018_part1_av <- Grower_coop_V2018_part1 %>%
+  group_by(Block) %>% 
+           summarise(Date = mean(Date),
+                     Brix = mean(brix, na.rm = TRUE))
+
+
+Grower_coop_V2018_part2 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Member Harvest Summary 2018 01052018.xlsx", 
+                                                   sheet = "Member Harvest Summary 2018")
+#the date clm has a mix of dates and names make 2 clms and code properly
+str(Grower_coop_V2018_part2)
+Grower_coop_V2018_part2 <- mutate(Grower_coop_V2018_part2, Date_name = Date)
+Grower_coop_V2018_part2 <- Grower_coop_V2018_part2 %>% mutate(id_ref = row_number())                                  
+Grower_coop_V2018_part2$Date_name <- str_replace_all(Grower_coop_V2018_part2$Date_name,
+                                                              "[:digit:]", "")
+
+Grower_coop_V2018_part2$Date_name <-na_if(Grower_coop_V2018_part2$Date_name, ".")
+str(Grower_coop_V2018_part2)
+Grower_coop_V2018_part2 <- dplyr::select(Grower_coop_V2018_part2, Vineyard,
+                                         Block,
+                                         brix = "Brix (deg)",
+                                         Date_name, id_ref
+                                         )
+
+
+
+Grower_coop_V2018_part2_a <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Member Harvest Summary 2018 01052018.xlsx", 
+                                                   col_types = c("date", "text", "text", 
+                                                                 "text", "numeric", "text", "numeric", 
+                                                                 "numeric", "text", "numeric", "numeric", 
+                                                                 "numeric", "text", "text", "text", 
+                                                                 "text"))
+                                        
+Grower_coop_V2018_part2_a <- Grower_coop_V2018_part2_a %>% mutate(id_ref = row_number()) 
+
+
+Grower_coop_V2018_part2_a <- mutate(Grower_coop_V2018_part2_a,
+                                  ID_yr = paste0( Block,  "_2018")) #paste0(Grower, "_", Block))
+str(Grower_coop_V2018_part2_a)
+Grower_coop_V2018_part2_a <- dplyr::select(Grower_coop_V2018_part2_a, ID_yr,
+                                           Date, id_ref)
+#join the two togther
+str(Grower_coop_V2018_part2_a)
+str(Grower_coop_V2018_part2)
+
+Grower_coop_V2018_part2_join <- full_join(Grower_coop_V2018_part2_a, Grower_coop_V2018_part2) 
