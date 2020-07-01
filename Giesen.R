@@ -290,6 +290,7 @@ Giesen_2020_spatial_yld_upadted2020 <- filter(Giesen_2020_spatial_yld_upadted202
 write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld.csv")
 
 
+##############################################################################################################################
+#### more again 01/07/2020
 
-
-
+Giesen_more_01072020 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_more_01072020.xlsx")
