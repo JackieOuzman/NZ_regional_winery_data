@@ -210,3 +210,72 @@ str(Grower_coop_V2018_part2_a)
 str(Grower_coop_V2018_part2)
 
 Grower_coop_V2018_part2_join <- full_join(Grower_coop_V2018_part2_a, Grower_coop_V2018_part2) 
+
+
+
+
+
+
+##############################################################################################################################
+############ 2014 - 2017  data ######################################################################################################
+
+
+Harvest_data_2014_2017 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Harvest data 2014-2017.xlsx")
+str(Harvest_data_2014_2017)
+Harvest_data_2014_2017 <- filter(Harvest_data_2014_2017,Grower != "NA" )
+Harvest_data_2014_2017 <- filter(Harvest_data_2014_2017,Hectares != "NA" )
+
+#split the data into years
+Harvest_data_2014 <- dplyr::select(Harvest_data_2014_2017,
+                                   Grower ,
+                                   ha = "Hectares",
+                                   yld = "Fruit Produced 2014" ,
+                                   yield_t_ha = "Tonnes per hectare 2014",
+                                   brix = "2014 Brix") %>% 
+  mutate(year = 2014)
+
+
+Harvest_data_2015 <- dplyr::select(Harvest_data_2014_2017,
+                                   Grower ,
+                                   ha = "Hectares",
+                                   yld = "Fruit Produced 2015" ,
+                                   yield_t_ha = "Tonnes per hectare 2015",
+                                   brix = "2015 Brix") %>% 
+  mutate(year = 2015)
+
+Harvest_data_2016 <- dplyr::select(Harvest_data_2014_2017,
+                                   Grower ,
+                                   ha = "Hectares",
+                                   yld = "Fruit Produced 2016" ,
+                                   yield_t_ha = "Tonnes per hectare 2016",
+                                   brix = "2016 Brix") %>% 
+  mutate(year = 2016)
+
+Harvest_data_2017 <- dplyr::select(Harvest_data_2014_2017,
+                                   Grower ,
+                                   ha = "Hectares",
+                                   yld = "Fruit Produced 2017" ,
+                                   yield_t_ha = "Tonnes per hectare 2017",
+                                   brix = "2017 Brix") %>% 
+  mutate(year = 2017)
+
+str(Harvest_data_2014)
+str(Harvest_data_2015)
+str(Harvest_data_2016)
+str(Harvest_data_2017)
+Harvest_data_2017$yld <- as.numeric(Harvest_data_2017$yld)
+Harvest_data_2017$yield_t_ha <- as.numeric(Harvest_data_2017$yield_t_ha)
+
+
+
+
+Harvest_data_2014_2017_tidy <- bind_rows(Harvest_data_2014,
+                                         Harvest_data_2015,
+                                         Harvest_data_2016,
+                                         Harvest_data_2017)
+
+## what the go with the names are there any replicates? _ nope looks ok
+growers2014 <-unique(Harvest_data_2014$Grower)
+growers2015 <-unique(Harvest_data_2015$Grower)
+growers2016 <-unique(Harvest_data_2016$Grower)
+growers2017 <-unique(Harvest_data_2017$Grower)
