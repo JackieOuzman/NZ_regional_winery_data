@@ -288,9 +288,64 @@ Giesen_2020_spatial_yld_upadted2020 <- filter(Giesen_2020_spatial_yld_upadted202
 
 
 write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld.csv")
-
+write_csv(Giesen_2020_spatial_yld_upadted2020, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld_upadted2020.csv")
 
 ##############################################################################################################################
 #### more again 01/07/2020
 
 Giesen_more_01072020 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_more_01072020.xlsx")
+str(Giesen_more_01072020)
+Giesen_more_01072020 <- select(Giesen_more_01072020,
+                               Subregion,
+                               variety = "Variety",
+                               Latitude,
+                               Longitude,
+                               ha = "Size (ha)",
+                               row_width = "In-row spacing (m)",
+                               vine_ha = "Vines/Ha",
+                               year = "Harvest year",
+                               berry_weight = "Pre-Harvest Average Berry Weight (g)",
+                               bunch_weight="Pre-Harvest Average Bunch Weight (g)",
+                               berries_per_bunch ="Pre-Harvest Average Berries/ Bunch",
+                               yield_t_ha = "Harvested T/Ha",
+                               harvest_date = "harvest date")
+
+Giesen_more_01072020 <- mutate(Giesen_more_01072020,
+                               company ="Giesen",
+                               ID_yr = paste0(Subregion, "_",year ),
+                               julian = as.numeric(format(harvest_date, "%j")),
+                               m_ha_vine = 10000/ row_width,
+                               yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
+                               brix = NA,
+                               vine_spacing = NA,
+                               bunch_numb_m = NA,
+                               pruning_style = NA
+                               )
+
+
+
+### change the coodinates from long and lats x_coord,y_coord,
+
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+#proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
+coordinates(Giesen_more_01072020) <- ~Longitude+Latitude
+proj4string(Giesen_more_01072020) <- wgs84CRS   # assume input lat and longs are WGS84
+Giesen_more_01072020 <- spTransform(Giesen_more_01072020, mapCRS)
+
+glimpse(Giesen_more_01072020)
+Giesen_more_01072020_df = as.data.frame(Giesen_more_01072020) #this has the new coordinates projected !YES!!
+glimpse(Giesen_more_01072020_df)
+Giesen_more_01072020_df <- mutate(Giesen_more_01072020_df,
+                                  x_coord = Longitude,
+                                  y_coord = Latitude) 
+Giesen_more_01072020_df <- dplyr::select(Giesen_more_01072020_df, -Longitude,-Latitude )
+str(Giesen_more_01072020_df)                               
+
+
+write_csv(Giesen_more_01072020_df, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_more_01072020.csv")
+
+#### add this to rest of the data
+Giesen_2020_spatial_yld_upadted2020_vs2 <- bind_rows(Giesen_2020_spatial_yld_upadted2020, Giesen_more_01072020_df)
+write_csv(Giesen_2020_spatial_yld_upadted2020_vs2, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld_upadted2020_vs2.csv")
