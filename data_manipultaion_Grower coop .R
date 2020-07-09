@@ -47,8 +47,20 @@ Grower_coop_V2019_block_info <- mutate(Grower_coop_V2019_block_info,
 ######## still need the variety - harvest date and GPS locations ############################################
 ############################################################################################################
 
+Grower_coop_V2019_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Grape MASTER V2019.xlsx", 
+                                sheet = "coords")
 
+names(Grower_coop_V2019_GPS) #Realignment Number
+names(Grower_coop_V2019)
 
+Grower_coop_V2019_GPS <- rename(Grower_coop_V2019_GPS,
+                                "Realignment Number" = "Site_numb")
+
+#now I can join them....
+Grower_coop_V2019 <- left_join(Grower_coop_V2019, Grower_coop_V2019_GPS)
+#whats missing?
+
+not_joined_Grower_coop_V2019 <- anti_join(Grower_coop_V2019, Grower_coop_V2019_GPS)
 
 ###########################################################################################################
 ################     add in the 2019 yield data ##########################################################
@@ -279,3 +291,10 @@ growers2014 <-unique(Harvest_data_2014$Grower)
 growers2015 <-unique(Harvest_data_2015$Grower)
 growers2016 <-unique(Harvest_data_2016$Grower)
 growers2017 <-unique(Harvest_data_2017$Grower)
+
+
+
+###############################################################################################
+##### 2019 GPS sites - done via google earth and maps ########################################
+
+
