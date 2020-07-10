@@ -398,7 +398,7 @@ unique(test_sb$x_coord)
 test_sb_missing_coord <- test_sb %>%  filter(is.na(x_coord))
 
 
-test_sb_missing_coord_sites <- distinct(test_sb_missing_coord, ID, .keep_all = FALSE)
+test_sb_missing_coord_sites <- distinct(test_sb_missing_coord, ID, .keep_all = TRUE)
 dim(test_sb_missing_coord_sites)
 write_csv(test_sb_missing_coord_sites, 
           "V:/Marlborough regional/working_jaxs/wither_hills_sb_missing_coord_sites.csv")
