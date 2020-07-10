@@ -61,6 +61,8 @@ Grower_coop_V2019 <- left_join(Grower_coop_V2019, Grower_coop_V2019_GPS)
 #whats missing?
 
 not_joined_Grower_coop_V2019 <- anti_join(Grower_coop_V2019, Grower_coop_V2019_GPS)
+getwd()
+write.csv(not_joined_Grower_coop_V2019, "not_joined_Grower_coop_V2019.csv")
 
 ###########################################################################################################
 ################     add in the 2019 yield data ##########################################################
