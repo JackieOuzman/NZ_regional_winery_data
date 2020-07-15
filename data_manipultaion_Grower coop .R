@@ -52,32 +52,33 @@ Grower_coop_V2019_GPS <- read_excel("V:/Marlborough regional/Regional winery dat
                                 sheet = "coords")
 
 names(Grower_coop_V2019_GPS) #Realignment Number
-names(Grower_coop_V2019)
+names(Grower_coop_V2019_block_info)
 
 Grower_coop_V2019_GPS <- rename(Grower_coop_V2019_GPS,
                                 "Realignment Number" = "Site_numb")
 
 #now I can join them....
-names(Grower_coop_V2019) 
+names(Grower_coop_V2019_block_info) 
 names(Grower_coop_V2019_GPS)
-Grower_coop_V2019 <- left_join(Grower_coop_V2019, Grower_coop_V2019_GPS, by= "Realignment Number")
+Grower_coop_V2019 <- left_join(Grower_coop_V2019_block_info, Grower_coop_V2019_GPS, by= "Realignment Number")
 #whats missing?
 
-not_joined_Grower_coop_V2019 <- anti_join(Grower_coop_V2019, Grower_coop_V2019_GPS)
+not_joined_Grower_coop_V2019 <- anti_join(Grower_coop_V2019_block_info, Grower_coop_V2019_GPS)
 getwd()
 #write.csv(not_joined_Grower_coop_V2019, "not_joined_Grower_coop_V2019.csv")
 
 #remove what I dont want..
-rm(#Grower_coop_V2019_GPS, 
-    Grower_coop_V2019_join,
-   Grower_coop_V2019_yld_data,
-   not_joined_Grower_coop_V2019, 
-   Grower_coop_V2019_block_info)
+rm(
+   #Grower_coop_V2019,
+   Grower_coop_V2019_block_info,
+   #Grower_coop_V2019_GPS,
+   not_joined_Grower_coop_V2019
+    )
 
 str(Grower_coop_V2019)
 ###########################################################################################################
 ################     add in the 2019 yield data ##########################################################
-
+  
 
 Grower_coop_V2019_yld_data <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Grape MASTER V2019.xlsx", 
                                 sheet = "Crop Estimate MASTER 2019", skip = 2)
@@ -124,21 +125,13 @@ str(Grower_coop_V2019_yld_data)
 #str(Grower_coop_V2019_block_info)
 str(Grower_coop_V2019)
 #just keep a few clms 
-# Grower_coop_V2019_block_info_selection <- dplyr::select(Grower_coop_V2019_block_info,
-#                                                         ID_yr,
-#                                                         SWNZ_Vineyard_ID,
-#                                                         row_width,
-#                                                         vine_Spacing,
-#                                                         "Realignment Number"
-#                                                         )
 
-#just keep a few clms 
  Grower_coop_V2019_selection <- dplyr::select(Grower_coop_V2019,
                                                          #ID_yr,
-                                                         SWNZ_Vineyard_ID = "SWNZ Vineyard ID",
-                                                         row_width = "Row Spacing",
-                                                         vine_Spacing = "Vine Spacing",
-                                                         "Realignment_number" = "Realignment Number",
+                                                         SWNZ_Vineyard_ID,
+                                                         row_width ,
+                                                         vine_Spacing ,
+                                                         "Realignment_number" = "Realignment Number" ,
                                                          POINT_X,
                                                          POINT_Y
                                                          )
@@ -198,13 +191,12 @@ Grower_coop_V2019
 
 
 ##Remove the df I dont need anymore
-rm(#Grower_coop_V2019_block_info, 
-   Grower_coop_V2019_selection, 
-   Grower_coop_V2019_join,
-   Grower_coop_V2019_yld_data)#,
-   #not_joined_Grower_coop_V2019,
+rm(#Grower_coop_V2019
    #Grower_coop_V2019_GPS,
-   #Grower_coop_V2019)
+   Grower_coop_V2019_join,
+   Grower_coop_V2019_selection, 
+   Grower_coop_V2019_yld_data)
+  
 
 
 ##############################################################################################################################
@@ -276,6 +268,9 @@ Grower_coop_V2018_part2_join <- full_join(Grower_coop_V2018_part2_a, Grower_coop
 rm(Grower_coop_V2018_part1, Grower_coop_V2018_part1_av, Grower_coop_V2018_part2, Grower_coop_V2018_part2_a)
 
 
+#final is Grower_coop_V2018_part2_join # 
+
+# but I am having huge problems joining this data
 
 ##############################################################################################################################
 ############ 2014 - 2017  data ######################################################################################################
@@ -289,7 +284,7 @@ Harvest_data_2014_2017 <- filter(Harvest_data_2014_2017,Grower != "NA" )
 Harvest_data_2014_2017 <- filter(Harvest_data_2014_2017,Hectares != "NA" )
 
 #keep the data that has a good match with the name and ha.
-test <- filter(Harvest_data_2014_2017, match_of_Realignment_and_ha != "n")
+Harvest_data_2014_2017 <- filter(Harvest_data_2014_2017, match_of_Realignment_and_ha != "n")
 
 #split the data into years
 Harvest_data_2014 <- dplyr::select(Harvest_data_2014_2017,
@@ -359,12 +354,12 @@ Harvest_data_2014_2017_tidy$Realignment_Number <- as.numeric(Harvest_data_2014_2
 str(Grower_coop_V2019)
 Grower_coop_V2019_selection <- dplyr::select(Grower_coop_V2019,
                                              #ID_yr,
-                                             SWNZ_Vineyard_ID = "SWNZ Vineyard ID",
-                                             row_width = "Row Spacing",
-                                             vine_Spacing = "Vine Spacing",
-                                             "Realignment_Number" = "Realignment Number",
-                                             POINT_X,
-                                             POINT_Y
+                                             #SWNZ_Vineyard_ID = "SWNZ Vineyard ID",
+                                             row_width ,
+                                             vine_spacing ,
+                                             "Realignment_Number" = "Realignment_number",
+                                             x_coord,
+                                             y_coord
 )
 
 
@@ -381,8 +376,8 @@ rm(Harvest_data_2014_2017_tidy, Grower_coop_V2019_GPS,
 str(Harvest_data_2014_2017_GPS)
 #### Add in the calulations
 Harvest_data_2014_2017_GPS <- mutate(Harvest_data_2014_2017_GPS,
-                                 ID_yr = "NA",
-                                 harvest_date= NA,
+                                 ID_yr = paste0( Grower,"_", year),
+                                 harvest_date= "NA",
                                  bunch_m = "NA",
                                  company = "Grower_coop",
                                  julian = NA, #julian = as.numeric(format(harvest_date, "%j")),
@@ -406,8 +401,8 @@ Harvest_data_2014_2017_GPS <- select(Harvest_data_2014_2017_GPS,
                             company ,
                             ID_yr , 
                             #variety,
-                            x_coord = POINT_X,
-                            y_coord = POINT_Y ,
+                            x_coord ,
+                            y_coord  ,
                             year,
                             harvest_date, #missing
                             julian, #missing
@@ -417,16 +412,15 @@ Harvest_data_2014_2017_GPS <- select(Harvest_data_2014_2017_GPS,
                             bunch_m ,
                             #pruning_style,
                             row_width ,
-                            vine_spacing = vine_Spacing,
+                            vine_spacing,
                             Realignment_Number
 )
 ###### Now join to the 2019 data 
 names(Grower_coop_V2019)
 names(Harvest_data_2014_2017_GPS)
+Grower_coop_V2019 <- rename(Grower_coop_V2019,
+                            "Realignment_Number" = "Realignment_number")
+str(Grower_coop_V2019)
+str(Harvest_data_2014_2017_GPS)
 
-## this needs some more work to match the clms
-Grower_coop_V2019 <- select(Grower_coop_V2019,
-                            company,
-                            julian,
-                            vine_spacing,
-                            )
+Grower_coop_V2014_2019ex2018 <- rbind(Grower_coop_V2019, Harvest_data_2014_2017_GPS)
