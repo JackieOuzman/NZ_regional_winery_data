@@ -23,14 +23,27 @@ Babich_2015_SB <- filter(Babich_2015,
 
 # remove the totals and empty rows in the blockclm
 unique(Babich_2015$Block)
-test <- Babich_2015_SB %>% 
-  filter(str_detect(Block, "Total"))
-                         # Block != "Total Actual"|
-                         # Block != "Total grower" |
-                         # Block != "total"|
-                         # Block != "Total Babich")
-               
-               mtcars %>% 
-                 filter(str_detect(rowname, "Merc"))   
-               
-               
+#change everything to lower case
+Babich_2015_SB$Block <- str_to_lower(Babich_2015_SB$Block)
+
+Babich_2015_SB <- Babich_2015_SB %>% 
+  filter(!str_detect(Block, "total"))
+#remove the rows with no ha - not sure what these were doing.
+names(Babich_2015_SB)
+Babich_2015_SB <- Babich_2015_SB %>% 
+  filter(!is.na(`Area (ha)`))
+## the rows I want to keep are                           
+Babich_2015_SB <- dplyr:: select(Babich_2015_SB,
+                                 variety = Variety,
+                                 Grower,
+                                 Block,
+                                 Area_ha = "Area (ha)",
+                                 ave_bunches = "ave bunches",
+                                 berry_weight = "est berry weight",
+                                 tonnes = "Actual Tonnes",
+                                 yield_t_ha = "Actual T/Ha"
+                                 )  
+
+### need to get the vine spacing row spacing and location
+sites_for_GPS <- unique(Babich_2015_SB$Grower)
+write.csv(sites_for_GPS, "sites_for_GPS.csv")
