@@ -9,137 +9,348 @@ library(data.table)
 library(stringr)
 library(tidyr)
 
-Babich_2015 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/2015 Vintage counts.xlsx", 
-                                   sheet = "actual weights", skip = 1)
-names(Babich_2015)
-
-#I need to fill the above name for each row for the following clms Variety, Grower and Block
-
-Babich_2015 <- fill(Babich_2015, Variety, Grower,  Block, .direction = "down")
-
-#now only keep the 
-unique(Babich_2015$Variety)
-
-Babich_2015_SB <- filter(Babich_2015,
-                         Variety == "Sauv Blanc")
-
-# remove the totals and empty rows in the blockclm
-unique(Babich_2015$Block)
-#change everything to lower case
-Babich_2015_SB$Block <- str_to_lower(Babich_2015_SB$Block)
-
-Babich_2015_SB <- Babich_2015_SB %>% 
-  filter(!str_detect(Block, "total"))
-#remove the rows with no ha - not sure what these were doing.
-names(Babich_2015_SB)
-Babich_2015_SB <- Babich_2015_SB %>% 
-  filter(!is.na(`Area (ha)`))
-## the rows I want to keep are                           
-Babich_2015_SB <- dplyr:: select(Babich_2015_SB,
-                                 variety = Variety,
-                                 Grower,
-                                 Block,
-                                 Area_ha = "Area (ha)",
-                                 ave_bunches = "ave bunches",
-                                 berry_weight = "est berry weight",
-                                 tonnes = "Actual Tonnes",
-                                 yield_t_ha = "Actual T/Ha"
-                                 )  
-
-### need to get the vine spacing row spacing and location
-sites_for_GPS <- unique(Babich_2015_SB$Grower)
-#write.csv(sites_for_GPS, "sites_for_GPS.csv")
-##########################################################################################################################
-##Google earth with pdf maps have given me these sites:
-
-GPS <- read.csv("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/Babich_locations.csv")
-#make a clm for grower and one for block
-str(GPS)
-#1.turn everything into lower case
-
-GPS$Name <- str_to_lower(GPS$Name)
-#2. replace spaces with underscores
-
-#oops there is a typo "tetle brook g" should be "tetlebrook g"
-GPS$Name <- str_replace(GPS$Name, "tetle brook g", "tetlebrook g")
-GPS <- separate(GPS, Name, into = c("Grower", "Block"), sep = " ", remove = FALSE)
-
-names(Babich_2015_SB)
-names(GPS)
-#fix up the names so they match
-Babich_2015_SB$Grower <- str_to_lower(Babich_2015_SB$Grower)
-Babich_2015_SB$Block <- str_to_lower(Babich_2015_SB$Block)
-#GPS names to fix
-GPS$Grower <- str_replace(GPS$Grower, "tetlebrook", "tettly brook")
-GPS$Grower <- str_replace(GPS$Grower, "tetleybrook", "tettly brook")
-GPS$Grower <- str_replace(GPS$Grower, "headwater", "headwaters")
-GPS$Block <- str_replace(GPS$Block, "pear_tree", "pear tree")
-GPS$Block <- str_replace(GPS$Block, "toi_toi", "toi toi")
-GPS$Block <- str_replace(GPS$Block, "toi_toi", "toi toi")
-GPS$Block <- str_replace(GPS$Block, "5_eyes", "5 eyes")
-GPS$Block <- str_replace(GPS$Block, "watch_", "watch tower")
-GPS$Block <- str_replace(GPS$Block, "fext", "fx") #check this is correct?
-GPS$Block <- str_replace(GPS$Block, "main1-80", "main") #check this is correct?
-GPS$Block <- str_replace(GPS$Block, "main81-148", "organic") #check this is correct?
-GPS$Block <- str_replace(GPS$Block, "208-222", "sr 208-222") #check this is correct?
-
-#write.csv(GPS, "GPS_temp.csv")
-#getwd()
-
-Vineyard_details <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/vineyard_details_from_maps.xlsx")
-
-GPS <-  full_join(GPS,Vineyard_details )
-
-#lets see what we can join...
-Babich_2015_SB_GPS <- full_join(Babich_2015_SB, GPS)
-#####################################################################################################################################
-
-Babich_2016 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/2016 Yield counts and actuals.xlsx", 
-                          sheet = "estimates with thinning ", skip = 1)
-names(Babich_2016)
-
-#I need to fill the above name for each row for the following clms Variety, Grower and Block
-
-Babich_2016 <- fill(Babich_2016, Variety, Grower,  Block, .direction = "down")
-
-#now only keep the 
-unique(Babich_2016$Variety)
-
-Babich_2016_SB <- filter(Babich_2016,
-                         Variety == "Sauv Blanc")
-
-# remove the totals and empty rows in the blockclm
-unique(Babich_2016_SB$Block)
-#change everything to lower case
-Babich_2016_SB$Block <- str_to_lower(Babich_2016_SB$Block)
-
-Babich_2016_SB <- Babich_2016_SB %>% 
-  filter(!str_detect(Block, "total"))
-#remove the rows with no ha - not sure what these were doing.
-names(Babich_2016_SB)
-Babich_2016_SB <- Babich_2016_SB %>% 
-  filter(!is.na(`Area (ha)`))
-## the rows I want to keep are                           
-Babich_2016_SB <- dplyr:: select(Babich_2016_SB,
-                                 variety = Variety,
-                                 Grower,
-                                 Block,
-                                 Area_ha = "Area (ha)",
-                                 ave_bunches = "ave bunches",
-                                 berry_weight = "est berry weight",
-                                 tonnes = "Actual",
-                                 yield_t_ha = "Actual T/Ha"
-)  
-
-Babich_2016_SB$Grower <- str_to_lower(Babich_2016_SB$Grower)
-Babich_2016_SB$Block <- str_to_lower(Babich_2016_SB$Block)
-
-Babich_2016_SB_GPS <- full_join(Babich_2016_SB, GPS)
+Weta_2011_2020 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Mark_Allen/Weta Estate Yield Comparison 2011 onwards with coords Rob.xlsx"    
+                                      , sheet = "Sheet1", skip = 0,
+                             col_types = c("text", "text", "text", 
+                                           "text", "text", "text", "text", "text", 
+                                           "date", "text", "text", "text", "date", 
+                                           "text", "text", "text", "date", "text", 
+                                           "text", "text", "date", "text", "text", 
+                                           "text", "date", "text", "text", "text", 
+                                           "date", "text", "text", "text", "date", 
+                                           "text", "text", "text", "date", "text", 
+                                           "text", "text", "date", "text", "text", 
+                                           "text", "date"))
+names(Weta_2011_2020)
 
 
-#####################################################################################################################################
 
-Babich_2017 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/2016 Yield counts and actuals.xlsx", 
-                          sheet = "estimates with thinning ", skip = 1)
 
-#stuck here I am not sure what to with the 2017 and 2018 most of it is forcast data??
+###################################################################################################################
+### GPS data only
+GPS_only <- dplyr::select(Weta_2011_2020,"...1", "...2", "...3", "...4", "...5"
+                          )
+GPS_only <- fill(GPS_only, "...2", "...3", "...4", "...5", .direction = "down")
+heading_GPS_only  <-  GPS_only %>% slice(3)
+#remove rows 1 and 2
+GPS_only <-  GPS_only %>% slice(4:15) #slice(4:n())
+
+#assign names to heading
+colnames(GPS_only) <- heading_GPS_only
+names(GPS_only)
+#fix up first heading
+names(GPS_only)[names(GPS_only) == "Sau Blanc"] <- "Blocks"
+
+str(GPS_only)
+#change data type
+GPS_only$LAT <- as.double(GPS_only$LAT)
+GPS_only$LON <- as.double(GPS_only$LON)
+GPS_only$`Row spacing` <- as.double(GPS_only$`Row spacing`)
+GPS_only$`Vine spacing` <- as.double(GPS_only$`Vine spacing`)
+
+#remove the df I don't need anymore
+rm(heading_GPS_only)
+
+
+
+
+
+
+
+### Yield Data for each all year
+
+yld_data <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Mark_Allen/Weta Estate Yield Comparison 2011 onwards with coords Rob.xlsx"    
+                             , sheet = "Sheet1", skip = 0,
+                             col_types = c("text", "text", "text", 
+                                           "text", "text", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date", 
+                                           "numeric", "numeric", "numeric", "date"))
+
+
+
+
+names(yld_data)
+yld_data <- dplyr::select(yld_data,"...1","...6": "...45")
+
+
+#remove rows 1 and 2
+yld_data <-  yld_data %>% slice(1:15) #slice(4:n())
+
+
+#### for each year
+# 2011
+yld_data_2011 <- dplyr::select(yld_data,"...1","...6": "...9") %>% 
+  mutate(year = "2011")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+names(yld_data_2011)
+yld_data_2011 <- yld_data_2011 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...6",
+    "Harvest_t/ha" = "...7",
+    "Bunch_Wghts" =  "...8",
+    "Harvest_Date" = "...9"
+  )
+
+yld_data_2011 <-  yld_data_2011 %>% slice(4:n()) 
+
+### 2012
+yld_data_2012 <- dplyr::select(yld_data,"...1","...10": "...13") %>% 
+  mutate(year = "2012")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2012 <- yld_data_2012 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...10",
+    "Harvest_t/ha" = "...11",
+    "Bunch_Wghts" =  "...12",
+    "Harvest_Date" = "...13"
+  )
+
+yld_data_2012 <-  yld_data_2012 %>% slice(4:n()) 
+
+
+### 2013
+yld_data_2013 <- dplyr::select(yld_data,"...1","...14": "...17") %>% 
+  mutate(year = "2013")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2013 <- yld_data_2013 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...14",
+    "Harvest_t/ha" = "...15",
+    "Bunch_Wghts" =  "...16",
+    "Harvest_Date" = "...17"
+  )
+yld_data_2013 <-  yld_data_2013 %>% slice(4:n()) 
+
+### 2014
+yld_data_2014 <- dplyr::select(yld_data,"...1","...18": "...21") %>% 
+  mutate(year = "2014")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2014 <- yld_data_2014 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...18",
+    "Harvest_t/ha" = "...19",
+    "Bunch_Wghts" =  "...20",
+    "Harvest_Date" = "...21"
+  )
+yld_data_2014 <-  yld_data_2014 %>% slice(4:n()) 
+
+### 2015
+yld_data_2015 <- dplyr::select(yld_data,"...1","...22": "...25") %>% 
+  mutate(year = "2015")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2015 <- yld_data_2015 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...22",
+    "Harvest_t/ha" = "...23",
+    "Bunch_Wghts" =  "...24",
+    "Harvest_Date" = "...25"
+  )
+yld_data_2015 <-  yld_data_2015 %>% slice(4:n()) 
+
+### 2016
+yld_data_2016 <- dplyr::select(yld_data,"...1","...26": "...29") %>% 
+  mutate(year = "2016")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2016 <- yld_data_2016 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...26",
+    "Harvest_t/ha" = "...27",
+    "Bunch_Wghts" =  "...28",
+    "Harvest_Date" = "...29"
+  )
+yld_data_2016 <-  yld_data_2016 %>% slice(4:n()) 
+
+### 2017
+yld_data_2017 <- dplyr::select(yld_data,"...1","...30": "...33") %>% 
+  mutate(year = "2017")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2017 <- yld_data_2017 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...30",
+    "Harvest_t/ha" = "...31",
+    "Bunch_Wghts" =  "...32",
+    "Harvest_Date" = "...33"
+  )
+yld_data_2017 <-  yld_data_2017 %>% slice(4:n()) 
+
+### 2018
+yld_data_2018 <- dplyr::select(yld_data,"...1","...34": "...37") %>% 
+  mutate(year = "2018")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2018 <- yld_data_2018 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...34",
+    "Harvest_t/ha" = "...35",
+    "Bunch_Wghts" =  "...36",
+    "Harvest_Date" = "...37"
+  )
+yld_data_2018 <-  yld_data_2018 %>% slice(4:n()) 
+
+### 2019
+yld_data_2019 <- dplyr::select(yld_data,"...1","...38": "...41") %>% 
+  mutate(year = "2019")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2019 <- yld_data_2019 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...38",
+    "Harvest_t/ha" = "...39",
+    "Bunch_Wghts" =  "...40",
+    "Harvest_Date" = "...41"
+  )
+yld_data_2019 <-  yld_data_2019 %>% slice(4:n()) 
+
+### 2020
+yld_data_2020 <- dplyr::select(yld_data,"...1","...42": "...45") %>% 
+  mutate(year = "2020")
+#Assign the names to clm and make a row called year
+#rename(new variable name = existing variable name)
+yld_data_2020 <- yld_data_2020 %>%
+  rename(
+    Blocks = "...1",
+    "Floret_Count" = "...42",
+    "Harvest_t/ha" = "...43",
+    "Bunch_Wghts" =  "...44",
+    "Harvest_Date" = "...45"
+  )
+yld_data_2020 <-  yld_data_2020 %>% slice(4:n()) 
+
+
+####This makes all the years of data tidy so we can join them.
+yld_data_tidy <- bind_rows(yld_data_2011,
+                           yld_data_2012,
+                           yld_data_2013,
+                           yld_data_2014,
+                           yld_data_2015,
+                           yld_data_2016,
+                           yld_data_2017,
+                           yld_data_2018,
+                           yld_data_2019,
+                           yld_data_2020
+                           )
+### Add in the GPS points
+
+yld_data_tidy_GPS <- full_join(yld_data_tidy, GPS_only)
+rm(yld_data_2011,
+   yld_data_2012,
+   yld_data_2013,
+   yld_data_2014,
+   yld_data_2015,
+   yld_data_2016,
+   yld_data_2017,
+   yld_data_2018,
+   yld_data_2019,
+   yld_data_2020,
+   yld_data,
+   GPS_only,
+   Weta_2011_2020
+   )
+
+#################################################################################################################
+## This is the tidy data for Weta a starting point for extra  calulations
+
+names(yld_data_tidy_GPS)
+
+weta_yld_data <- dplyr::select(
+  yld_data_tidy_GPS,
+  Blocks,
+  row_width =  "Row spacing" ,
+  vine_spacing = "Vine spacing" ,
+  POINT_X = "LAT",
+  POINT_Y = "LON",
+  yield_t_ha = "Harvest_t/ha",
+  harvest_date = Harvest_Date,
+  bunch_weight = "Bunch_Wghts",
+  year
+)
+
+#### Add in the calulations
+names(weta_yld_data)
+weta_yld_data <- mutate(
+  weta_yld_data,
+  harvest_date ,
+  julian = as.numeric(format(harvest_date, "%j")),
+  m_ha_vine = 10000 / row_width,
+  yield_kg_m = (yield_t_ha * 1000) / m_ha_vine,
+  bunch_weight,
+  berry_weight = NA,
+  bunch_numb_m = NA,
+  bunches_per_vine = NA,
+  pruning_style = NA,
+  brix = NA,
+  meter_row_per_ha = 10000 / row_width,
+  yld_per_m_row_kg = (yield_t_ha * 1000) / 10000 /
+    row_width,
+  bunch_m = (yld_per_m_row_kg * 1000) / bunch_weight,
+  variety = "SB",
+  company = "Weta",
+  ID_yr = paste0("Weta_", Blocks, "_", year))
+  
+
+names(weta_yld_data)
+weta_yld_data <- select(
+  weta_yld_data,
+    company,
+    ID_yr,
+    variety,
+    x_coord = POINT_X,
+    y_coord = POINT_Y ,
+    year,
+    harvest_date,
+    julian,
+    yield_t_ha,
+    yield_kg_m,
+    brix, #missing
+    bunch_m,
+    #pruning_style,
+    row_width ,
+    vine_spacing 
+  )
+ 
+names(weta_yld_data)
+
+#This is what I should have
+weta_yld_data <- select(weta_yld_data,
+       company ,
+       ID_yr,
+       year,
+       Block = "Blocks",
+       variety ,
+       harvest_date,
+       julian,
+       yield_t_ha,
+       yield_kg_m,
+       bunch_weight,
+       berry_weight,
+       bunch_numb_m,
+       pruning_style,
+       row_width,
+       vine_spacing,
+       brix ,
+       y_coord = POINT_Y,
+       x_coord = POINT_X)
