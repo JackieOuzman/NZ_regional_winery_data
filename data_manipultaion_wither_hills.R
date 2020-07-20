@@ -108,8 +108,16 @@ wither_hills_GPS_block_info <- full_join(wither_hills_GPS,wither_hills_block_inf
 glimpse(wither_hills_GPS_block_info) #86
 #drop the winery data entery
 wither_hills_GPS_block_info <- filter(wither_hills_GPS_block_info, ID_temp != "winery")
+#keep only one variety clm
+wither_hills_GPS_block_info <- rename(wither_hills_GPS_block_info,
+                                      variety = variety.x )
+names(wither_hills_GPS_block_info)
+wither_hills_GPS_block_info <- dplyr::select(wither_hills_GPS_block_info,
+                                             "ID_temp"  ,   "x_coord"  ,   "y_coord"   ,  
+                                             "variety" ,    "row_spacing" )
+wither_hills_GPS_block_info <- filter(wither_hills_GPS_block_info, variety == "sb")
 
-glimpse(wither_hills_GPS_block_info) #85
+glimpse(wither_hills_GPS_block_info) #75
 
 #####################################################################################################################
 ##############################           Add in the yield measures  #########################################################
@@ -429,7 +437,8 @@ wither_hills_GPS_block_info_harvest_all_yrs_sb <- dplyr::select(wither_hills_GPS
 ############################################################################## 
 ########################    File to use just sb  ####################################
 
-write_csv(wither_hills_GPS_block_info_harvest_all_yrs_sb, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
+#write_csv(wither_hills_GPS_block_info_harvest_all_yrs_sb, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
+write_csv(wither_hills_GPS_block_info_harvest_all_yrs_sb, "V:/Marlborough regional/working_jaxs/July2020/wither_hills_GPS_block_info_harvest_sau.csv")
 
 ####################################################################################################################
 
