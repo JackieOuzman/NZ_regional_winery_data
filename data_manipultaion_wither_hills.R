@@ -3,6 +3,9 @@ library(ggplot2)
 library(tidyverse)
 library(readxl)
 library(lubridate)
+library(sf)
+library(rgdal)
+library(data.table)
 
 
 #####################################################################################################################
@@ -22,9 +25,61 @@ wither_hills_GPS <- wither_hills_GPS_temp %>%
                     mutate(ID_temp = tolower(gsub( "-", "_", ID_temp)))
 
 glimpse(wither_hills_GPS)
+#we had a few missing site and Sarah has given me these.
+
+extra_sites_GPS <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/Wither_hills_sb_missing _coord_sites.xlsx")
+names(extra_sites_GPS)
+extra_sites_GPS <- extra_sites_GPS %>%
+  rename(
+    "Latitude" = "...2", 
+    "Longitude" = "...3",
+    "comments" =  "...4"
+  )                     
+extra_sites_GPS$Latitude <- as.double(extra_sites_GPS$Latitude)
+extra_sites_GPS$Longitude <- as.double(extra_sites_GPS$Longitude)
+
+extra_sites_GPS <- filter(extra_sites_GPS,
+                          Longitude != "NA")
+### change the coodinates from long and lats x_coord,y_coord,
+
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+#proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
+coordinates(extra_sites_GPS) <- ~Longitude+Latitude
+proj4string(extra_sites_GPS) <- wgs84CRS   # assume input lat and longs are WGS84
+extra_sites_GPS <- spTransform(extra_sites_GPS, mapCRS)
+
+glimpse(extra_sites_GPS)
+extra_sites_GPS_df = as.data.frame(extra_sites_GPS) #this has the new coordinates projected !YES!!
+glimpse(extra_sites_GPS_df)
+extra_sites_GPS_df <- mutate(extra_sites_GPS_df,
+                                  x_coord = Longitude,
+                                  y_coord = Latitude) 
+extra_sites_GPS_df <- dplyr::select(extra_sites_GPS_df, -Longitude,-Latitude )
+str(extra_sites_GPS_df)                               
+
+
+names(wither_hills_GPS)
+names(extra_sites_GPS_df)
+extra_sites_GPS_df <- rename(extra_sites_GPS_df, "ID_temp" = "ID")
+wither_hills_GPS <- bind_rows(wither_hills_GPS, extra_sites_GPS_df)
+
+
+wither_hills_GPS <- separate(wither_hills_GPS, ID_temp, into = c("data", "temp" , "temp2", "temp3"), remove = FALSE, sep = "_")
+
+wither_hills_GPS <- mutate(wither_hills_GPS,
+                variety = case_when(temp == "sb" ~ "sb" ,
+                                    temp2 == "sb" ~ "sb" ,
+                                    temp3 == "sb" ~ "sb"))
+names(wither_hills_GPS)
+wither_hills_GPS <- dplyr::select(wither_hills_GPS, "ID_temp",  "x_coord" , "y_coord" , "comments" ,"variety"  )
+wither_hills_GPS <- filter(wither_hills_GPS, variety != "NA")
+
 #####################################################################################################################
 ##############################           Add in the block info  #########################################################
-#########################################################################################################################
+#####################################################################################################################
+
 
 
 wither_hills_block_info <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/Wither Hills yield data For Mike Trought RGVB.xlsx", 
@@ -45,7 +100,7 @@ wither_hills_block_info <- mutate(wither_hills_block_info,
                                TRUE ~ ID_temp))
 ###Join GPS and block data
 
-glimpse(wither_hills_GPS) #85
+glimpse(wither_hills_GPS) #110
 glimpse(wither_hills_block_info) #83
 
 wither_hills_GPS_block_info <- full_join(wither_hills_GPS,wither_hills_block_info, by = "ID_temp")
