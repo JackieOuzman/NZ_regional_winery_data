@@ -354,3 +354,6 @@ weta_yld_data <- select(weta_yld_data,
        brix ,
        y_coord = POINT_Y,
        x_coord = POINT_X)
+
+write_csv(weta_yld_data, "V:/Marlborough regional/working_jaxs/working_jaxs/July2020/weta_yld_data.csv")
+

@@ -287,8 +287,11 @@ Giesen_2020_spatial_yld_upadted2020 <- filter(Giesen_2020_spatial_yld_upadted202
 
 
 
-write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld.csv")
+#write_csv(Giesen_2020_spatial_yld, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld.csv")
 write_csv(Giesen_2020_spatial_yld_upadted2020, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld_upadted2020.csv")
+
+write_csv(Giesen_2020_spatial_yld_upadted2020, "V:/Marlborough regional/working_jaxs/July2020/Giesen_yld_data.csv")
+
 
 ##############################################################################################################################
 #### more again 01/07/2020
@@ -348,4 +351,5 @@ write_csv(Giesen_more_01072020_df, "V:/Marlborough regional/Regional winery data
 
 #### add this to rest of the data
 Giesen_2020_spatial_yld_upadted2020_vs2 <- bind_rows(Giesen_2020_spatial_yld_upadted2020, Giesen_more_01072020_df)
-write_csv(Giesen_2020_spatial_yld_upadted2020_vs2, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld_upadted2020_vs2.csv")
+#write_csv(Giesen_2020_spatial_yld_upadted2020_vs2, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld_upadted2020_vs2.csv")
+write_csv(Giesen_2020_spatial_yld_upadted2020_vs2, "V:/Marlborough regional/working_jaxs/July2020/Giesen_yld_data.csv")
