@@ -446,7 +446,7 @@ pernod_ricard1 <- mutate(pernod_ricard1,
          yield_kg_m = yield_kg_per_m,
          trellis
          )
-glimpse(pernod_ricard1) #4135
+glimpse(pernod_ricard1) #4518
 
 pernod_ricard1 <- pernod_ricard1 %>% 
   select(company, ID, ID_yr, variety , x_coord, y_coord,
@@ -478,7 +478,44 @@ pernod_ricard1 <- mutate(pernod_ricard1,
                         number_canes = as.double(number_canes))
 
 pernod_ricard1$na_count <- apply(is.na(pernod_ricard1), 1, sum)
-#write_csv(pernod_ricard1, "pernod_ricard_april_2019.csv")
+
+str(pernod_ricard1)
+## recode the yld with NA not zeros...
+pernod_ricard1 < mutate(pernod_ricard1,
+                         brix =case_when(
+                 brix == 	0.00000000 ~ NA_real_ ,
+                 TRUE ~ brix))
+## recode the yld with NA not zeros...
+pernod_ricard1 <- mutate(pernod_ricard1,
+                         yield_kg_m =case_when(
+                           yield_kg_m == 	0.00000000 ~ NA_real_ ,
+                           TRUE ~ yield_kg_m))
+
+
+# only keep the SB Sauvignon Blanc and NA
+unique(pernod_ricard1$variety)
+pernod_ricard1 <- filter(pernod_ricard1,
+               variety == "Sauvignon Blanc" |
+               is.na(variety) )
+pernod_ricard1 <- separate(pernod_ricard1, ID, into = c("temp1", "temp2"), remove = FALSE )
+
+pernod_ricard1 <- pernod_ricard1 %>% 
+  mutate(variety_check =  str_sub(pernod_ricard1$temp2, start = 1, end = 2))
+#remove the clm I dont want and fill in the missing variety NA values
+
+pernod_ricard1 <- mutate(pernod_ricard1,
+               variety = case_when(is.na(variety) ~ variety_check ,
+                                   TRUE ~ variety))
+pernod_ricard1 <- mutate(pernod_ricard1,
+               variety = case_when(variety == "SB"  ~ "Sauvignon Blanc" ,
+                                   TRUE ~ variety))
+pernod_ricard1 <- filter(pernod_ricard1,
+               variety == "Sauvignon Blanc")
+#drop a few temp clms
+names(pernod_ricard1)
+pernod_ricard1 <- dplyr::select(pernod_ricard1, -temp1, -temp2, -variety_check)
+
+write_csv(pernod_ricard1, "pernod_ricard_april_2019.csv")
 
 
 glimpse(pernod_ricard1)
