@@ -754,9 +754,10 @@ glimpse(white_haven_2019to2014_GPS)
 
 
 getwd()
-write_csv(white_haven_2019to2014_GPS, "V:/Marlborough regional/working_jaxs/white_haven_2019to2014_GPS_updated.csv")
+#write_csv(white_haven_2019to2014_GPS, "V:/Marlborough regional/working_jaxs/white_haven_2019to2014_GPS_updated.csv")
 
-
+write_csv(white_haven_2019to2014_GPS, "V:/Marlborough regional/working_jaxs/July2020/white_haven_2019to2014_GPS_updated.csv")
+write_csv(white_haven_2019to2014_GPS, "C:/Users/ouz001/working_from_home/NZ_regional_winery_data//white_haven_2019to2014_GPS_updated.csv")
 
 ######################################################################################################################
 ################                         view and summaries DF 2019 -2014                            #################
