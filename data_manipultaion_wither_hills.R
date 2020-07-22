@@ -40,6 +40,10 @@ extra_sites_GPS$Longitude <- as.double(extra_sites_GPS$Longitude)
 
 extra_sites_GPS <- filter(extra_sites_GPS,
                           Longitude != "NA")
+
+#I have a mix on projected and not projected so I need to split
+extra_sites_GPS_projected <- extra_sites_GPS %>%  filter(Latitude>0)
+extra_sites_GPS <- extra_sites_GPS %>%  filter(Latitude<0)
 ### change the coodinates from long and lats x_coord,y_coord,
 
 mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
@@ -58,7 +62,12 @@ extra_sites_GPS_df <- mutate(extra_sites_GPS_df,
                                   y_coord = Latitude) 
 extra_sites_GPS_df <- dplyr::select(extra_sites_GPS_df, -Longitude,-Latitude )
 str(extra_sites_GPS_df)                               
-
+str(extra_sites_GPS_projected)
+extra_sites_GPS_projected <- mutate(extra_sites_GPS_projected,
+                             x_coord = Longitude,
+                             y_coord = Latitude) 
+extra_sites_GPS_projected <- dplyr::select(extra_sites_GPS_projected, -Longitude,-Latitude )
+extra_sites_GPS_df <- rbind(extra_sites_GPS_df, extra_sites_GPS_projected)
 
 names(wither_hills_GPS)
 names(extra_sites_GPS_df)
@@ -75,6 +84,9 @@ wither_hills_GPS <- mutate(wither_hills_GPS,
 names(wither_hills_GPS)
 wither_hills_GPS <- dplyr::select(wither_hills_GPS, "ID_temp",  "x_coord" , "y_coord" , "comments" ,"variety"  )
 wither_hills_GPS <- filter(wither_hills_GPS, variety != "NA")
+
+rm("extra_sites_GPS", "extra_sites_GPS_df", "mapCRS", "wgs84CRS", "wither_hills_GPS_temp")
+
 
 #####################################################################################################################
 ##############################           Add in the block info  #########################################################
@@ -117,8 +129,11 @@ wither_hills_GPS_block_info <- dplyr::select(wither_hills_GPS_block_info,
                                              "variety" ,    "row_spacing" )
 wither_hills_GPS_block_info <- filter(wither_hills_GPS_block_info, variety == "sb")
 
-glimpse(wither_hills_GPS_block_info) #75
 
+wither_hills_GPS_block_info <- filter(wither_hills_GPS_block_info,
+                                       variety == "sb")
+
+glimpse(wither_hills_GPS_block_info) #75
 #####################################################################################################################
 ##############################           Add in the yield measures  #########################################################
 #########################################################################################################################
@@ -161,7 +176,7 @@ wither_hills_harvest_details_step2 <- wither_hills_harvest_details_step1 %>%
          ID_yr_ha = paste0(ID_yr, "_", ha))  
 glimpse(wither_hills_harvest_details_step2)
 
-
+View(wither_hills_harvest_details_step2)
 
 ### what are the reps?? and keep only the ones with the largest ha
 what_reps <- wither_hills_harvest_details_step2 %>% group_by(ID_yr) %>% 
@@ -197,6 +212,18 @@ wither_hills_harvest_details <- wither_hills_harvest_details_step2 %>%
 
 wither_hills_harvest_details$harvest_date1 <- as_datetime(wither_hills_harvest_details$harvest_date1)
 glimpse(wither_hills_harvest_details)
+#view(wither_hills_harvest_details)
+
+## I only want to keep SB variety
+
+wither_hills_harvest_details <- wither_hills_harvest_details %>% 
+  mutate(variety =  str_sub(wither_hills_harvest_details$ID_temp, start = -2 ))
+#remove the clm I dont want and fill in the missing variety NA values
+
+
+wither_hills_harvest_details <- filter(wither_hills_harvest_details,
+                         variety == "sb")
+
 
 
 #####################################################################################################################
@@ -240,12 +267,16 @@ glimpse(wither_hills_harvest_details)
 
 
 #### join the GPS files to the harvest data files
-glimpse(wither_hills_GPS_block_info) #85
-glimpse(wither_hills_harvest_details) #583
+glimpse(wither_hills_GPS_block_info) #76
+glimpse(wither_hills_harvest_details) #249
+
+View(wither_hills_GPS_block_info)
+View(wither_hills_harvest_details)
+
 wither_hills_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills_harvest_details,
                                                  by= "ID_temp") %>% 
   mutate(company = "Wither_Hills")
-glimpse(wither_hills_GPS_block_info_harvest) #606
+glimpse(wither_hills_GPS_block_info_harvest) #259
 
 wither_hills_GPS_block_info_harvest <- wither_hills_GPS_block_info_harvest %>% 
   select(company, ID = ID_temp, variety, x_coord, y_coord,
@@ -378,14 +409,28 @@ glimpse(wither_hills2019_harvest_details)
 
 
 #### join the GPS files to the harvest data files
-glimpse(wither_hills_GPS_block_info) #85
-glimpse(wither_hills2019_harvest_details) #142
+glimpse(wither_hills_GPS_block_info) #76
+glimpse(wither_hills2019_harvest_details) #142 now 65 with just sb below code
+
+## I only want to keep SB variety
+wither_hills2019_harvest_details <- wither_hills2019_harvest_details %>% 
+  mutate(variety =  str_sub(wither_hills2019_harvest_details$ID_temp, start = -2 ))
+#remove the clm I dont want and fill in the missing variety NA values
+unique(wither_hills2019_harvest_details$variety)
+
+wither_hills2019_harvest_details <- filter(wither_hills2019_harvest_details,
+                                       variety == "sb")
+
+wither_hills2019_harvest_details <- dplyr::select(wither_hills2019_harvest_details, -variety)
+
+
+
 wither_hills2019_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills2019_harvest_details,
                                                  by= "ID_temp") %>% 
   mutate(company = "Wither_Hills")
-glimpse(wither_hills2019_GPS_block_info_harvest) #160
+glimpse(wither_hills2019_GPS_block_info_harvest) #77
+#View(wither_hills2019_GPS_block_info_harvest)
 
-#we have a heap of sites with no coodinates for 2019 data
 
 
 wither_hills2019_GPS_block_info_harvest <- wither_hills2019_GPS_block_info_harvest %>% 
@@ -423,8 +468,9 @@ unique(wither_hills_GPS_block_info_harvest_all_yrs$variety)
 ############################################################################## 
 ########################    File to use   ####################################
 wither_hills_GPS_block_info_harvest_all_yrs_all_var <- wither_hills_GPS_block_info_harvest_all_yrs
+#View(wither_hills_GPS_block_info_harvest_all_yrs_all_var)
 #write_csv(wither_hills_GPS_block_info_harvest_all_yrs_all_var, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_sau.csv")
-write_csv(wither_hills_GPS_block_info_harvest_all_yrs_all_var, "V:/Marlborough regional/working_jaxs/wither_hills_GPS_block_info_harvest_all_yrs_all_var.csv")
+write_csv(wither_hills_GPS_block_info_harvest_all_yrs_all_var, "V:/Marlborough regional/working_jaxs/July2020/wither_hills_GPS_block_info_harvest_all_yrs_all_var.csv")
 ##############################################################################   
 
 #Only keep sb
