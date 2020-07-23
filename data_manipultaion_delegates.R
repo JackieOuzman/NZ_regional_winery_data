@@ -18,7 +18,25 @@ delegates_GPS <- delegates_GPS1 %>%
          ID_temp =str_to_lower(ID_temp, locale = "en")) 
 
 glimpse(delegates_GPS)
+#recode lig_a1_sb
+names(delegates_GPS)
+delegates_GPS <- mutate(delegates_GPS,ID_temp = case_when(
+  ID_temp == "lig_a1_sb" ~ "lig_a_sb",
+  TRUE ~ ID_temp))
 
+
+delegates_GPS_extra <- read.csv("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/extra_sites_Delegats_jaxs.csv")
+names(delegates_GPS_extra)
+delegates_GPS_extra <- delegates_GPS_extra %>% 
+  select(ID_temp = Name ,
+         x_coord = xcoord ,
+         y_coord = ycoord ) %>% 
+  mutate(ID_temp = gsub( "-", "_", ID_temp),
+         ID_temp =str_to_lower(ID_temp, locale = "en")) 
+
+delegates_GPS <- bind_rows(delegates_GPS, delegates_GPS_extra)
+
+rm("delegates_GPS_extra", "delegates_GPS1")
 
 ######################################################################################################################
 ################                         Make DF of block info                              #################
@@ -47,8 +65,9 @@ glimpse(delegates_GPS) #339
 delegates_GPS_sub_block <- full_join(delegates_GPS, delegates_sub_block, by= "ID_temp")
 glimpse(delegates_GPS_sub_block) #357
 
+rm("delegates_GPS", "delegates_sub_block",  "delegates_sub_block1")
 
-######################################################################################################################
+#
 ################                         bring in the yield data                             #################
 ######################################################################################################################
 
@@ -115,13 +134,14 @@ delegates_yld_data <- full_join(delegates_yld_data_harvest, delegates_yld_data_p
 #glimpse(check)
 glimpse(delegates_yld_data)
 
-
+rm( "delegates_yld_data1", "delegates_yld_data_harvest", 
+    "delegates_yld_data_harvest1", "delegates_yld_data_pre_harvest")
 ######################################################################################################################
 ################                         join GPS data to Pre and Harvest data                            #################
 ######################################################################################################################
 
 
-glimpse(delegates_GPS_sub_block) #357
+glimpse(delegates_GPS_sub_block) #358
 glimpse(delegates_yld_data) # 524
 
 delegates_GPS_sub_block_yld <- full_join(delegates_yld_data,delegates_GPS_sub_block, by= "ID_temp" )
@@ -157,8 +177,45 @@ select(company, ID_temp, ID_yr, variety, x_coord, y_coord,
 glimpse(delegates_april_2019)
 delegates_april_2019$na_count <- apply(is.na(delegates_april_2019), 1, sum)
 
-#glimpse(delegates_april_2019)
-#write_csv(delegates_april_2019, "delegates_april_2019.csv")
+
+
+unique(delegates_april_2019$variety)
+#Only keep sb
+delegates_april_2019 <- mutate(delegates_april_2019,
+               variety_check =
+                 str_sub(delegates_april_2019$ID_temp, -2, -1))
+delegates_april_2019 <- filter(delegates_april_2019, variety_check == "sb")
+delegates_april_2019 <- dplyr::select(delegates_april_2019,-variety_check)
+
+
+
+dim(delegates_april_2019) #589
+names(delegates_april_2019)
+count(filter(delegates_april_2019, na_count == 14))
+count(filter(delegates_april_2019, is.na(x_coord)))
+test <- filter(delegates_april_2019, is.na(x_coord))
+test <- arrange(test,
+                ID_temp, year)
+
+test1 <- filter(delegates_april_2019, na_count == 14)
+test1 <- arrange(test1,
+                ID_temp, year)
+write_csv(test1, "V:/Marlborough regional/working_jaxs/July2020/delegates_april_no_yld_data_but_cords.csv")
+
+
+names(delegates_april_2019)
+delegates_april_2019 <-
+  delegates_april_2019 %>%
+  mutate(bunch_weight = case_when(bunch_weight == 0.0000 ~ NA_real_,
+                                TRUE ~ bunch_weight))
+
+############################################################################## 
+########################    File to use   ####################################
+
+write_csv(delegates_april_2019, "V:/Marlborough regional/working_jaxs/July2020/delegates_april_2019_sau.csv")
+##############################################################################   
+
+
 
 
 
@@ -318,13 +375,6 @@ filter(delegates_april_2019_sau,brix != 0) %>%
   labs(x = "Year",
        y= "Brix - Sauvignon Blanc")
 
-
-############################################################################## 
-########################    File to use   ####################################
-delegates_april_2019_sau <- select(delegates_april_2019_sau, -year_factor)
-glimpse(delegates_april_2019_sau)
-write_csv(delegates_april_2019_sau, "V:/Marlborough regional/working_jaxs/delegates_april_2019_sau.csv")
-##############################################################################   
 
 
 
