@@ -555,6 +555,20 @@ constellation_yld2017_2019_spatial_SAU <- filter(constellation_yld2017_2019_spat
                                                  variety == "Sauvignon Blanc")
 
 
+############################################################################## 
+########################    File to use   ####################################
+constellation_yld2017_2019_spatial_SAU_gps <- filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0)
+
+
+
+write_csv(constellation_yld2017_2019_spatial_SAU_gps, 
+          "V:/Marlborough regional/working_jaxs/July2020/constellation_2017_2019_all_sau.csv")
+##############################################################################   
+
+
+
+
+
 ######################################################################################################################
 ################                         view and summaries DF 2019 -2014                            #################
 ######################################################################################################################
@@ -693,15 +707,7 @@ filter(brix <40) %>%
 
 
 
-############################################################################## 
-########################    File to use   ####################################
-constellation_yld2017_2019_spatial_SAU_Gps <- filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0)
-str(constellation_yld2017_2019_spatial_SAU_Gps)
 
- constellation_yld2017_2019_spatial_SAU_Gps <- select(constellation_yld2017_2019_spatial_SAU_Gps, -year_factor)
- glimpse(constellation_yld2017_2019_spatial_SAU_Gps)
- write_csv(constellation_yld2017_2019_spatial_SAU_Gps, "V:/Marlborough regional/working_jaxs/constellation_2017_2019_all_sau.csv")
-##############################################################################   
 
 
 
