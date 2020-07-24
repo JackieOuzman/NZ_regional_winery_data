@@ -7,55 +7,11 @@ library(sf)
 library(rgdal)
 library(data.table)
 
-#mapCRS <- CRS("+init=epsg:2120")     # 2120 = NZGD2000 / Marlborough 2000 
-#wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
-####################################################################################################################
-################     Some polygons in the blocks need to be merged          #######################################
-####################################################################################################################
-# site <- "Awarua"
-# 
-# test_shapefile =  st_read(paste0("V:/Marlborough regional/Regional winery data/Raw_data/constellation/", "Awarua", "/", 
-#                                  "Awarua", ".shp"))
-# 
-# # str(test_shapefile)
-# # list_awarua <- unique(test_shapefile$SectionID)
-# 
-# test <- aggregate(test_shapefile, list(test_shapefile$SectionID ), function(x) x[1])
-# # dim(test_shapefile) #45 22
-# # dim(test) #20 23 this has reduced the number of rows and added a extra clm
-# # plot(test) #looks like this has not changed the shape of the vineyards
-# # plot(test_shapefile)
-# 
-# 
-# #create a centroid for newly aggreated polygons
-# centroid_test_shapefile <- st_centroid(test_shapefile) #this is just a check
-# centroid_test <- st_centroid(test)
-# 
-# 
-# # plot(centroid_test_shapefile)
-# # plot(centroid_test)
-
-### check the centroids are where they should be
-# ggplot(test) +
-#   geom_sf() +
-#   geom_sf(data = centroid_test_shapefile, size = 3, color = "black")+
-#   geom_sf(data = centroid_test, size = 5, color = "blue", alpha = 0.5)+
-#   ggtitle("check that centriods have moved")  
-
-#can export the files to view in arcmap
-# str(centroid_test)
-#  st_write(centroid_test_shapefile, "test_cent1.csv", layer_options = "GEOMETRY=AS_XY")
-#  st_write(centroid_test, "test_cent2.csv", layer_options = "GEOMETRY=AS_XY")
-
 
 
 #####################################################################################################################
 ##############################           GPS POINTS for blocks ######################################################
 ##########################################################################################################################
-
-#####################################################################################################################
-#################                  perhaps a function  ?                 #############################################
-#####################################################################################################################
 
 
 import_shapefile_function <- function (site = site){
@@ -554,13 +510,60 @@ unique(constellation_yld2017_2019_spatial$variety)
 constellation_yld2017_2019_spatial_SAU <- filter(constellation_yld2017_2019_spatial,
                                                  variety == "Sauvignon Blanc")
 
+#heaps of data points are missing coordinates these are:
+
+missing_coords <- constellation_yld2017_2019_spatial_SAU %>% 
+  filter(is.na(x_coord))
+str(missing_coords)
+missing_coords<-missing_coords %>%
+  mutate(yield_t_ha = case_when(yield_t_ha == 0.0000 ~ NA_real_,
+                                yield_t_ha == "NaN" ~ NA_real_, 
+                                  TRUE ~ yield_t_ha))
+missing_coords<-missing_coords %>%
+  mutate(yield_kg_m = case_when(yield_kg_m == 0.0000 ~ NA_real_,
+                                yield_kg_m == "NaN" ~ NA_real_,
+                                TRUE ~ yield_kg_m)) 
+  
+sites_with_no_coord_bunch_weight    <- filter(missing_coords,is.na(bunch_weight ))
+sites_with_no_coord_noYld   <- filter(missing_coords,is.na(yield_t_ha))
+
+sites_with_no_coord_no_att <- filter(missing_coords,
+                                     is.na(bunch_weight) & is.na(yield_t_ha ))
+sites_with_no_coord_more_att <- filter(missing_coords,
+                                     !is.na(bunch_weight) & !is.na(yield_t_ha ))
+dim(sites_with_no_coord_noYld)
+dim(sites_with_no_coord_bunch_weight)
+dim(missing_coords) 
+
+worth_chasing_up <- sites_with_no_coord_more_att
+names(worth_chasing_up)
+worth_chasing_up <-separate(worth_chasing_up, ID_yr, into = c("temp1", "temp2"), remove = FALSE)
+worth_chasing_up <- distinct(worth_chasing_up, temp1)
+write_csv(worth_chasing_up, 
+          "V:/Marlborough regional/working_jaxs/July2020/constellation_worth_chasing_up_no_coods.csv")
 
 ############################################################################## 
 ########################    File to use   ####################################
 constellation_yld2017_2019_spatial_SAU_gps <- filter(constellation_yld2017_2019_spatial_SAU,  x_coord >0)
+names(constellation_yld2017_2019_spatial_SAU_gps)
 
-
-
+constellation_yld2017_2019_spatial_SAU_gps <-
+  constellation_yld2017_2019_spatial_SAU_gps %>%
+  mutate(yield_t_ha = case_when(yield_t_ha == 0.0000 ~ NA_real_,
+                                  TRUE ~ yield_t_ha))
+constellation_yld2017_2019_spatial_SAU_gps <-
+  constellation_yld2017_2019_spatial_SAU_gps %>%
+  mutate(yield_kg_m = case_when(yield_kg_m == 0.0000 ~ NA_real_,
+                                  TRUE ~ yield_kg_m))
+constellation_yld2017_2019_spatial_SAU_gps <-
+  constellation_yld2017_2019_spatial_SAU_gps %>%
+  mutate(bunch_weight = case_when(bunch_weight == 0.0000 ~ NA_real_,
+                                  TRUE ~ bunch_weight))
+constellation_yld2017_2019_spatial_SAU_gps <-
+  constellation_yld2017_2019_spatial_SAU_gps %>%
+  mutate(berry_weight = case_when(berry_weight == 0.0000 ~ NA_real_,
+                                  TRUE ~ berry_weight))
+View(constellation_yld2017_2019_spatial_SAU_gps)
 write_csv(constellation_yld2017_2019_spatial_SAU_gps, 
           "V:/Marlborough regional/working_jaxs/July2020/constellation_2017_2019_all_sau.csv")
 ##############################################################################   
