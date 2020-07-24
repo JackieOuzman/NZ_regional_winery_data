@@ -194,6 +194,6 @@ yealands_seaview_2020 <- select(yealands_seaview_2020,
 )
 
 
-
-write_csv(yealands_seaview_2020, "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated_Yealands_jax.csv")
+write_csv(yealands_seaview_2020, "V:/Marlborough regional/working_jaxs/July2020/Updated_Yealands_jax.csv")
 str(yealands_seaview_2020)
+
