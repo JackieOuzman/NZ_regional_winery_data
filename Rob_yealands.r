@@ -12,6 +12,8 @@ library(rgdal)
 library(sf)
 
 
+########################## other blocks all years #######################################################
+
 yealands_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated Yealands.xlsx",
                               sheet = "Other blocks all years")
 str(yealands_2020)
@@ -72,7 +74,7 @@ glimpse(yealands_2020_GPS_1)
 yealands_2020_GPS = as.data.frame(yealands_2020_GPS_1) #this has the new coordinates projected !YES!!
 glimpse(yealands_2020_GPS)
 
-write.csv(yealands_2020_GPS, "yealands_2020_GPS.csv")
+#write.csv(yealands_2020_GPS, "yealands_2020_GPS.csv")
 
 ######Put the GPS pts back into the file
 yealands_2020 <- select(yealands_2020,
@@ -81,9 +83,13 @@ yealands_2020 <- select(yealands_2020,
 str(yealands_2020)
 
 str(yealands_2020_GPS)
-yealands_2020 <- left_join(yealands_2020, yealands_2020_GPS)
-# test <- left_join(yealands_2020, yealands_2020_GPS)
-# str(test)
+yealands_2020 <- full_join(yealands_2020, yealands_2020_GPS)
+
+rm("mapCRS", "wgs84CRS", "yealands_2020_GPS_1", "yealands_2020_GPS")
+
+
+
+##################################  updated seaview all years   ################################################
 
 yealands_seaview_2020 <-  read_excel( "V:/Marlborough regional/Regional winery data/Raw_data/Yealands/Updated Yealands.xlsx",
                                       sheet = "Updated Seaview all years")
@@ -166,6 +172,8 @@ yealands_2020 <- select(yealands_2020,
                         na_count
 )
 
+names(yealands_seaview_2020) #this is from 'other blocks' tab
+names(yealands_2020) # this is from 'Updated Seaview all years' tab
 
 test <- rbind(yealands_seaview_2020,yealands_2020 )
 str(test)
@@ -192,6 +200,11 @@ yealands_seaview_2020 <- select(yealands_seaview_2020,
                                 vine_spacing,
                                 na_count
 )
+
+
+#rename the 0 value to NA
+yealands_seaview_2020$yield_kg_m[yealands_seaview_2020$yield_kg_m == 0] <- NA
+yealands_seaview_2020$bunch_numb_m[yealands_seaview_2020$bunch_numb_m == 0] <- NA
 
 
 write_csv(yealands_seaview_2020, "V:/Marlborough regional/working_jaxs/July2020/Updated_Yealands_jax.csv")
