@@ -10,19 +10,10 @@ library(data.table)
 
 ###########################################################################################
 #### GPS points ################################################################
-#########################################################################################
-
-#mapCRS <- CRS("+init=epsg:2120")     # 2120 = NZGD2000 / Marlborough 2000 
-#wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
-
 ###############################################################################################
 shapefile_WP =  st_read("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/Kuranui_NZ2000.shp")
 shapefile_WP_KML <- st_read("V:/Marlborough regional/Regional winery data/Raw_data/Wine Portfolio/Kuranui blocks.kml")
 ###############################################################################################
-#plot(shapefile_WP_KML)
-#I can't get the coodinates correct - would be good to make this work!
-# shapefile_WP_KML <- st_transform(shapefile_WP_KML, 4326)
-# shapefile_WP_KML <- st_transform(shapefile_WP_KML, 2120)
 
 str(shapefile_WP)
 geom <- st_geometry(shapefile_WP)
@@ -44,7 +35,9 @@ centroid_df <- select(centroid_df,
                       POINT_X,
                       POINT_Y)
 
-write_csv(centroid_df, "V:/Marlborough regional/working_jaxs/Wine_port_centroid_df_check.csv")
+#write_csv(centroid_df, "V:/Marlborough regional/working_jaxs/Wine_port_centroid_df_check.csv")
+rm("centroid", "geom", "shapefile_WP", "shapefile_WP_KML")
+
 
 ###########################################################################################
 #### Yld data     ########################################################################
@@ -130,8 +123,8 @@ Yld_data_all <- left_join(Yld_data, Yld_pred_data)
 
 #Join the spatial data
 
-Yld_data_GPS <- left_join(Yld_data_all, centroid_df)
-
+#Yld_data_GPS <- left_join(Yld_data_all, centroid_df)
+Yld_data_GPS <- full_join(Yld_data_all, centroid_df)
 }
 
 
@@ -218,6 +211,25 @@ yld_GPS <- select(yld_GPS,
 
 str(yld_GPS)
 dim(yld_GPS)
+
+
+unique(yld_GPS$variety)
+
+yld_GPS <- dplyr::filter(yld_GPS,
+                      variety == "SAB"|
+                      is.na(variety) )
+#13 sites with no yeild data only have coods
+yld_GPS <- dplyr::filter(yld_GPS,
+                         variety == "SAB")
+
+
+
+############################################################################## 
+########################    File to use   ####################################
+
+write_csv(yld_GPS, "V:/Marlborough regional/working_jaxs/July2020/Wine_portfolio_yld_GPS_only_SAB.csv")
+############################################################################## 
+
 
 
 ######################################################################################################################
@@ -371,22 +383,3 @@ filter(yld_GPS_only_SAB,  x_coord >0) %>%
 
 
 
-############################################################################## 
-########################    File to use   ####################################
-yld_GPS_only_SAB <- filter(yld_GPS_only_SAB,  x_coord >0)
-str(yld_GPS_only_SAB)
-
-yld_GPS_only_SAB <- select(yld_GPS_only_SAB, -year_factor)
-glimpse(yld_GPS_only_SAB)
-
-
-
-                                          
-                                          
-                                          
-                           
-                           
-
-
-write_csv(yld_GPS_only_SAB, "V:/Marlborough regional/working_jaxs/Wine_portfolio_yld_GPS_only_SAB.csv")
-############################################################################## 
