@@ -116,7 +116,8 @@ glimpse(GPS_Pts_Rob_Agnew_DD)
 GPS_Pts_Rob_Agnew_DD_df = as.data.frame(GPS_Pts_Rob_Agnew_DD) #this has the new coordinates projected !YES!!
 glimpse(GPS_Pts_Rob_Agnew_DD_df)
 
-write_csv(GPS_Pts_Rob_Agnew_DD_df, "V:/Marlborough regional/working_jaxs/GPS_Pts_Rob_Agnew_check.csv")
+#write_csv(GPS_Pts_Rob_Agnew_DD_df, "V:/Marlborough regional/working_jaxs/GPS_Pts_Rob_Agnew_check.csv")
+
 
 rm(list = c( "wgs84CRS", "mapCRS", "GPS_Pts_Rob_Agnew", "GPS_Pts_Rob_Agnew_DD1"))
 #########################################################################################################
@@ -185,7 +186,7 @@ Yld_Rob_Agnew <- filter(Yld_Rob_Agnew, year >0)
 str(Yld_Rob_Agnew)
 str(GPS_Pts_Rob_Agnew_DD_df)
 
-Yld_GPS_Rob_Agnew <- left_join(Yld_Rob_Agnew, GPS_Pts_Rob_Agnew_DD_df)
+Yld_GPS_Rob_Agnew <- full_join(Yld_Rob_Agnew, GPS_Pts_Rob_Agnew_DD_df)
 
 ###################### seems that we have multiple entries for the same site.
 ## I think we need to average sites with the same harvest dates.
@@ -259,169 +260,27 @@ dim(Yld_GPS_Rob_Agnew)
 
 
 #how many entries with and without GPS for all years
-dim(Yld_GPS_Rob_Agnew)#256
+dim(Yld_GPS_Rob_Agnew)#29
 unique(Yld_GPS_Rob_Agnew$variety)
 str(Yld_GPS_Rob_Agnew)
 
 
-dim(Yld_GPS_Rob_Agnew)#256
+dim(Yld_GPS_Rob_Agnew)#29
 
 #how many entries with GPS for all years
 
 
 
 Yld_GPS_Rob_Agnew_GPS_SAB <- filter(Yld_GPS_Rob_Agnew,  x_coord       >0)
-dim(Yld_GPS_Rob_Agnew_GPS_SAB) #256 Seddon is missing coordinates from Pernod Ricard
+dim(Yld_GPS_Rob_Agnew_GPS_SAB) # Seddon is missing coordinates from Pernod Ricard
 #how many site are SAU?
 unique(Yld_GPS_Rob_Agnew_GPS_SAB$variety)
 
 
 
-
-glimpse(Yld_GPS_Rob_Agnew) #256 records
-max(Yld_GPS_Rob_Agnew_GPS_SAB$year) #2019
-min(Yld_GPS_Rob_Agnew_GPS_SAB$year) #2005
-#how many records are SAU with GPS
-count(filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0)) #256
-
-
-
-#how many records with GPS pts all varieties
-glimpse(Yld_GPS_Rob_Agnew  )#256 records
-#how many records with GPS pts all varieties
-count(filter(Yld_GPS_Rob_Agnew,   x_coord >0)) #256 now #29
-
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,   x_coord >0) %>% 
-  ggplot( aes(variety ))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites with GPS coordinates")
-
-#how many sites with GPS pts by Variety by year
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>% 
-  ggplot( aes(variety ))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")+
-  facet_wrap(~year)
-
-
-
-
-#create a new variable year_as_factor
-Yld_GPS_Rob_Agnew_GPS_SAB$year_factor <- as.factor(Yld_GPS_Rob_Agnew_GPS_SAB$year)
-
-#filter data for Sauvignon Blanc
-Yld_GPS_Rob_Agnew_GPS_SAB
-
-#how many sites for Sauvignon Blanc by year
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>% 
-  group_by(year) %>% 
-  count() # 
-
 ####################################################################################################
-
-#Yld_GPS_Rob_Agnew_GPS_SAB$na_count <- apply(is.na(Yld_GPS_Rob_Agnew_GPS_SAB), 1, sum)
-
-str(Yld_GPS_Rob_Agnew_GPS_SAB)
-
-#how many sites for Sauvignon Blanc have missing data - how much missing data?
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>% 
-  ggplot( aes(year_factor, na_count))+
-  geom_col()+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Total counts of missing data entries NA - Sauvignon Blanc")
-#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>%
-  ggplot( aes(na_count))+
-  geom_bar()+
-  #xlim(0,10)+
-  scale_x_continuous(breaks =  c(0,2,4,6,8,10))+
-  facet_wrap(~year_factor)+
-  theme_bw()+
-  labs(x = "number of na counts per entry",
-       y= "Counts of missing data entries NA")
-
-########################################################################################################
-
-#check stuff 
-
-
-glimpse(Yld_GPS_Rob_Agnew_GPS_SAB)
-#julian days
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor, julian))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days - Sauvignon Blanc")
-#yield_t_ha
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor,  yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha - Sauvignon Blanc")
-#yield_kg_m
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
-
-#yield_kg_m filter out zeros
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>%
-  filter(yield_kg_m != 0) %>% 
-  ggplot( aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
-
-
-#brix - too many zero
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
-
-
-#brix - filter out high values
-filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0) %>%
-  filter(brix <40) %>% 
-  ggplot( aes(year_factor, brix ))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
-
-
-
-############################################################################## 
+############################################################################# 
 ########################    File to use   ####################################
-Yld_GPS_Rob_Agnew_GPS_SAB <- filter(Yld_GPS_Rob_Agnew_GPS_SAB,  x_coord >0)
-str(Yld_GPS_Rob_Agnew_GPS_SAB)
 
-Yld_GPS_Rob_Agnew_GPS_SAB <- select(Yld_GPS_Rob_Agnew_GPS_SAB, -year_factor)
-glimpse(Yld_GPS_Rob_Agnew_GPS_SAB)
-
-
-
-
-
-
-
-write_csv(Yld_GPS_Rob_Agnew_GPS_SAB, "V:/Marlborough regional/working_jaxs/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
+write_csv(Yld_GPS_Rob_Agnew_GPS_SAB, "V:/Marlborough regional/working_jaxs/July2020/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
 ############################################################################## 
