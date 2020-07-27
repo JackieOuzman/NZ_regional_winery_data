@@ -347,7 +347,7 @@ str(cloudyBay_site_centroid)
 
 
 
-yld_spatial_cloudy_bay_2004_19 <- left_join(yld_cloudy_bay_2004_19,
+yld_spatial_cloudy_bay_2004_19 <- full_join(yld_cloudy_bay_2004_19,
                                             cloudyBay_site_centroid,
                                             by = c("Code" = "Name"))
 str(yld_spatial_cloudy_bay_2004_19)
@@ -406,19 +406,10 @@ yld_spatial_cloudy_bay_2004_19 <- select(yld_spatial_cloudy_bay_2004_19,
                                   na_count)
 
 
-#remove missing data
-yld_spatial_cloudy_bay_2004_19 <- filter(yld_spatial_cloudy_bay_2004_19, x_coord > 0)
-str(yld_spatial_cloudy_bay_2004_19)
-#remove duplicates
-#yld_spatial_cloudy_bay_2004_19 <- distinct(yld_spatial_cloudy_bay_2004_19, ID_yr, .keep_all = TRUE)
 
 
-getwd()
+write_csv(yld_spatial_cloudy_bay_2004_19, "V:/Marlborough regional/working_jaxs/July2020/yld_spatial_cloudy_bay_2004_19.csv")
 
-
-write_csv(yld_spatial_cloudy_bay_2004_19, "V:/Marlborough regional/working_jaxs/yld_spatial_cloudy_bay_2004_19.csv")
-# write_csv(yld_spatial_cloudy_bay_2004_19,
-#             "C:/Users/ouz001/working_from_home/NZ_regional_winery_data/yld_spatial_cloudy_bay_2004_19.csv")
           
           
         
