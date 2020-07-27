@@ -60,7 +60,7 @@ Grower_coop_V2019_GPS <- rename(Grower_coop_V2019_GPS,
 #now I can join them....
 names(Grower_coop_V2019_block_info) 
 names(Grower_coop_V2019_GPS)
-Grower_coop_V2019 <- left_join(Grower_coop_V2019_block_info, Grower_coop_V2019_GPS, by= "Realignment Number")
+Grower_coop_V2019 <- full_join(Grower_coop_V2019_block_info, Grower_coop_V2019_GPS, by= "Realignment Number")
 #whats missing?
 
 not_joined_Grower_coop_V2019 <- anti_join(Grower_coop_V2019_block_info, Grower_coop_V2019_GPS)
@@ -424,3 +424,4 @@ str(Grower_coop_V2019)
 str(Harvest_data_2014_2017_GPS)
 
 Grower_coop_V2014_2019ex2018 <- rbind(Grower_coop_V2019, Harvest_data_2014_2017_GPS)
+View(Grower_coop_V2014_2019ex2018)
