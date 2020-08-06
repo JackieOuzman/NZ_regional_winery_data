@@ -1,3 +1,8 @@
+
+#1. work still to do - this is so messy!
+# add the 2018 and 2019 yield data once this is added I should have a list of vineyard location
+#2. revist my googling and change the names to what is in my short list.
+
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
@@ -59,12 +64,14 @@ glimpse(babich_coordinates1_df)
 rm(Babich_2015, Babich_2015_SB, babich_coordinates, babich_coordinates1, mapCRS, wgs84CRS)
 
 ############################################################################################################
-### Bring in the yield data for multiple years        ######################################################
+########      Bring in the yield data for multiple years      ############################################
 
 Babich_2014_17 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/revised_data_05082020/Historical Harvest Details V14-V17 CSIRO 050820.xlsx",
                              skip = 2)
                              
 names(Babich_2014_17)
+
+
 
 Babich_2014_17 <- fill(Babich_2014_17, "Corporate Blocks", .direction = "down")
 
@@ -91,146 +98,149 @@ Babich_2014_17 <- rename(
 
 Babich_2014_17 <- filter(Babich_2014_17,
                              !is.na(blocks))
+Babich_2014_17 <- dplyr::select(Babich_2014_17, - "...3"  )
+names(Babich_2014_17)
+## the vineyard name is not super sensible all the time but the blocks show some promise!
+
+#I think this should be at the start just sussing out what do do
+names(Babich_2014_17)
 
 
-#### up to here #####
+Babich_2014_17<- separate(Babich_2014_17, blocks, 
+                into = c("company_grower_code","variety","vineyard_code","block_code","temp5", "temp6", "temp7",
+                         "temp8","temp9","temp10","temp11","temp12"), 
+                remove = FALSE)
+
+unique(Babich_2014_17$variety)
+Babich_2014_17 <- filter(Babich_2014_17, variety == "SAB")
+
+# add a clm with more details about what I grower company is...
+Babich_2014_17 <- mutate(Babich_2014_17, 
+               grower_name = case_when(
+                 company_grower_code == "BA" ~ "babich",
+                 company_grower_code == "JC" ~ "james_cameron",
+                 company_grower_code == "AC" ~ "angus_cameron",
+                 company_grower_code == "RG" ~ "richard_gifford",
+                 company_grower_code == "MG" ~ "murray_game",
+                 company_grower_code == "MW" ~ "matakana_wines",
+                 company_grower_code == "SL" ~ "steven_la_plante",
+                 company_grower_code == "MP" ~ "martin_pattie",
+                 company_grower_code == "CB" ~ "cable_bay",
+                 company_grower_code == "JL" ~ "john_leslie",
+                 TRUE ~ company_grower_code))
+
+Babich_2014_17 <- mutate(Babich_2014_17, 
+               vineyard_code = case_when(
+                 vineyard_code == "CS" ~ "cvv",
+                 vineyard_code == "EV" ~ "ecv",
+                 vineyard_code == "HW" ~ "hw",
+                 vineyard_code == "SR" ~ "sr",
+                 vineyard_code == "WD" ~ "wdr",
+                 vineyard_code == "TB" ~ "tbv",
+                 TRUE ~ tolower(vineyard_code)))
+
+Babich_2014_17 <- mutate(Babich_2014_17, 
+                block_code = case_when(
+                  block_code == "PEAR" ~ "pear_tree",
+                  block_code == "TOI" ~ "toi_toi",
+                  block_code == "5" ~ "5_eyes",
+                  TRUE ~ block_code))
+
+Babich_2014_17 <- mutate(Babich_2014_17, 
+                         block_code = case_when(
+                  temp5 == "MAIN" &  block_code == "GULLY" ~ "gully_main",
+                  temp5 == "WEST"&  block_code == "GULLY"  ~ "gully_west",
+                  temp5 == "WEST"&  block_code == "EAST"  ~ "east_west",
+                  TRUE ~ tolower(block_code)))
+
+names(Babich_2014_17)
+
+###################################################################################################
+
+#create a df for each year with the same column names and then join togther
+Babich_2014 <- dplyr::select(
+  Babich_2014_17,
+  "vineyard" ,
+  "notes"   ,
+  "blocks"   ,
+  "ha" ,
+  "harvest_date" = "harvest_date_14",
+  "tonnes" = "tonnes_14",
+  "brix" = "brix_14",
+  "grower_name",
+  "variety",
+  "vineyard_code",
+  "block_code"
+) %>%
+  mutate(year = 2014)
+
+Babich_2015 <- dplyr::select(
+  Babich_2014_17,
+  "vineyard" ,
+  "notes"   ,
+  "blocks"   ,
+  "ha" ,
+  "harvest_date" = "harvest_date_15",
+  "tonnes" = "tonnes_15",
+  "brix" = "brix_15",
+  "grower_name",
+  "variety",
+  "vineyard_code",
+  "block_code"
+) %>%
+  mutate(year = 2015)
+
+Babich_2016 <- dplyr::select(
+  Babich_2014_17,
+  "vineyard" ,
+  "notes"   ,
+  "blocks"   ,
+  "ha" ,
+  "harvest_date" = "harvest_date_16",
+  "tonnes" = "tonnes_16",
+  "brix" = "brix_16",
+  "grower_name",
+  "variety",
+  "vineyard_code",
+  "block_code"
+) %>%
+  mutate(year = 2016)
+
+Babich_2017 <- dplyr::select(
+  Babich_2014_17,
+  "vineyard" ,
+  "notes"   ,
+  "blocks"   ,
+  "ha" ,
+  "harvest_date" = "harvest_date_17",
+  "tonnes" = "tonnes_17",
+  "brix" = "brix_17",
+  "grower_name",
+  "variety",
+  "vineyard_code",
+  "block_code"
+) %>%
+  mutate(year = 2017)
+
+Babich_2014_2017_yld_info <- bind_rows(Babich_2014,
+                                       Babich_2015,
+                                       Babich_2016,
+                                       Babich_2017)
+
+rm(Babich_2014,
+   Babich_2015,
+   Babich_2016,
+   Babich_2017,
+   Babich_2014_17)
+
+
+
+
 #####################################################################################################################
 
 
 
 
 
-Babich_2015 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/2015 Vintage counts.xlsx", 
-                                   sheet = "actual weights", skip = 1)
-names(Babich_2015)
-
-#I need to fill the above name for each row for the following clms Variety, Grower and Block
-
-Babich_2015 <- fill(Babich_2015, Variety, Grower,  Block, .direction = "down")
-
-#now only keep the 
-unique(Babich_2015$Variety)
-
-Babich_2015_SB <- filter(Babich_2015,
-                         Variety == "Sauv Blanc")
-
-# remove the totals and empty rows in the blockclm
-unique(Babich_2015$Block)
-#change everything to lower case
-Babich_2015_SB$Block <- str_to_lower(Babich_2015_SB$Block)
-
-Babich_2015_SB <- Babich_2015_SB %>% 
-  filter(!str_detect(Block, "total"))
-#remove the rows with no ha - not sure what these were doing.
-names(Babich_2015_SB)
-Babich_2015_SB <- Babich_2015_SB %>% 
-  filter(!is.na(`Area (ha)`))
-## the rows I want to keep are                           
-Babich_2015_SB <- dplyr:: select(Babich_2015_SB,
-                                 variety = Variety,
-                                 Grower,
-                                 Block,
-                                 Area_ha = "Area (ha)",
-                                 ave_bunches = "ave bunches",
-                                 berry_weight = "est berry weight",
-                                 tonnes = "Actual Tonnes",
-                                 yield_t_ha = "Actual T/Ha"
-                                 )  
-
-### need to get the vine spacing row spacing and location
-sites_for_GPS <- unique(Babich_2015_SB$Grower)
-#write.csv(sites_for_GPS, "sites_for_GPS.csv")
-##########################################################################################################################
-##Google earth with pdf maps have given me these sites:
-
-GPS <- read.csv("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/Babich_locations.csv")
-#make a clm for grower and one for block
-str(GPS)
-#1.turn everything into lower case
-
-GPS$Name <- str_to_lower(GPS$Name)
-#2. replace spaces with underscores
-
-#oops there is a typo "tetle brook g" should be "tetlebrook g"
-GPS$Name <- str_replace(GPS$Name, "tetle brook g", "tetlebrook g")
-GPS <- separate(GPS, Name, into = c("Grower", "Block"), sep = " ", remove = FALSE)
-
-names(Babich_2015_SB)
-names(GPS)
-#fix up the names so they match
-Babich_2015_SB$Grower <- str_to_lower(Babich_2015_SB$Grower)
-Babich_2015_SB$Block <- str_to_lower(Babich_2015_SB$Block)
-#GPS names to fix
-GPS$Grower <- str_replace(GPS$Grower, "tetlebrook", "tettly brook")
-GPS$Grower <- str_replace(GPS$Grower, "tetleybrook", "tettly brook")
-GPS$Grower <- str_replace(GPS$Grower, "headwater", "headwaters")
-GPS$Block <- str_replace(GPS$Block, "pear_tree", "pear tree")
-GPS$Block <- str_replace(GPS$Block, "toi_toi", "toi toi")
-GPS$Block <- str_replace(GPS$Block, "toi_toi", "toi toi")
-GPS$Block <- str_replace(GPS$Block, "5_eyes", "5 eyes")
-GPS$Block <- str_replace(GPS$Block, "watch_", "watch tower")
-GPS$Block <- str_replace(GPS$Block, "fext", "fx") #check this is correct?
-GPS$Block <- str_replace(GPS$Block, "main1-80", "main") #check this is correct?
-GPS$Block <- str_replace(GPS$Block, "main81-148", "organic") #check this is correct?
-GPS$Block <- str_replace(GPS$Block, "208-222", "sr 208-222") #check this is correct?
-
-#write.csv(GPS, "GPS_temp.csv")
-#getwd()
-
-Vineyard_details <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/vineyard_details_from_maps.xlsx")
-
-GPS <-  full_join(GPS,Vineyard_details )
-
-#lets see what we can join...
-Babich_2015_SB_GPS <- full_join(Babich_2015_SB, GPS)
-#####################################################################################################################################
-
-Babich_2016 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/2016 Yield counts and actuals.xlsx", 
-                          sheet = "estimates with thinning ", skip = 1)
-names(Babich_2016)
-
-#I need to fill the above name for each row for the following clms Variety, Grower and Block
-
-Babich_2016 <- fill(Babich_2016, Variety, Grower,  Block, .direction = "down")
-
-#now only keep the 
-unique(Babich_2016$Variety)
-
-Babich_2016_SB <- filter(Babich_2016,
-                         Variety == "Sauv Blanc")
-
-# remove the totals and empty rows in the blockclm
-unique(Babich_2016_SB$Block)
-#change everything to lower case
-Babich_2016_SB$Block <- str_to_lower(Babich_2016_SB$Block)
-
-Babich_2016_SB <- Babich_2016_SB %>% 
-  filter(!str_detect(Block, "total"))
-#remove the rows with no ha - not sure what these were doing.
-names(Babich_2016_SB)
-Babich_2016_SB <- Babich_2016_SB %>% 
-  filter(!is.na(`Area (ha)`))
-## the rows I want to keep are                           
-Babich_2016_SB <- dplyr:: select(Babich_2016_SB,
-                                 variety = Variety,
-                                 Grower,
-                                 Block,
-                                 Area_ha = "Area (ha)",
-                                 ave_bunches = "ave bunches",
-                                 berry_weight = "est berry weight",
-                                 tonnes = "Actual",
-                                 yield_t_ha = "Actual T/Ha"
-)  
-
-Babich_2016_SB$Grower <- str_to_lower(Babich_2016_SB$Grower)
-Babich_2016_SB$Block <- str_to_lower(Babich_2016_SB$Block)
-
-Babich_2016_SB_GPS <- full_join(Babich_2016_SB, GPS)
 
 
-#####################################################################################################################################
-
-Babich_2017 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/2016 Yield counts and actuals.xlsx", 
-                          sheet = "estimates with thinning ", skip = 1)
-
-#stuck here I am not sure what to with the 2017 and 2018 most of it is forcast data??
