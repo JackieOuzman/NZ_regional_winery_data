@@ -197,6 +197,12 @@ rm(#Grower_coop_V2019
    Grower_coop_V2019_selection, 
    Grower_coop_V2019_yld_data)
   
+
+#remove the rows with the missing data
+
+Grower_coop_V2019 <- filter(Grower_coop_V2019,
+                            !is.na(year))
+
 ##############################################################################################################################
 ############ 2014-2018 data ######################################################################################################
 
@@ -374,6 +380,11 @@ names(yld_data2014_2017)
 rm("row_vine_spacing",
    "site_with_t_ha_error")
 rm("Grower_coop_V2019_GPS")
+#remove the rows with missing yld data
+
+ 
+yld_data2014_2017 <- filter(yld_data2014_2017,
+                               !is.na(year))
 
 # join the 2019 and 2014-2018 data togther
 
@@ -412,7 +423,35 @@ Grower_coop_V2019 <- select(
 
 V2019_2014_to_2017 <- bind_rows(Grower_coop_V2019, yld_data2014_2017)
 
-write.csv( V2019_2014_to_2017, "grower_coop_V2019_2014_to_2017.csv")
+names(V2019_2014_to_2017)
+
+V2019_2014_to_2017 <- filter(V2019_2014_to_2017,
+               !is.na(yield_t_ha) | !is.na(brix))
+
+
+# the last step is to get the coordinates into project values:
+
+### change the coordinates to from long and lats to projected data.
+# I have my data in decimal degrees I want to convert it into GDA
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+
+names(V2019_2014_to_2017)
+V2019_2014_to_2017 <- filter(V2019_2014_to_2017, !is.na(x_coord))
+str(V2019_2014_to_2017)
+V2019_2014_to_2017$x_coord <- as.double(V2019_2014_to_2017$x_coord)
+V2019_2014_to_2017$y_coord <- as.double(V2019_2014_to_2017$y_coord)
+coordinates(V2019_2014_to_2017) <- ~x_coord+y_coord
+proj4string(V2019_2014_to_2017) <- wgs84CRS   # assume input lat and longs are WGS84
+V2019_2014_to_2017_1 <- spTransform(V2019_2014_to_2017, mapCRS)
+
+glimpse(V2019_2014_to_2017_1)
+V2019_2014_to_2017_1_df = as.data.frame(V2019_2014_to_2017_1) #this has the new coordinates projected !YES!!
+glimpse(V2019_2014_to_2017_1_df)
+
+getwd()
+write.csv( V2019_2014_to_2017_1_df, "grower_coop_V2019_2014_to_2017.csv")
 
 #### STOP HERE I NEED HELP with the 2018 data
 
