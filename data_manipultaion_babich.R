@@ -17,51 +17,17 @@ library(tidyr)
 ####################################################################################################################
 ######   Bring in the coodinated that I have got from the pdf maps and street address     ##########################
 
+babich_coordinates <- read_csv("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/Babich_locations_v3.csv")
 
-
-babich_coordinates <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/Babich_locations_with_v_spacing_r_width CSIRO Amended 050820.xlsx",
-                                sheet =  "Babich_locations_with_v_spacing")
 
 names(babich_coordinates)
 
 babich_coordinates <- filter(babich_coordinates,
-                             !is.na(POINT_X...2))
+                             !is.na(POINT_X))
 
+babich_coordinates_DF <-data.frame(babich_coordinates)
+str(babich_coordinates_DF)
 
-
-babich_coordinates <- select(babich_coordinates,
-                             "ID",
-                             "POINT_X...2",
-                             "POINT_Y...3",
-                             "row_spacing",
-                             "vine_spacing",
-                             "block" ,
-                             "Variety" ,
-                            "vineyard code" )
-
-
-babich_coordinates <- rename(babich_coordinates, 
-                             "POINT_X" = "POINT_X...2",
-                             "POINT_Y" ="POINT_Y...3",
-                             "variety" ="Variety" ,
-                             "vineyard_code" = "vineyard code" )
-
-
-### change the coordinates to from long and lats to projected data.
-# I have my data in decimal degrees I want to convert it into GDA
-mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
-wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
-
-names(babich_coordinates)
-coordinates(babich_coordinates) <- ~POINT_X+POINT_Y
-proj4string(babich_coordinates) <- wgs84CRS   # assume input lat and longs are WGS84
-babich_coordinates1 <- spTransform(babich_coordinates, mapCRS)
-
-glimpse(babich_coordinates1)
-babich_coordinates1_df = as.data.frame(babich_coordinates1) #this has the new coordinates projected !YES!!
-glimpse(babich_coordinates1_df)
-
-rm(Babich_2015, Babich_2015_SB, babich_coordinates, babich_coordinates1, mapCRS, wgs84CRS)
 
 ############################################################################################################
 ########      Bring in the yield data for multiple years 2014 to 2017     ############################################
@@ -487,7 +453,7 @@ Babich_2019[c(1:8,11,13:14,16:20),5] <- NA
 
 
 names(Babich_2019)
-Babich_2019 <- mutate(Babich_2018, year = 2019,
+Babich_2019 <- mutate(Babich_2019, year = 2019,
                       vineyard = "NA" )
 #re-order the clms
 names(Babich_2019)
@@ -512,3 +478,47 @@ Babich_2014_2019$blocks <-tolower(Babich_2014_2019$blocks)
 
 getwd()
 write.csv(Babich_2014_2019, "Babich_2014_2019.csv")
+
+## lets try and join the GPS and vine spacing data
+
+rm(Babich_2018, Babich_2019, Babich_2014_2017_yld_info)
+str(Babich_2014_2019)
+Babich_2014_2019 <- mutate(Babich_2014_2019,
+                           Name = paste0(grower_name, " ", vineyard_code, " ", block_code))
+str(babich_coordinates_DF)
+
+
+######################################################################################
+## I need to fiddle with the names to get it to match for the yld dataset
+unique(Babich_2014_2019$blocks)
+unique(Babich_2014_2019$Name)
+
+
+Babich_2014_2019 <- mutate(Babich_2014_2019, Name = case_when(
+  blocks == "ba sab cs south 1-110" ~ "babich cvv south 1-110",
+  blocks == "ba sab cs south 111-115 wr" ~ "babich cvv south 111-115",
+  blocks == "ba sab cs south r107-115 wr" ~ "babich cvv south 111-115",
+  blocks == "ba sab cs south r1-106" ~ "babich cvv south 1-110",
+  
+  blocks == "ba sab sr 158-207" ~ "babich sr 158-207" ,
+  blocks == "ba sab sr 208-222" ~ "babich sr 208-222",
+  
+  blocks == "ba sab ev watchtower 1-94" ~ "babich ecv watch_ tower 1-94" ,
+  blocks == "	ba sab ev watchtower 95-98 wr" ~ "babich ecv watch_ tower 95-98",
+  
+  TRUE ~ Name
+))
+
+
+# ecv yld data needs more work for pear tree I need to sum the yld and av the brix and harvest date
+# ecv yld data needs more work for pheasent 208 and 2019? I need to sum the yld and av the brix and harvest date
+# ecv yld data needs remove the toi toi blocks for 2018 and 2019
+# hw yld data needs remove the main  for 2018 
+# tbv yld data needs averaged but I need to bring in more data 2018 
+
+#################################################################################################################
+test <- full_join(babich_coordinates_DF, Babich_2014_2019)
+str(test)
+#what babich sites didnt join
+test_babich_only <- filter(test, grower_name == "babich")
+test_babich_only_no_match <- filter(test_babich_only, is.na(POINT_X))
