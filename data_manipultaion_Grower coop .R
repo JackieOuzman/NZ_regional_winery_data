@@ -451,7 +451,7 @@ V2019_2014_to_2017_1_df = as.data.frame(V2019_2014_to_2017_1) #this has the new 
 glimpse(V2019_2014_to_2017_1_df)
 
 getwd()
-write.csv( V2019_2014_to_2017_1_df, "grower_coop_V2019_2014_to_2017.csv")
+#write.csv( V2019_2014_to_2017_1_df, "grower_coop_V2019_2014_to_2017.csv")
 
 #### STOP HERE I NEED HELP with the 2018 data
 
@@ -461,71 +461,57 @@ write.csv( V2019_2014_to_2017_1_df, "grower_coop_V2019_2014_to_2017.csv")
 
 
 Grower_coop_V2018_part1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Member Harvest Summary 2018 01052018.xlsx", 
-                                                   sheet = "Shelley - TWG Fruit Receival An")
-#remove the missing rows
+                                      sheet = "Member Harvest Summary 2018")
+
+
+#- umm that work what about Date clm that has name
+
 Grower_coop_V2018_part1 <- filter(Grower_coop_V2018_part1,
-                                  Block != "NA")
-str(Grower_coop_V2018_part1)
-Grower_coop_V2018_part1 <- dplyr::select(Grower_coop_V2018_part1, Vineyard,
-                                         Block,
-                                         brix = "Brix (deg)",
-                                         Date)
+               !is.na(Date))
+#only keep values that are string characters
+Grower_coop_V2018_part1 <- Grower_coop_V2018_part1 %>% 
+   filter(str_detect(Date, "[:alpha:]"))
 
-Grower_coop_V2018_part1 <- mutate(Grower_coop_V2018_part1,
-                                  ID_yr = paste0( Block,  "_2018")) #paste0(Grower, "_", Block))
+Grower_coop_V2018_part1 <- select(Grower_coop_V2018_part1,
+               Block ,
+               yield_T = `Actual Yield (T)`,
+               brix = `Brix (deg)`)
 
-#average the data per block
-Grower_coop_V2018_part1_av <- Grower_coop_V2018_part1 %>%
-  group_by(Block) %>% 
-           summarise(Date = mean(Date),
-                     Brix = mean(brix, na.rm = TRUE))
-
+##### Get the dates and average for each block
 
 Grower_coop_V2018_part2 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Member Harvest Summary 2018 01052018.xlsx", 
-                                                   sheet = "Member Harvest Summary 2018")
-#the date clm has a mix of dates and names make 2 clms and code properly
+                                      sheet = "Shelley - TWG Fruit Receival An")
+
 str(Grower_coop_V2018_part2)
-Grower_coop_V2018_part2 <- mutate(Grower_coop_V2018_part2, Date_name = Date)
-Grower_coop_V2018_part2 <- Grower_coop_V2018_part2 %>% mutate(id_ref = row_number())                                  
-Grower_coop_V2018_part2$Date_name <- str_replace_all(Grower_coop_V2018_part2$Date_name,
-                                                              "[:digit:]", "")
+Grower_coop_V2018_part2 <- group_by(Grower_coop_V2018_part2, Block) %>% 
+   summarise(
+      Date_ave = mean(Date )
+   )
 
-Grower_coop_V2018_part2$Date_name <-na_if(Grower_coop_V2018_part2$Date_name, ".")
-str(Grower_coop_V2018_part2)
-Grower_coop_V2018_part2 <- dplyr::select(Grower_coop_V2018_part2, Vineyard,
-                                         Block,
-                                         brix = "Brix (deg)",
-                                         Date_name, id_ref
-                                         )
+##### Get the relaingnnet codes to use
+Grower_coop_V2018_part3 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Member Harvest Summary 2018 01052018.xlsx", 
+                                      sheet = "Member Harvest Summary 2018 Jax")
 
-
-
-Grower_coop_V2018_part2_a <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Marlborough_Grape_Growers_Cooperative/Member Harvest Summary 2018 01052018.xlsx", 
-                                                   col_types = c("date", "text", "text", 
-                                                                 "text", "numeric", "text", "numeric", 
-                                                                 "numeric", "text", "numeric", "numeric", 
-                                                                 "numeric", "text", "text", "text", 
-                                                                 "text"))
-                                        
-Grower_coop_V2018_part2_a <- Grower_coop_V2018_part2_a %>% mutate(id_ref = row_number()) 
+str(Grower_coop_V2018_part3)
+Grower_coop_V2018_part3 <- select(Grower_coop_V2018_part3,
+                                  Block ,
+                                  realignmnet_number = `realignmnet number to use`)
+#keep the ones with values - some I could work out or Jhonny said not to use!
+Grower_coop_V2018_part3 <- filter(Grower_coop_V2018_part3,
+                                  !is.na(realignmnet_number))
 
 
-Grower_coop_V2018_part2_a <- mutate(Grower_coop_V2018_part2_a,
-                                  ID_yr = paste0( Block,  "_2018")) #paste0(Grower, "_", Block))
-str(Grower_coop_V2018_part2_a)
-Grower_coop_V2018_part2_a <- dplyr::select(Grower_coop_V2018_part2_a, ID_yr,
-                                           Date, id_ref)
-#join the two togther
-str(Grower_coop_V2018_part2_a)
-str(Grower_coop_V2018_part2)
 
-Grower_coop_V2018_part2_join <- full_join(Grower_coop_V2018_part2_a, Grower_coop_V2018_part2) 
+####################################################################################################################
+# join the three parts togther
 
+dim(Grower_coop_V2018_part1)
+dim(Grower_coop_V2018_part2)
+dim(Grower_coop_V2018_part3)
 
-rm(Grower_coop_V2018_part1, Grower_coop_V2018_part1_av, Grower_coop_V2018_part2, Grower_coop_V2018_part2_a)
+#join part 1 to part 2
+Grower_coop_V2018 <- full_join(Grower_coop_V2018_part1, Grower_coop_V2018_part2)
+Grower_coop_V2018 <- full_join(Grower_coop_V2018, Grower_coop_V2018_part3)
 
 
-#final is Grower_coop_V2018_part2_join # 
-
-# but I am having huge problems joining this data
-
+### double check a few things - why dont I have dates and realignmnet number for some of my sites?
