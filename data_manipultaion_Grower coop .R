@@ -523,7 +523,14 @@ Grower_coop_V2018_part3 <- read_excel("V:/Marlborough regional/Regional winery d
 str(Grower_coop_V2018_part3)
 Grower_coop_V2018_part3 <- select(Grower_coop_V2018_part3,
                                   Block ,
-                                  realignmnet_number = `realignmnet number to use`)
+                                  realignmnet_number = `realignmnet number to use`,
+                                  ha,
+                                  row_width =`Row Spacing`,
+                                  vine_spacing = `Vine Spacing`
+                                  )
+
+ 
+
 #keep the ones with values - some I could work out or Jhonny said not to use!
 Grower_coop_V2018_part3 <- filter(Grower_coop_V2018_part3,
                                   !is.na(realignmnet_number))
@@ -553,28 +560,27 @@ unique(V2019_2014_to_2017_1_df$year)
 str(V2019_2014_to_2017_1_df)
 
 
+
+
+
 #add in the gPS data
-str(Grower_coop_GPS_1_df)
-str(Grower_coop_V2018)
-Grower_coop_V2018 <- full_join(Grower_coop_V2018, Grower_coop_GPS_1_df, by = c("realignmnet_number" = "Realignment_Number"))
-Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(POINT_X))
-Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(Block))
-Grower_coop_V2018 <- select(Grower_coop_V2018, -Block)
-#add in the row and vine spacing and add in the ha
-str(Grower_coop_V2018)
-str(Grower_coop_V2019_block_info)
-Grower_coop_V2018 <- left_join(Grower_coop_V2018, 
-                               Grower_coop_V2019_block_info, 
-                               by = c("realignmnet_number" = "Realignment Number"))
-str(Grower_coop_V2018)
+ str(Grower_coop_GPS_1_df)
+ str(Grower_coop_V2018)
+ 
+ Grower_coop_V2018 <- full_join(Grower_coop_V2018, Grower_coop_GPS_1_df, by = c("realignmnet_number" = "Realignment_Number"))
+ Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(POINT_X))
+ Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(Block))
+ Grower_coop_V2018 <- select(Grower_coop_V2018, -Block)
+ 
 
 ### add the caluations and missing data
 #first add the correct clm 
-Grower_coop_V2018$Ha <- as.numeric(Grower_coop_V2018$Ha )
+
 Grower_coop_V2018 <- mutate(Grower_coop_V2018,
                             harvest_date = Date_ave,
-                            yield_t_ha = yield_T /Ha,
-                            vine_spacing = vine_Spacing)
+                            yield_t_ha = yield_T /ha,
+                            year = 2018
+                            )
 #### Add in the calulations
 Grower_coop_V2018 <- mutate(Grower_coop_V2018,
                             harvest_date,
@@ -589,6 +595,8 @@ Grower_coop_V2018 <- mutate(Grower_coop_V2018,
                             meter_row_per_ha = 10000/row_width,
                             yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width,
                             bunch_m = NA)
+str(Grower_coop_V2018)
+
 Grower_coop_V2018 <- mutate(
    Grower_coop_V2018,
    company = "grower_coop",
