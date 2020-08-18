@@ -33,37 +33,56 @@ extra_sites_GPS <- extra_sites_GPS %>%
   rename(
     "Latitude" = "...2", 
     "Longitude" = "...3",
-    "comments" =  "...4"
+    "comments" =  "...6"
   )                     
 extra_sites_GPS$Latitude <- as.double(extra_sites_GPS$Latitude)
 extra_sites_GPS$Longitude <- as.double(extra_sites_GPS$Longitude)
 
 extra_sites_GPS <- filter(extra_sites_GPS,
                           Longitude != "NA")
+##some are projected already so dont need to do these
+
+extra_sites_GPS_a <- filter(extra_sites_GPS,
+                          comments != "projected data" | is.na(comments))
+
+extra_sites_GPS_b <- filter(extra_sites_GPS,
+                            comments == "projected data")
+
 ### change the coodinates from long and lats x_coord,y_coord,
 
 mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
 wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
 
 #proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
-coordinates(extra_sites_GPS) <- ~Longitude+Latitude
-proj4string(extra_sites_GPS) <- wgs84CRS   # assume input lat and longs are WGS84
-extra_sites_GPS <- spTransform(extra_sites_GPS, mapCRS)
+coordinates(extra_sites_GPS_a) <- ~Longitude+Latitude
+proj4string(extra_sites_GPS_a) <- wgs84CRS   # assume input lat and longs are WGS84
+extra_sites_GPS_a <- spTransform(extra_sites_GPS_a, mapCRS)
 
-glimpse(extra_sites_GPS)
-extra_sites_GPS_df = as.data.frame(extra_sites_GPS) #this has the new coordinates projected !YES!!
-glimpse(extra_sites_GPS_df)
-extra_sites_GPS_df <- mutate(extra_sites_GPS_df,
-                                  x_coord = Longitude,
+glimpse(extra_sites_GPS_a)
+extra_sites_GPS_a_df = as.data.frame(extra_sites_GPS_a) #this has the new coordinates projected !YES!!
+glimpse(extra_sites_GPS_a_df)
+extra_sites_GPS_df <- mutate(extra_sites_GPS_a_df,
+                                  x_coord =  Longitude,
                                   y_coord = Latitude) 
 extra_sites_GPS_df <- dplyr::select(extra_sites_GPS_df, -Longitude,-Latitude )
-str(extra_sites_GPS_df)                               
+str(extra_sites_GPS_df, extra_sites_GPS_b)                               
 
+## add in the projected extra
+extra_sites_GPS_b <- mutate(extra_sites_GPS_b,
+                             x_coord =  Longitude,
+                             y_coord = Latitude) 
+extra_sites_GPS_b <- select(extra_sites_GPS_b,
+                            -Longitude,
+                            -Latitude) 
+str(extra_sites_GPS_b)
+str(extra_sites_GPS_df)
+
+extra_sites_GPS <- bind_rows(extra_sites_GPS_df, extra_sites_GPS_b)
 
 names(wither_hills_GPS)
-names(extra_sites_GPS_df)
-extra_sites_GPS_df <- rename(extra_sites_GPS_df, "ID_temp" = "ID")
-wither_hills_GPS <- bind_rows(wither_hills_GPS, extra_sites_GPS_df)
+names(extra_sites_GPS)
+extra_sites_GPS <- rename(extra_sites_GPS, "ID_temp" = "ID")
+wither_hills_GPS <- bind_rows(wither_hills_GPS, extra_sites_GPS)
 
 
 wither_hills_GPS <- separate(wither_hills_GPS, ID_temp, into = c("data", "temp" , "temp2", "temp3"), remove = FALSE, sep = "_")
@@ -73,8 +92,10 @@ wither_hills_GPS <- mutate(wither_hills_GPS,
                                     temp2 == "sb" ~ "sb" ,
                                     temp3 == "sb" ~ "sb"))
 names(wither_hills_GPS)
-wither_hills_GPS <- dplyr::select(wither_hills_GPS, "ID_temp",  "x_coord" , "y_coord" , "comments" ,"variety"  )
+wither_hills_GPS <- dplyr::select(wither_hills_GPS, "ID_temp",  "x_coord" , "y_coord" , "comments" ,"variety" , "Vine.Sp", "Row.Sp" )
 wither_hills_GPS <- filter(wither_hills_GPS, variety != "NA")
+
+View(wither_hills_GPS)
 
 #####################################################################################################################
 ##############################           Add in the block info  #########################################################
