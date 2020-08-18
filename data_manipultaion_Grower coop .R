@@ -69,12 +69,40 @@ getwd()
 #remove what I dont want..
 rm(
    #Grower_coop_V2019,
-   Grower_coop_V2019_block_info,
+   #Grower_coop_V2019_block_info,
    #Grower_coop_V2019_GPS,
    not_joined_Grower_coop_V2019
     )
 
 str(Grower_coop_V2019)
+#just the coodinates
+str(Grower_coop_V2019_GPS)
+
+Grower_coop_GPS <- select(Grower_coop_V2019_GPS,
+                          Name,
+                          POINT_X,
+                          POINT_Y ,
+                          Realignment_Number = `Realignment Number`)
+   ### change the coordinates to from long and lats to projected data.
+   # I have my data in decimal degrees I want to convert it into GDA
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+
+names(Grower_coop_GPS)
+Grower_coop_GPS <- filter(Grower_coop_GPS, !is.na(POINT_X))
+str(Grower_coop_GPS)
+Grower_coop_GPS$POINT_X <- as.double(Grower_coop_GPS$POINT_X)
+Grower_coop_GPS$POINT_Y <- as.double(Grower_coop_GPS$POINT_Y)
+coordinates(Grower_coop_GPS) <- ~POINT_X+POINT_Y
+proj4string(Grower_coop_GPS) <- wgs84CRS   # assume input lat and longs are WGS84
+Grower_coop_GPS_1 <- spTransform(Grower_coop_GPS, mapCRS)
+
+glimpse(Grower_coop_GPS_1)
+Grower_coop_GPS_1_df = as.data.frame(Grower_coop_GPS_1) #this has the new coordinates projected !YES!!
+glimpse(Grower_coop_GPS_1_df)
+
+rm(Grower_coop_GPS_1, Grower_coop_GPS)
 ###########################################################################################################
 ################     add in the 2019 yield data ##########################################################
   
@@ -130,6 +158,7 @@ str(Grower_coop_V2019)
                                                          SWNZ_Vineyard_ID,
                                                          row_width ,
                                                          vine_Spacing ,
+                                                         ha = Ha,
                                                          "Realignment_number" = "Realignment Number" ,
                                                          POINT_X,
                                                          POINT_Y
@@ -377,8 +406,7 @@ yld_data2014_2017 <- select(
 
 names(yld_data2014_2017)
 
-rm("row_vine_spacing",
-   "site_with_t_ha_error")
+rm(   "site_with_t_ha_error")
 rm("Grower_coop_V2019_GPS")
 #remove the rows with missing yld data
 
@@ -453,7 +481,7 @@ glimpse(V2019_2014_to_2017_1_df)
 getwd()
 #write.csv( V2019_2014_to_2017_1_df, "grower_coop_V2019_2014_to_2017.csv")
 
-#### STOP HERE I NEED HELP with the 2018 data
+
 
 
 ##############################################################################################################################
@@ -515,3 +543,88 @@ Grower_coop_V2018 <- full_join(Grower_coop_V2018, Grower_coop_V2018_part3)
 
 
 ### double check a few things - why dont I have dates and realignmnet number for some of my sites?
+#seems that we dont have harvest dates for some sites, not sure why this is the raw data reflects this.
+
+rm(Grower_coop_V2018_part1,Grower_coop_V2018_part2, Grower_coop_V2018_part3)
+rm(V2019_2014_to_2017, V2019_2014_to_2017_1)
+rm(Harvest_data_2014_2017)
+rm(yld_data2014_2017)
+unique(V2019_2014_to_2017_1_df$year)
+str(V2019_2014_to_2017_1_df)
+
+
+#add in the gPS data
+str(Grower_coop_GPS_1_df)
+str(Grower_coop_V2018)
+Grower_coop_V2018 <- full_join(Grower_coop_V2018, Grower_coop_GPS_1_df, by = c("realignmnet_number" = "Realignment_Number"))
+Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(POINT_X))
+Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(Block))
+Grower_coop_V2018 <- select(Grower_coop_V2018, -Block)
+#add in the row and vine spacing and add in the ha
+str(Grower_coop_V2018)
+str(Grower_coop_V2019_block_info)
+Grower_coop_V2018 <- left_join(Grower_coop_V2018, 
+                               Grower_coop_V2019_block_info, 
+                               by = c("realignmnet_number" = "Realignment Number"))
+str(Grower_coop_V2018)
+
+### add the caluations and missing data
+#first add the correct clm 
+Grower_coop_V2018$Ha <- as.numeric(Grower_coop_V2018$Ha )
+Grower_coop_V2018 <- mutate(Grower_coop_V2018,
+                            harvest_date = Date_ave,
+                            yield_t_ha = yield_T /Ha,
+                            vine_spacing = vine_Spacing)
+#### Add in the calulations
+Grower_coop_V2018 <- mutate(Grower_coop_V2018,
+                            harvest_date,
+                            julian = as.numeric(format(harvest_date, "%j")),
+                            m_ha_vine = 10000/ row_width,
+                            yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
+                            bunch_weight = NA, 
+                            berry_per_bunch = NA ,
+                            bunches_per_vine = NA, #??not sure I can cal this?? help
+                            pruning_style = NA,
+                            brix ,
+                            meter_row_per_ha = 10000/row_width,
+                            yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width,
+                            bunch_m = NA)
+Grower_coop_V2018 <- mutate(
+   Grower_coop_V2018,
+   company = "grower_coop",
+   ID_yr = paste0("Realignment_numb_", realignmnet_number, "_year_", year),
+   variety = "SAB"
+)
+
+Grower_coop_V2018 <- select(
+   Grower_coop_V2018,
+   company,
+   ID_yr,
+   year, 
+   variety,
+   x_coord = POINT_X,
+   y_coord = POINT_Y ,
+   year,
+   harvest_date,
+   julian,
+   bunch_weight,
+   yield_t_ha,
+   yield_kg_m,
+   brix, 
+   bunch_m,
+   pruning_style,
+   row_width ,
+   vine_spacing,
+   Block = Name 
+)
+
+
+##################################################################################################################
+#Join the 2018 data to the rest.
+
+dim(Grower_coop_V2018)
+dim(V2019_2014_to_2017_1_df)
+
+V2014_to_2019 <- bind_rows(Grower_coop_V2018, V2019_2014_to_2017_1_df)
+write.csv(V2014_to_2019,
+          "V:/Marlborough regional/working_jaxs/July2020/grower_coop_V2014_to_2019.csv")
