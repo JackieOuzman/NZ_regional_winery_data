@@ -79,23 +79,29 @@ str(extra_sites_GPS_df)
 
 extra_sites_GPS <- bind_rows(extra_sites_GPS_df, extra_sites_GPS_b)
 
+rm(extra_sites_GPS_a, extra_sites_GPS_a_df, extra_sites_GPS_b, extra_sites_GPS_df)
+
+
 names(wither_hills_GPS)
 names(extra_sites_GPS)
 extra_sites_GPS <- rename(extra_sites_GPS, "ID_temp" = "ID")
+extra_sites_GPS <- select(extra_sites_GPS,
+                          ID_temp,
+                          x_coord,
+                          y_coord)
 wither_hills_GPS <- bind_rows(wither_hills_GPS, extra_sites_GPS)
 
-
-wither_hills_GPS <- separate(wither_hills_GPS, ID_temp, into = c("data", "temp" , "temp2", "temp3"), remove = FALSE, sep = "_")
+wither_hills_GPS <- separate(wither_hills_GPS, ID_temp, into = c("data", "temp" , "temp2", "temp3"), remove = FALSE, sep = "[^[:alnum:]]+")
 
 wither_hills_GPS <- mutate(wither_hills_GPS,
                 variety = case_when(temp == "sb" ~ "sb" ,
                                     temp2 == "sb" ~ "sb" ,
                                     temp3 == "sb" ~ "sb"))
 names(wither_hills_GPS)
-wither_hills_GPS <- dplyr::select(wither_hills_GPS, "ID_temp",  "x_coord" , "y_coord" , "comments" ,"variety" , "Vine.Sp", "Row.Sp" )
+wither_hills_GPS <- dplyr::select(wither_hills_GPS, "ID_temp",  "x_coord" , "y_coord" , "variety"  )
 wither_hills_GPS <- filter(wither_hills_GPS, variety != "NA")
 
-View(wither_hills_GPS)
+#View(wither_hills_GPS)
 
 #####################################################################################################################
 ##############################           Add in the block info  #########################################################
@@ -119,12 +125,35 @@ wither_hills_block_info <- mutate(wither_hills_block_info,
                                   ID_temp =  case_when(
                                     ID_temp == "om__0.3a_sb" ~ "om_03a_sb",
                                TRUE ~ ID_temp))
+str(wither_hills_block_info)
+###Add in the row and vine spacing for the extra sites.
+extra_sites_spacing <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/Wither_hills_sb_missing _coord_sites.xlsx")
+str(extra_sites_spacing)
+extra_sites_spacing <- select(extra_sites_spacing,
+                              ID_temp = ID,
+                              row_spacing = "Row Sp")
+
+#fix up variety clm in the extra stuff
+extra_sites_spacing <- separate(extra_sites_spacing, 
+                                ID_temp, into = c("data", "temp" , "temp2", "temp3"), remove = FALSE, sep = "[^[:alnum:]]+")
+
+extra_sites_spacing <- mutate(extra_sites_spacing,
+                           variety = case_when(temp == "sb" ~ "sb" ,
+                                               temp2 == "sb" ~ "sb" ,
+                                               temp3 == "sb" ~ "sb"))
+extra_sites_spacing <- select(extra_sites_spacing,
+                              ID_temp ,
+                              row_spacing,
+                              variety )
+
+wither_hills_block_info <- bind_rows( wither_hills_block_info, extra_sites_spacing)
+str(wither_hills_block_info)
 ###Join GPS and block data
 
-glimpse(wither_hills_GPS) #110
-glimpse(wither_hills_block_info) #83
+glimpse(wither_hills_GPS) #78
+glimpse(wither_hills_block_info) #114
 
-wither_hills_GPS_block_info <- full_join(wither_hills_GPS,wither_hills_block_info, by = "ID_temp")
+wither_hills_GPS_block_info <- full_join(wither_hills_GPS, wither_hills_block_info, by = "ID_temp")
 
 glimpse(wither_hills_GPS_block_info) #86
 #drop the winery data entery
@@ -138,8 +167,9 @@ wither_hills_GPS_block_info <- dplyr::select(wither_hills_GPS_block_info,
                                              "variety" ,    "row_spacing" )
 wither_hills_GPS_block_info <- filter(wither_hills_GPS_block_info, variety == "sb")
 
-glimpse(wither_hills_GPS_block_info) #76
+glimpse(wither_hills_GPS_block_info) #80
 
+rm(extra_sites_GPS, extra_sites_spacing, mapCRS, wgs84CRS, wither_hills_GPS, wither_hills_GPS_temp, wither_hills_block_info)
 #####################################################################################################################
 ##############################           Add in the yield measures  #########################################################
 #########################################################################################################################
@@ -261,7 +291,7 @@ glimpse(wither_hills_harvest_details)
 
 
 #### join the GPS files to the harvest data files
-glimpse(wither_hills_GPS_block_info) #85
+glimpse(wither_hills_GPS_block_info) #80
 glimpse(wither_hills_harvest_details) #583
 wither_hills_GPS_block_info_harvest <- full_join(wither_hills_GPS_block_info, wither_hills_harvest_details,
                                                  by= "ID_temp") %>% 
@@ -289,6 +319,11 @@ wither_hills_GPS_block_info_harvest$year <- as.double(wither_hills_GPS_block_inf
 wither_hills_GPS_block_info_harvest$na_count <- apply(is.na(wither_hills_GPS_block_info_harvest), 1, sum)
 
 glimpse(wither_hills_GPS_block_info_harvest)
+
+rm(biggest_rep, what_reps, wither_hills_harvest_details, 
+   wither_hills_harvest_details_step1, wither_hills_harvest_details_step2)
+wither_hills_GPS_block_info_harvest <- filter(wither_hills_GPS_block_info_harvest,
+                                              !is.na(variety ))
 
 ######################################################################################################################
 ##############         we have 2019 yield data ############################################################################
@@ -418,10 +453,12 @@ wither_hills2019_GPS_block_info_harvest <- wither_hills2019_GPS_block_info_harve
          #bunch_mass_g, berry_bunch, berry_wt,
   )
 glimpse(wither_hills2019_GPS_block_info_harvest)
-
-
+wither_hills2019_GPS_block_info_harvest <- filter(wither_hills2019_GPS_block_info_harvest,
+                                                  !is.na(variety))
+#these are the sites with no yld data in 2019
+wither_hills2019_GPS_block_info_harvest <- filter(wither_hills2019_GPS_block_info_harvest,
+                                                  !is.na(year ))
 #the date is not set as such need to be fixed up
-
 glimpse(wither_hills2019_GPS_block_info_harvest$year)
 
 wither_hills2019_GPS_block_info_harvest$year <- as.double(wither_hills2019_GPS_block_info_harvest$year)
@@ -431,7 +468,11 @@ wither_hills2019_GPS_block_info_harvest$na_count <- apply(is.na(wither_hills2019
 
 glimpse(wither_hills2019_GPS_block_info_harvest)
 
-
+rm(wither2019_hills_harvest_details, 
+   wither2019_hills_harvest_details_step1,
+   
+   
+   )
 #####################################################################################################################
 #### join the two togther pre 2019 and 2019#####
 str(wither_hills2019_GPS_block_info_harvest)
@@ -461,7 +502,7 @@ wither_hills_GPS_block_info_harvest_all_yrs_sb <- dplyr::select(wither_hills_GPS
 #needs a bit of tidying up should I have 2014 data? Nope the raw data starts at 2015
 #recode the 0 values to NA.
 names(wither_hills_GPS_block_info_harvest_all_yrs_sb)
-
+View(wither_hills_GPS_block_info_harvest_all_yrs_sb)
 wither_hills_GPS_block_info_harvest_all_yrs_sb <-
   wither_hills_GPS_block_info_harvest_all_yrs_sb %>%
   mutate(yield_t_ha = case_when(yield_t_ha == 0.0000 ~ NA_real_,
@@ -486,7 +527,8 @@ wither_hills_GPS_block_info_harvest_all_yrs_sb <-
   mutate(bunch_numb_m = case_when(bunch_numb_m == 0.0000 ~ NA_real_,
                                   TRUE ~ bunch_numb_m))
 
-
+wither_hills_GPS_block_info_harvest_all_yrs_sb <- filter(wither_hills_GPS_block_info_harvest_all_yrs_sb,
+                                                         !is.na(year))
 #View(wither_hills_GPS_block_info_harvest_all_yrs_sb)
 write_csv(wither_hills_GPS_block_info_harvest_all_yrs_sb, "V:/Marlborough regional/working_jaxs/July2020/wither_hills_GPS_block_info_harvest_sau.csv")
 
