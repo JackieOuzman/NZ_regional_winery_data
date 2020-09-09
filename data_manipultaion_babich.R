@@ -217,6 +217,57 @@ rm(Babich_2014,
    Babich_2017,
    Babich_2014_17)
 
+
+## small changes to get the block names consitant (as they arent compatiable across the data sets)
+ names(Babich_2014_2017_yld_info)
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                   block_code = case_when(
+                     vineyard_code == "rk" & block_code == "2a" ~ "2a_2b",
+                     vineyard_code == "rk" & block_code == "4" ~ "4_5_6",
+                   TRUE ~ block_code))
+
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    block_code = case_when(
+                                      blocks == "MP SAB TK SAB 15-58|74-114" ~ "15-58|74-114",
+                                      blocks == "MP SAB TK SAB 137-170" ~ "137-170",
+                                      blocks == "MP SAB TK SAB 115-136|199-210" ~ "115-136|199-210",
+                                      TRUE ~ block_code))
+#I think the vineyard is coded wrong too!
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    vineyard = case_when(
+                                      vineyard_code == "tk" ~ "Te Kohanga Vineyard",
+                                      TRUE ~ vineyard))
+#I think the grower name is coded wrong 
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    grower_name = case_when(
+                                      vineyard_code == "kv" ~ "KINTYRE",
+                                      TRUE ~ grower_name))
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    vineyard = case_when(
+                                      vineyard_code == "kv" ~ "Waihopai",
+                                      TRUE ~ vineyard))
+#mismatch with data supplied and map..? not sure what is corrrect this is for vineyard R 4.75ha vs 5.75ha
+
+# rename stuff
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    vineyard = case_when(
+                                      vineyard_code == "te" ~ "TERRACES FARM TRUST VINEYARD",
+                                      TRUE ~ vineyard))
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    grower_name = case_when(
+                                      vineyard_code == "te" ~ "ANGUS CAMERON",
+                                      TRUE ~ grower_name))
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    block_code = case_when(
+                                      vineyard_code == "te" & blocks == "AC SAB TE 1-58" ~ "1-58",
+                                      vineyard_code == "te" & blocks == "AC SAB TE 59-88" ~ "59-88",
+                                      TRUE ~ block_code))
+
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    block_code = case_when(
+                                      vineyard_code == "sp"  ~ "1-58",
+                                      TRUE ~ block_code))
+
 #re-order the clms
 
 names(Babich_2014_2017_yld_info)
