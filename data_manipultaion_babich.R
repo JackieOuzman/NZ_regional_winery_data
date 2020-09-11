@@ -17,8 +17,7 @@ library(tidyr)
 ####################################################################################################################
 ######   Bring in the coodinated that I have got from the pdf maps and street address     ##########################
 
-babich_coordinates <- read_csv("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/Babich_locations_v3.csv")
-
+babich_coordinates <- read_csv("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/babich_and_babich_growers_GDA.csv")
 
 names(babich_coordinates)
 
@@ -228,9 +227,9 @@ Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
 
 Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                                     block_code = case_when(
-                                      blocks == "MP SAB TK SAB 15-58|74-114" ~ "15-58|74-114",
-                                      blocks == "MP SAB TK SAB 137-170" ~ "137-170",
-                                      blocks == "MP SAB TK SAB 115-136|199-210" ~ "115-136|199-210",
+                                      blocks == "MP SAB TK SAB 15-58|74-114" ~ "15_58|74_114",
+                                      blocks == "MP SAB TK SAB 137-170" ~ "137_170",
+                                      blocks == "MP SAB TK SAB 115-136|199-210" ~ "115_136|199_210",
                                       TRUE ~ block_code))
 #I think the vineyard is coded wrong too!
 Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
@@ -240,7 +239,7 @@ Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
 #I think the grower name is coded wrong 
 Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                                     grower_name = case_when(
-                                      vineyard_code == "kv" ~ "KINTYRE",
+                                      vineyard_code == "kv" ~ "kintyre",
                                       TRUE ~ grower_name))
 Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                                     vineyard = case_when(
@@ -255,18 +254,29 @@ Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                                       TRUE ~ vineyard))
 Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                                     grower_name = case_when(
-                                      vineyard_code == "te" ~ "ANGUS CAMERON",
+                                      vineyard_code == "te" ~ "angus_cameron",
                                       TRUE ~ grower_name))
 Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                                     block_code = case_when(
-                                      vineyard_code == "te" & blocks == "AC SAB TE 1-58" ~ "1-58",
-                                      vineyard_code == "te" & blocks == "AC SAB TE 59-88" ~ "59-88",
+                                      vineyard_code == "te" & blocks == "AC SAB TE 1-58" ~ "1_58",
+                                      vineyard_code == "te" & blocks == "AC SAB TE 59-88" ~ "59_88",
                                       TRUE ~ block_code))
 
 Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                                     block_code = case_when(
-                                      vineyard_code == "sp"  ~ "1-58",
+                                      vineyard_code == "sp"  ~ "1_58",
                                       TRUE ~ block_code))
+
+
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    block_code = case_when(
+                                      vineyard_code == "sr" & blocks == "MP SAB SR SAB 213-394" ~ "top_main_bottom",
+                                      TRUE ~ block_code))
+
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
+                                    vineyard = case_when(
+                                      vineyard_code == "sr" & blocks == "MP SAB SR SAB 213-394" ~ "stephens_run",
+                                      TRUE ~ vineyard))
 
 #re-order the clms
 
@@ -417,6 +427,168 @@ Babich_2018 <- dplyr::select(Babich_2018,
                                            harvest_date,
                                            tonnes,
                                            brix)
+
+
+## the names need more help ###
+Babich_2018 <- mutate(Babich_2018, 
+                      block_code = case_when(
+                        blocks == "AC SAB TE 1-58"  ~ "1_58",
+                        blocks == "AC SAB TE 59-88  OXIDATIVE"  ~ "59_88",
+                        blocks == "CB SAB R 1 76-99"  ~ "1",
+                        blocks == "CB SAB R 2 100-210"  ~ "2a_2b",
+                        blocks == "CB SAB R 4 299-327"  ~ "4",
+                        blocks == "MP SAB SR 213-236"  ~ "top",
+                        blocks == "MP SAB SR 237-299"  ~ "bottom",
+                        blocks == "MP SAB SR 300-394"  ~ "main",
+                        blocks == "MW SAB KV J 1-250"  ~ "j",
+                        blocks == "MW SAB KV K 1-253"  ~ "k",
+                        blocks == "	MW SAB KV O 1-28"  ~ "o",
+                        blocks == "MW SAB KV P 3-167"  ~ "p",
+                        blocks == "MW SAB KV R 14-92"  ~ "r",
+                        
+                        blocks == "MP SAB TK SAB 15-58|74-114"  ~ "15_58|74_114",
+                        blocks == "MP SAB TK SAB 137-170"  ~ "137_170",
+                        blocks == "MP SAB TK SAB 115-136|199-210"  ~ "115_136|199_210",
+                        
+                        TRUE ~ block_code))
+
+Babich_2018 <- mutate(Babich_2018, 
+                      vineyard_code = case_when(
+                        blocks == "CB SAB R 1 76-99"  ~ "rk",
+                        blocks == "CB SAB R 2 100-210"  ~ "rk",
+                        blocks == "CB SAB R 4 299-327"  ~ "rk",
+                        blocks == "MW SAB KV J 1-250"  ~ "kv",
+                        blocks == "MW SAB KV K 1-253"  ~ "kv",
+                        blocks == "	MW SAB KV O 1-28"  ~ "kv",
+                        blocks == "MW SAB KV P 3-167"  ~ "kv",
+                        blocks == "MW SAB KV R 14-92"  ~ "kv",
+                        
+                        
+                        TRUE ~ vineyard_code))
+
+Babich_2018 <- mutate(Babich_2018, 
+                      vineyard = case_when(
+                        blocks == "CB SAB R 1 76-99"  ~ "rocky_vineyard",
+                        blocks == "CB SAB R 2 100-210"  ~ "rocky_vineyard",
+                        blocks == "CB SAB R 4 299-327"  ~ "v",
+                        blocks == "MP SAB SR 213-236"  ~ "stephens_run",
+                        blocks == "MP SAB SR 237-299"  ~ "stephens_run",
+                        blocks == "MP SAB SR 300-394"  ~ "stephens_run",
+                        blocks == "MW SAB KV J 1-250"  ~ "waihopai",
+                        blocks == "MW SAB KV K 1-253"  ~ "waihopai",
+                        blocks == "	MW SAB KV O 1-28"  ~ "waihopai",
+                        blocks == "MW SAB KV P 3-167"  ~ "waihopai",
+                        blocks == "MW SAB KV R 14-92"  ~ "waihopai",
+                        blocks == "MW SAB KV O 1-28"  ~ "waihopai",
+                        
+                        
+                        TRUE ~ vineyard))
+
+Babich_2018 <- mutate(Babich_2018, 
+                      grower_name = case_when(
+                        
+                        blocks == "MW SAB KV J 1-250"  ~ "kintyre",
+                        blocks == "MW SAB KV K 1-253"  ~ "kintyre",
+                        blocks == "	MW SAB KV O 1-28"  ~ "kintyre",
+                        blocks == "MW SAB KV P 3-167"  ~ "kintyre",
+                        blocks == "MW SAB KV R 14-92"  ~ "kintyre",
+                        blocks == "MW SAB KV O 1-28"  ~ "kintyre",
+                        
+                        
+                        TRUE ~ grower_name))
+
+
+#####################################################################################################################
+### Do more work on the 2019 data before merging
+Babich_2018$grower_name <-tolower(Babich_2018$grower_name)
+Babich_2018$vineyard_code <-tolower(Babich_2018$vineyard_code)
+Babich_2018$block_code <-tolower(Babich_2018$block_code)
+
+Babich_2018 <- mutate(Babich_2018,
+                      Name = paste0(grower_name, " ", vineyard_code, " ", block_code))
+
+#just bring the last clm at the front
+
+Babich_2018 <- Babich_2018 %>%
+  select(Name, everything())
+
+
+#### some points need avearging
+#1. remove the  rows
+tbv_b <- filter(Babich_2018, vineyard_code == "tbv" &block_code == "b")
+#sum and average where needed...
+str(tbv_b)
+tbv_b_sum_av <- tbv_b %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+tbv_b_sum_av <- mutate(tbv_b_sum_av,
+                           blocks = "av_sum_values" ,
+                           vineyard = "tbv"
+                           )
+tbv_b_sum_av <- ungroup(tbv_b_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "tbv" | block_code!= "b")
+Babich_2018 <- bind_rows(Babich_2018, tbv_b_sum_av)
+
+#### some points need avearging
+#1. remove the  rows
+tbv_c <- filter(Babich_2018, vineyard_code == "tbv" &block_code == "c")
+#sum and average where needed...
+str(tbv_c)
+tbv_c_sum_av <- tbv_c %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+tbv_c_sum_av <- mutate(tbv_c_sum_av,
+                       blocks = "av_sum_values" ,
+                       vineyard = "tbv"
+)
+tbv_c_sum_av <- ungroup(tbv_c_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "tbv" | block_code!= "c")
+Babich_2018 <- bind_rows(Babich_2018, tbv_c_sum_av)
+
+
+
+#### some points need avearging
+#1. remove the  rows
+ecv_duck <- filter(Babich_2018, vineyard_code == "ecv" &block_code == "duck")
+#sum and average where needed...
+str(ecv_duck)
+ecv_duck_sum_av <- ecv_duck %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_duck_sum_av <- mutate(ecv_duck_sum_av,
+                       blocks = "av_sum_values" ,
+                       vineyard = "ecv"
+)
+ecv_duck_sum_av <- ungroup(ecv_duck_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "ecv" | block_code!= "duck")
+Babich_2018 <- bind_rows(Babich_2018, ecv_duck_sum_av)
+
+
+
 ##################################################################################################################
 ## Now let bring in the 2019 data 
 
@@ -526,12 +698,305 @@ Babich_2019 <- dplyr::select(Babich_2019,
                              tonnes,
                              yield_t_ha,
                              brix)
+
+## the names need more help ###
+Babich_2019 <- mutate(Babich_2019, 
+                      block_code = case_when(
+                        blocks == "BA SAB RK 1 76-99"  ~ "1",
+                        blocks == "CB SAB CN 1 r1-47"  ~ "1",
+                        blocks == "CB SAB CN 4 r1-33"  ~ "4",
+                        blocks == "CB SAB CN 6 r1-21|r22-25" ~ "6",
+                        blocks == "MP SAB SR 237-299"~ "bottom",
+                        blocks == "MP SAB SR 300-394" ~ "main",
+                        blocks == "MP SAB SR 213-236" ~ "top",
+                        blocks == "CB SAB RK 3"  ~ "3",
+                        blocks == "CB SAB RK 4 (r299-327), 5 & 6"  ~ "4_5_6",
+                        blocks == "MP SAB TK SAB 15-58|74-114"  ~ "15_58|74_114",
+                        blocks == "MP SAB TK SAB 137-170"  ~ "137_170",
+                        blocks == "MP SAB TK SAB 115-136|199-210"  ~ "115_136|199_210",
+                        blocks == "BA SAB TE 1-58"  ~ "1_58",
+                        blocks == "BA  SAB TE 59-88"  ~ "59_88",
+                        blocks == "BA SAB HW MAIN 81-148"  ~ "81-148",
+                        blocks == "BA SAB HW MAIN ORG SV 1-80"  ~ "1-80",
+                        
+                        
+                        
+                        
+                        TRUE ~ block_code))
+
+
+Babich_2019 <- mutate(Babich_2019, 
+                      vineyard = case_when(
+                        blocks == "BA SAB RK 2A & 2B 100-210 (part 1)"  ~ "rocky_vineyard",
+                        blocks == "BA SAB RK 2A & 2B 100-210 (part 2)"  ~ "rocky_vineyard",
+                        blocks == "CB SAB RK 3"  ~ "rocky_vineyard",
+                        blocks == "CB SAB RK 4 (r299-327), 5 & 6"  ~ "rocky_vineyard",
+                        blocks == "MP SAB TK SAB 15-58|74-114"  ~ "kohanga",
+                        blocks == "BA SAB TE 1-58"  ~ "terrance_farm_trust",
+                        
+                        
+                        TRUE ~ vineyard))
+
+Babich_2019 <- mutate(Babich_2019, 
+                      grower_name = case_when(
+                        blocks == "BA SAB RK 1 76-99"  ~ "cable_bay",
+                        blocks == "BA SAB RK 2A & 2B 100-210 (part 1)"  ~ "cable_bay",
+                        blocks == "BA SAB RK 2A & 2B 100-210 (part 2)"  ~ "cable_bay",
+                        blocks == "CB SAB RK 3"  ~ "cable_bay",
+                        blocks == "CB SAB RK 4 (r299-327), 5 & 6"  ~ "cable_bay",
+                        
+                        blocks == "WV SAB KV R r14-92"  ~ "kintyre",
+                        blocks == "	WV SAB KV K r161-253"  ~ "kintyre",
+                        blocks == "WV SAB KV J r1-250 (part 1)"  ~ "kintyre",
+                        blocks == "WV SAB KV J r1-250 (part 2)"  ~ "kintyre",
+                        blocks == "WV SAB KV K r161-253"  ~ "kintyre",
+                        
+                        blocks == "BA SAB TE 1-58"  ~ "angus_cameron",
+                        TRUE ~ grower_name))
+
+#####################################################################################################################
+### Do more work on the 2019 data before merging
+Babich_2019$grower_name <-tolower(Babich_2019$grower_name)
+Babich_2019$vineyard_code <-tolower(Babich_2019$vineyard_code)
+Babich_2019$block_code <-tolower(Babich_2019$block_code)
+
+Babich_2019 <- mutate(Babich_2019,
+                           Name = paste0(grower_name, " ", vineyard_code, " ", block_code))
+
+#just bring the last clm at the front
+
+Babich_2019 <- Babich_2019 %>%
+  select(Name, everything())
+
+
+#### some points need avearging
+#1. remove the  rows
+kintyre_j <- filter(Babich_2019, vineyard_code == "kv" &block_code == "j")
+#sum and average where needed...
+str(kintyre_j)
+kintyre_j_sum_av <- kintyre_j %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+kintyre_j_sum_av <- mutate(kintyre_j_sum_av,
+                          blocks = "av_sum_values" ,
+                          vineyard = "kintyre",
+                          yield_t_ha = NA)
+kintyre_j_sum_av <- ungroup(kintyre_j_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "kv" | block_code!= "j")
+Babich_2019 <- bind_rows(Babich_2019, kintyre_j_sum_av)
+
+#######################################################################################
+#1. remove the  rows
+rk_2a_2b <- filter(Babich_2019, vineyard_code == "rk" &block_code == "2a_2b")
+#sum and average where needed...
+str(rk_2a_2b)
+rk_2a_2b_sum_av <- rk_2a_2b %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+rk_2a_2b_sum_av <- mutate(rk_2a_2b_sum_av,
+                           blocks = "av_sum_values" ,
+                           vineyard = "rocky_vineyard",
+                           yield_t_ha = NA)
+rk_2a_2b_sum_av <- ungroup(rk_2a_2b_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "rk" | block_code!= "2a_2b")
+Babich_2019 <- bind_rows(Babich_2019, rk_2a_2b_sum_av)
+
+#######################################################################################
+#1. remove the  rows
+pf_lsb <- filter(Babich_2019, vineyard_code == "pf" &block_code == "lsb")
+#sum and average where needed...
+str(pf_lsb)
+pf_lsb_sum_av <- pf_lsb %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+pf_lsb_sum_av <- mutate(pf_lsb_sum_av,
+                          blocks = "av_sum_values" ,
+                          vineyard = "park_farm",
+                          yield_t_ha = NA)
+pf_lsb_sum_av <- ungroup(pf_lsb_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "pf" | block_code!= "lsb")
+Babich_2019 <- bind_rows(Babich_2019, pf_lsb_sum_av)
+
+
+#######################################################################################
+#1. remove the  rows
+cvv_north <- filter(Babich_2019, vineyard_code == "cvv" &block_code == "north")
+#sum and average where needed...
+str(cvv_north)
+cvv_north_sum_av <- cvv_north %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+cvv_north_sum_av <- mutate(cvv_north_sum_av,
+                        blocks = "av_sum_values" ,
+                        vineyard = "cowslip",
+                        yield_t_ha = NA)
+cvv_north_sum_av <- ungroup(cvv_north_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "cvv" | block_code!= "north")
+Babich_2019 <- bind_rows(Babich_2019, cvv_north_sum_av)
+
+#######################################################################################
+#1. remove the  rows
+cvv_south <- filter(Babich_2019, vineyard_code == "cvv" &block_code == "south")
+#sum and average where needed...
+str(cvv_south)
+cvv_south_sum_av <- cvv_south %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+cvv_south_sum_av <- mutate(cvv_south_sum_av,
+                           blocks = "av_sum_values" ,
+                           vineyard = "cowslip",
+                           yield_t_ha = NA)
+cvv_south_sum_av <- ungroup(cvv_south_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "cvv" | block_code!= "south")
+Babich_2019 <- bind_rows(Babich_2019, cvv_south_sum_av)
+
+#######################################################################################
+#1. remove the  rows
+ecv_pear_tree <- filter(Babich_2019, vineyard_code == "ecv" &block_code == "pear_tree")
+#sum and average where needed...
+str(ecv_pear_tree)
+ecv_pear_tree_sum_av <- ecv_pear_tree %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_pear_tree_sum_av <- mutate(ecv_pear_tree_sum_av,
+                           blocks = "av_sum_values" ,
+                           vineyard = "echelon",
+                           yield_t_ha = NA)
+ecv_pear_tree_sum_av <- ungroup(ecv_pear_tree_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "ecv" | block_code!= "pear_tree")
+Babich_2019 <- bind_rows(Babich_2019, ecv_pear_tree_sum_av)
+
+
+
+#######################################################################################
+#1. remove the  rows
+ecv_toi_toi <- filter(Babich_2019, vineyard_code == "ecv" &block_code == "toi_toi")
+#sum and average where needed...
+str(ecv_toi_toi)
+ecv_toi_toi_sum_av <- ecv_toi_toi %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_toi_toi_sum_av <- mutate(ecv_toi_toi_sum_av,
+                               blocks = "av_sum_values" ,
+                               vineyard = "echelon",
+                               yield_t_ha = NA)
+ecv_toi_toi_sum_av <- ungroup(ecv_toi_toi_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "ecv" | block_code!= "toi_toi")
+Babich_2019 <- bind_rows(Babich_2019, ecv_toi_toi_sum_av)
+
+#######################################################################################
+#1. remove the  rows
+ecv_watchtower <- filter(Babich_2019, vineyard_code == "ecv" &block_code == "watchtower")
+#sum and average where needed...
+str(ecv_watchtower)
+ecv_watchtower_sum_av <- ecv_watchtower %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_watchtower_sum_av <- mutate(ecv_watchtower_sum_av,
+                             blocks = "av_sum_values" ,
+                             vineyard = "echelon",
+                             yield_t_ha = NA)
+ecv_watchtower_sum_av <- ungroup(ecv_watchtower_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "ecv" | block_code!= "watchtower")
+Babich_2019 <- bind_rows(Babich_2019, ecv_watchtower_sum_av)
+
+#######################################################################################
+#1. remove the  rows
+cvv_poplar <- filter(Babich_2019, vineyard_code == "cvv" &block_code == "poplar")
+#sum and average where needed...
+str(cvv_poplar)
+cvv_poplar_sum_av <- cvv_poplar %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+cvv_poplar_sum_av <- mutate(cvv_poplar_sum_av,
+                                blocks = "av_sum_values" ,
+                                vineyard = "echelon",
+                                yield_t_ha = NA)
+cvv_poplar_sum_av <- ungroup(cvv_poplar_sum_av)
+
+#2. remove  rows from yld df
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "cvv" | block_code!= "poplar")
+Babich_2019 <- bind_rows(Babich_2019, cvv_poplar_sum_av)
+
+
+###################################################################################################################
 #### put all the yeild data togther and then work out the blocks?
 
 Babich_2014_2019 <- bind_rows(Babich_2014_2017_yld_info,
                               Babich_2018, Babich_2019)
 ## make it all lower case 
 Babich_2014_2019$blocks <-tolower(Babich_2014_2019$blocks)
+
 
 getwd()
 #write.csv(Babich_2014_2019, "Babich_2014_2019.csv")
@@ -730,7 +1195,11 @@ names(Babich_2014_2019)
 Babich_2014_2019 <- filter(Babich_2014_2019, vineyard_code != "pe")
 
 #################################################################################################################
-Babich_2014_2019 <- full_join(babich_coordinates_DF, Babich_2014_2019)
+
+babich_coordinates_DF$Name <- tolower(babich_coordinates_DF$Name)
+v$Name <- tolower(v$Name)
+
+Babich_2014_2019_test <- full_join(babich_coordinates_DF, Babich_2014_2019)
 
 #what babich sites didnt join
 test1 <- anti_join(babich_coordinates_DF, Babich_2014_2019)
