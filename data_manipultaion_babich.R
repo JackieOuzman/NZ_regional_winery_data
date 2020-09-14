@@ -17,7 +17,7 @@ library(tidyr)
 ####################################################################################################################
 ######   Bring in the coodinated that I have got from the pdf maps and street address     ##########################
 
-babich_coordinates <- read_csv("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/babich_and_babich_growers_GDA.csv")
+babich_coordinates <- read_csv("V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/babich_and_babich_growers_14_09_2020GDA.csv")
 
 names(babich_coordinates)
 
@@ -388,6 +388,7 @@ Babich_2018 <- mutate(Babich_2018,
                            block_code == "PEAR" ~ "pear_tree",
                            block_code == "TOI" ~ "toi_toi",
                            block_code == "5" ~ "5_eyes",
+                           block_code == "watchtower" ~ "watch_tower",
                            TRUE ~ block_code))
 
 Babich_2018 <- mutate(Babich_2018, 
@@ -450,6 +451,16 @@ Babich_2018 <- mutate(Babich_2018,
                         blocks == "MP SAB TK SAB 137-170"  ~ "137_170",
                         blocks == "MP SAB TK SAB 115-136|199-210"  ~ "115_136|199_210",
                         
+                        blocks == "BA SAB EV 5 EYES 57-132"  ~ "5_eyes",
+                        blocks == "BA SAB EV PEAR TREE 1-11 WR"  ~ "pear_tree",
+                        blocks == "BA SAB EV PEAR TREE 12-52"  ~ "pear_tree",
+                        
+                        blocks == "BA SAB EV TOI TOI PART BLK  53-90"  ~ "toi_toi",
+                        blocks == "BA SAB EV TOI TOI 53-303"  ~ "toi_toi",
+                        blocks == "BA SAB EV WATCHTOWER 95-98 WR"  ~ "watch_tower",
+                        blocks == "BA SAB EV WATCHTOWER 1-94"  ~ "watch_tower",
+                        
+                        
                         TRUE ~ block_code))
 
 Babich_2018 <- mutate(Babich_2018, 
@@ -499,7 +510,7 @@ Babich_2018 <- mutate(Babich_2018,
 
 
 #####################################################################################################################
-### Do more work on the 2019 data before merging
+### Do more work on the 2018 data before merging
 Babich_2018$grower_name <-tolower(Babich_2018$grower_name)
 Babich_2018$vineyard_code <-tolower(Babich_2018$vineyard_code)
 Babich_2018$block_code <-tolower(Babich_2018$block_code)
@@ -588,6 +599,150 @@ Babich_2018 <-filter(Babich_2018,  vineyard_code!= "ecv" | block_code!= "duck")
 Babich_2018 <- bind_rows(Babich_2018, ecv_duck_sum_av)
 
 
+#### some points need avearging
+#1. remove the  rows
+ecv_watchtower <- filter(Babich_2018, vineyard_code == "ecv" &block_code == "watch_tower")
+#sum and average where needed...
+str(ecv_watchtower)
+ecv_watchtower_sum_av <- ecv_watchtower %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_watchtower_sum_av <- mutate(ecv_watchtower_sum_av,
+                          blocks = "av_sum_values" ,
+                          vineyard = "ecv"
+)
+ecv_watchtower_sum_av <- ungroup(ecv_watchtower_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "ecv" | block_code!= "watch_tower")
+Babich_2018 <- bind_rows(Babich_2018, ecv_watchtower_sum_av)
+
+
+
+
+
+
+#### some points need avearging
+#1. remove the  rows
+ecv_pear_tree <- filter(Babich_2018, vineyard_code == "ecv" &block_code == "pear_tree")
+#sum and average where needed...
+str(ecv_pear_tree)
+ecv_pear_tree_sum_av <- ecv_pear_tree %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_pear_tree_sum_av <- mutate(ecv_pear_tree_sum_av,
+                                blocks = "av_sum_values" ,
+                                vineyard = "ecv"
+)
+ecv_pear_tree_sum_av <- ungroup(ecv_pear_tree_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "ecv" | block_code!= "pear_tree")
+Babich_2018 <- bind_rows(Babich_2018, ecv_pear_tree_sum_av)
+
+
+
+
+
+
+#### some points need avearging
+#1. remove the  rows
+ecv_toi_toi <- filter(Babich_2018, vineyard_code == "ecv" &block_code == "toi_toi")
+#sum and average where needed...
+str(ecv_toi_toi)
+ecv_toi_toi_sum_av <- ecv_toi_toi %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_toi_toi_sum_av <- mutate(ecv_toi_toi_sum_av,
+                               blocks = "av_sum_values" ,
+                               vineyard = "ecv"
+)
+ecv_toi_toi_sum_av <- ungroup(ecv_toi_toi_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "ecv" | block_code!= "toi_toi")
+Babich_2018 <- bind_rows(Babich_2018, ecv_toi_toi_sum_av)
+
+
+
+
+
+
+
+
+#### some points need avearging
+#1. remove the  rows
+ecv_pheasant <- filter(Babich_2018, vineyard_code == "ecv" &block_code == "pheasant")
+#sum and average where needed...
+str(ecv_toi_toi)
+ecv_pheasant_sum_av <- ecv_pheasant %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+ecv_pheasant_sum_av <- mutate(ecv_pheasant_sum_av,
+                             blocks = "av_sum_values" ,
+                             vineyard = "ecv"
+)
+ecv_pheasant_sum_av <- ungroup(ecv_pheasant_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "ecv" | block_code!= "pheasant")
+Babich_2018 <- bind_rows(Babich_2018, ecv_pheasant_sum_av)
+
+
+
+
+
+
+
+#### some points need avearging
+#1. remove the  rows
+cvv_south <- filter(Babich_2018, vineyard_code == "cvv" &block_code == "south")
+#sum and average where needed...
+str(cvv_south)
+cvv_south_sum_av <- cvv_south %>%
+  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
+  summarise(
+    ha = sum(ha),
+    tonnes = sum(tonnes),
+    harvest_date = mean(harvest_date),
+    brix = mean(brix)
+  )
+#add in the missing clms
+cvv_south_sum_av <- mutate(cvv_south_sum_av,
+                              blocks = "av_sum_values" ,
+                              vineyard = "ecv"
+)
+cvv_south_sum_av <- ungroup(cvv_south_sum_av)
+
+#2. remove  rows from yld df
+Babich_2018 <-filter(Babich_2018,  vineyard_code!= "cvv" | block_code!= "south")
+Babich_2018 <- bind_rows(Babich_2018, cvv_south_sum_av)
+
+
 
 ##################################################################################################################
 ## Now let bring in the 2019 data 
@@ -654,6 +809,8 @@ Babich_2019 <- mutate(Babich_2019,
                         block_code == "PEAR" ~ "pear_tree",
                         block_code == "TOI" ~ "toi_toi",
                         block_code == "5" ~ "5_eyes",
+                        block_code == "watchtower" ~ "watch_tower",
+                        
                         TRUE ~ block_code))
 
 Babich_2019 <- mutate(Babich_2019, 
@@ -718,8 +875,17 @@ Babich_2019 <- mutate(Babich_2019,
                         blocks == "BA  SAB TE 59-88"  ~ "59_88",
                         blocks == "BA SAB HW MAIN 81-148"  ~ "81-148",
                         blocks == "BA SAB HW MAIN ORG SV 1-80"  ~ "1-80",
+                        blocks == "BA  SAB TE 59-88"  ~ "59_88",
+                        blocks == "BA SAB TE HAYSHED 89-181"  ~ "hayshed",
                         
+                        blocks == "BA SAB EV 5 EYES 57-132"  ~ "5_eyes",
+                        blocks == "BA SAB EV PEAR TREE 1-11 WR"  ~ "pear_tree",
+                        blocks == "BA SAB EV PEAR TREE 12-52"  ~ "pear_tree",
                         
+                        blocks == "BA SAB EV TOI TOI 53-303 (part 2)"  ~ "toi_toi",
+                        blocks == "BA SAB EV TOI TOI 53-303 (part 1)"  ~ "toi_toi",
+                        blocks == "BA SAB EV WATCHTOWER r1-93"  ~ "watch_tower",
+                        blocks == "BA SAB EV WATCHTOWER r94-98 WR"  ~ "watch_tower",
                         
                         
                         TRUE ~ block_code))
@@ -752,6 +918,9 @@ Babich_2019 <- mutate(Babich_2019,
                         blocks == "WV SAB KV K r161-253"  ~ "kintyre",
                         
                         blocks == "BA SAB TE 1-58"  ~ "angus_cameron",
+                        blocks == "BA  SAB TE 59-88"  ~ "angus_cameron",
+                        blocks == "BA SAB TE HAYSHED 89-181"  ~ "angus_cameron",
+                        
                         TRUE ~ grower_name))
 
 #####################################################################################################################
@@ -942,7 +1111,7 @@ Babich_2019 <- bind_rows(Babich_2019, ecv_toi_toi_sum_av)
 
 #######################################################################################
 #1. remove the  rows
-ecv_watchtower <- filter(Babich_2019, vineyard_code == "ecv" &block_code == "watchtower")
+ecv_watchtower <- filter(Babich_2019, vineyard_code == "ecv" &block_code == "watch_tower")
 #sum and average where needed...
 str(ecv_watchtower)
 ecv_watchtower_sum_av <- ecv_watchtower %>%
@@ -961,7 +1130,7 @@ ecv_watchtower_sum_av <- mutate(ecv_watchtower_sum_av,
 ecv_watchtower_sum_av <- ungroup(ecv_watchtower_sum_av)
 
 #2. remove  rows from yld df
-Babich_2019 <-filter(Babich_2019,  vineyard_code!= "ecv" | block_code!= "watchtower")
+Babich_2019 <-filter(Babich_2019,  vineyard_code!= "ecv" | block_code!= "watch_tower")
 Babich_2019 <- bind_rows(Babich_2019, ecv_watchtower_sum_av)
 
 #######################################################################################
@@ -1039,156 +1208,6 @@ Babich_2014_2019 <- mutate(Babich_2014_2019, Name = case_when(
 ))
 
 
-# ecv yld data needs more work for pear tree I need to sum the yld and av the brix and harvest date
-#1. remove the pear tree rows
-pear_tree <- filter(Babich_2014_2019, block_code == "pear_tree")
-
-
-#sum and average where needed...
-str(pear_tree)
-pear_tree_sum_av <- pear_tree %>%
-  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
-summarise(
-ha = sum(ha),
-tonnes = sum(tonnes),
-harvest_date = mean(harvest_date),
-brix = mean(brix)
-)
-#add in the missing clms
-pear_tree_sum_av <- mutate(pear_tree_sum_av,
-                           blocks = "av_sum_values" ,
-                           vineyard = "ECHELON",
-                           yield_t_ha = NA)
-pear_tree_sum_av <- ungroup(pear_tree_sum_av)
-pear_tree_sum_av <- filter(pear_tree_sum_av, year != 2015)
-str(pear_tree_sum_av)
-
-# it seems like there is nothing to sum for 2015 so just keep the one entry
-pear_tree_2015 <- filter(pear_tree,year == 2015 & !is.na(tonnes))
-
-#join the data togther 
-str(pear_tree_2015)
-str(pear_tree_sum_av)
-
-pear_tree <- bind_rows(pear_tree_2015, pear_tree_sum_av)
-
-#2. remove pear tree rows from yld df
-Babich_2014_2019 <-filter(Babich_2014_2019, block_code != "pear_tree")
-Babich_2014_2019 <- bind_rows(Babich_2014_2019, pear_tree)
-
-# ecv yld data needs more work for pheasent 2018 and 2019? I need to sum the yld and av the brix and harvest date
-
-#1. remove the pheasent rows
-pheasant <- filter(Babich_2014_2019, block_code == "pheasant")
-
-
-#sum and average where needed...
-str(pheasant)
-pheasant_sum_av <- pheasant %>%
-  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
-  summarise(
-    ha = sum(ha),
-    tonnes = sum(tonnes),
-    harvest_date = mean(harvest_date),
-    brix = mean(brix)
-  )
-#add in the missing clms
-pheasant_sum_av <- mutate(pheasant_sum_av,
-                           blocks = "av_sum_values" ,
-                           vineyard = "ECHELON",
-                           yield_t_ha = NA)
-pheasant_sum_av <- ungroup(pheasant_sum_av)
-
-
-#2. remove pheasant rows from yld df
-Babich_2014_2019 <-filter(Babich_2014_2019, block_code != "pheasant")
-Babich_2014_2019 <- bind_rows(Babich_2014_2019, pheasant_sum_av)
-
-
-
-# ecv yld data needs remove the toi toi blocks for 2018 and 2019
-names(Babich_2014_2019)
-Babich_2014_2019 <- filter(Babich_2014_2019, 
-               block_code != "toi_toi" |  year != 2018,
-               block_code != "toi_toi" | year != 2019)
-                
-
-# ecv yld data needs av and sum for duck blocks for 2018 
-#1. remove the pheasent rows
-duck_2108 <- filter(Babich_2014_2019, block_code == "duck" & year == 2018)
-
-
-#sum and average where needed...
-str(duck_2108)
-duck_sum_av <- duck_2108 %>%
-  group_by(year, Name,grower_name, vineyard_code, block_code, variety) %>% 
-  summarise(
-    ha = sum(ha),
-    tonnes = sum(tonnes),
-    harvest_date = mean(harvest_date),
-    brix = mean(brix)
-  )
-#add in the missing clms
-duck_sum_av <- mutate(duck_sum_av,
-                          blocks = "av_sum_values" ,
-                          vineyard = "ECHELON",
-                      yield_t_ha = NA)
-duck_sum_av <- ungroup(duck_sum_av)
-
-
-#2. remove 2018 duck rows from yld df
-Babich_2014_2019 <-filter(Babich_2014_2019, block_code != "duck" | year != 2018)
-Babich_2014_2019 <- bind_rows(Babich_2014_2019, duck_sum_av)
-
-
-
-# hw yld data needs remove the main  for 2018 
-Babich_2014_2019 <- filter(Babich_2014_2019, 
-                           block_code != "main" |  year != 2018)
-
-# only keep some of the sr data too hard to match the rows looks like its a new planting
-
-Babich_2014_2019 <- filter(Babich_2014_2019,
-               vineyard_code != "sr" | block_code != '1') %>%
-        filter (vineyard_code != "sr" | block_code != '87') %>%
-        filter (vineyard_code != "sr" | block_code != '98') %>%
-        filter (vineyard_code != "sr" | block_code != 'sab') %>% 
-        filter (vineyard_code != "sr" | block_code != '300')
-
-# tbv yld data needs averaged but I need to bring in more data 2018 
-
-#1. remove the tbv in 2018 rows
-names(Babich_2014_2019)
-tbv_b_2108 <- filter(Babich_2014_2019, block_code == "b" & vineyard_code == "tbv" & year == 2018)
-#sum and average where needed...
-str(tbv_b_2108)
-tbv_b_2108_sum_av <- tbv_b_2108 %>%
-  group_by(year, Name, grower_name, vineyard_code, block_code, variety) %>% 
-  summarise(
-    ha = sum(ha),
-    tonnes = sum(tonnes),
-    harvest_date = mean(harvest_date),
-    brix = mean(brix)
-  )
-#add in the missing clms
-tbv_b_2108_sum_av <- mutate(tbv_b_2108_sum_av,
-                      blocks = "av_sum_values" ,
-                      vineyard = "ECHELON",
-                      yield_t_ha = NA)
-tbv_b_2108_sum_av <- ungroup(tbv_b_2108_sum_av)
-
-
-#2. remove 2018 duck rows from yld df
-
-Babich_2014_2019 <-filter(Babich_2014_2019, Name != "babich tbv b" | year != 2018)
-Babich_2014_2019 <- bind_rows(Babich_2014_2019, tbv_b_2108_sum_av)
-
-
-rm (duck_2108, duck_sum_av,
-    pear_tree, pear_tree_2015, pear_tree_sum_av,
-    pheasant, pheasant_sum_av,
-    tbv_b_2108, tbv_b_2108_sum_av
-    )
 
 # can't include the pe data its too young
 names(Babich_2014_2019)
@@ -1197,9 +1216,14 @@ Babich_2014_2019 <- filter(Babich_2014_2019, vineyard_code != "pe")
 #################################################################################################################
 
 babich_coordinates_DF$Name <- tolower(babich_coordinates_DF$Name)
-v$Name <- tolower(v$Name)
 
-Babich_2014_2019_test <- full_join(babich_coordinates_DF, Babich_2014_2019)
+
+#Babich_2014_2019 <- full_join(babich_coordinates_DF, Babich_2014_2019)
+Babich_2014_2019 <- left_join(Babich_2014_2019 ,babich_coordinates_DF)
+# remove the sites that dont have coods
+names(Babich_2014_2019)
+Babich_2014_2019 <- filter(Babich_2014_2019, !is.na( POINT_X ))
+
 
 #what babich sites didnt join
 test1 <- anti_join(babich_coordinates_DF, Babich_2014_2019)
@@ -1246,6 +1270,8 @@ Babich_2014_2019 <- mutate(Babich_2014_2019,
                             meter_row_per_ha = 10000/row_width,
                             yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width,
                             bunch_m = NA)
+names(Babich_2014_2019)
+
 Babich_2014_2019 <- select(
   Babich_2014_2019,
   company,
