@@ -296,12 +296,16 @@ Babich_2014_2017_yld_info <- dplyr::select(Babich_2014_2017_yld_info,
 
 #there was a few sites with missing data from the 2016 dataset I will fill them in now
 #need to revist this i am havng trouble with dates!!!
-str(Babich_2014_2017_yld_info)
-test <- mutate(Babich_2014_2017_yld_info,
+
+
+Babich_2014_2017_yld_info$harvest_date <-  as.Date(strptime(
+  Babich_2014_2017_yld_info$harvest_date,
+  "%Y-%m-%d")) # convert your character column to POSIXct object
+
+Babich_2014_2017_yld_info <- mutate(Babich_2014_2017_yld_info,
                harvest_date = case_when(
-                 blocks == "BA SAB SR 158-207" & year == 2016 ~ "2016-04-09",
-                 blocks == "MP SAB SR SAB 213-394" & year == 2016 ~ "2016-04-16",
-                 #blocks == "MP SAB SR SAB 213-394" & year == 2016 ~ "2016-04-16 00:00:00",
+                 blocks == "BA SAB SR 158-207" & year == 2016 ~ as.Date("2016-04-09", format= "%Y-%m-%d"),
+                 blocks == "MP SAB SR SAB 213-394" & year == 2016 ~ as.Date("2016-04-16", format= "%Y-%m-%d") ,
                  TRUE ~ harvest_date))
                  
                  
@@ -1160,6 +1164,11 @@ Babich_2019 <- bind_rows(Babich_2019, cvv_poplar_sum_av)
 
 ###################################################################################################################
 #### put all the yeild data togther and then work out the blocks?
+str(Babich_2014_2017_yld_info)
+Babich_2014_2017_yld_info$harvest_date <- as.POSIXct(Babich_2014_2017_yld_info$harvest_date)
+
+str(Babich_2018)
+str(Babich_2019)
 
 Babich_2014_2019 <- bind_rows(Babich_2014_2017_yld_info,
                               Babich_2018, Babich_2019)
@@ -1168,7 +1177,7 @@ Babich_2014_2019$blocks <-tolower(Babich_2014_2019$blocks)
 
 
 getwd()
-#write.csv(Babich_2014_2019, "Babich_2014_2019.csv")
+
 
 ## lets try and join the GPS and vine spacing data
 
@@ -1294,10 +1303,6 @@ Babich_2014_2019 <- select(
   Block = Name 
 )
 
-## I am waiting for more coodinates but for now just chuck out the sites we dont know the location
-names
-Babich_2014_2019 <- Babich_2014_2019 %>% 
-  filter(!is.na(x_coord) )
 
 write.csv(Babich_2014_2019,
           "V:/Marlborough regional/working_jaxs/July2020/babich_13_08_2020.csv")
