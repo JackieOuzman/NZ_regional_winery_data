@@ -502,7 +502,7 @@ wither_hills_GPS_block_info_harvest_all_yrs_sb <- dplyr::select(wither_hills_GPS
 #needs a bit of tidying up should I have 2014 data? Nope the raw data starts at 2015
 #recode the 0 values to NA.
 names(wither_hills_GPS_block_info_harvest_all_yrs_sb)
-View(wither_hills_GPS_block_info_harvest_all_yrs_sb)
+#View(wither_hills_GPS_block_info_harvest_all_yrs_sb)
 wither_hills_GPS_block_info_harvest_all_yrs_sb <-
   wither_hills_GPS_block_info_harvest_all_yrs_sb %>%
   mutate(yield_t_ha = case_when(yield_t_ha == 0.0000 ~ NA_real_,
@@ -530,6 +530,13 @@ wither_hills_GPS_block_info_harvest_all_yrs_sb <-
 wither_hills_GPS_block_info_harvest_all_yrs_sb <- filter(wither_hills_GPS_block_info_harvest_all_yrs_sb,
                                                          !is.na(year))
 #View(wither_hills_GPS_block_info_harvest_all_yrs_sb)
+
+#oops I need a clm called ID_yr not just the ID clm
+names(wither_hills_GPS_block_info_harvest_all_yrs_sb)
+wither_hills_GPS_block_info_harvest_all_yrs_sb <- mutate(wither_hills_GPS_block_info_harvest_all_yrs_sb,
+                                                         ID_yr = paste0(ID, "_", year))
+wither_hills_GPS_block_info_harvest_all_yrs_sb <- wither_hills_GPS_block_info_harvest_all_yrs_sb %>% 
+  select(-ID)
 write_csv(wither_hills_GPS_block_info_harvest_all_yrs_sb, "V:/Marlborough regional/working_jaxs/July2020/wither_hills_GPS_block_info_harvest_sau.csv")
 
 ####################################################################################################################

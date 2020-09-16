@@ -75,6 +75,15 @@ rm("delegates_GPS", "delegates_sub_block",  "delegates_sub_block1")
 delegates_yld_data1 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Delegat For MRC Project RGVB rev.xlsx", 
                              sheet = "Yield Info")
 glimpse(delegates_yld_data1)
+unique(delegates_yld_data1$Vintage)
+delegates_yld_data2 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Delegat/Mike Trought Yield Data V19_2.xlsx", 
+                                  sheet = "2019 Yield Data")
+unique(delegates_yld_data2$Vintage)
+names(delegates_yld_data1)
+names(delegates_yld_data2)
+#bind togther
+delegates_yld_data1 <- bind_rows(delegates_yld_data1, delegates_yld_data2)
+unique(delegates_yld_data1$Vintage)
 
 ######################################################################################################################
 ################                         filter the harvest data only                             ####################
@@ -105,7 +114,7 @@ delegates_yld_data_harvest <- delegates_yld_data_harvest1 %>%
          #bunch_weight_g = `Average Pre-Harvest Bunch Weight (g)`) %>% 
   mutate(julian = as.numeric(format(harvest_date, "%j")))
 glimpse(delegates_yld_data_harvest) #has yield tha here
-
+unique(delegates_yld_data_harvest$yr)
 
 ######################################################################################################################
 ################                         bring in the Pre - Harvest data                            #################
@@ -133,6 +142,8 @@ delegates_yld_data <- full_join(delegates_yld_data_harvest, delegates_yld_data_p
 #check <- full_join(delegates_yld_data_harvest, delegates_yld_data_pre_harvest, by= "ID_yr")
 #glimpse(check)
 glimpse(delegates_yld_data)
+unique(delegates_yld_data$yr)
+
 
 rm( "delegates_yld_data1", "delegates_yld_data_harvest", 
     "delegates_yld_data_harvest1", "delegates_yld_data_pre_harvest")
@@ -146,7 +157,7 @@ glimpse(delegates_yld_data) # 524
 
 delegates_GPS_sub_block_yld <- full_join(delegates_yld_data,delegates_GPS_sub_block, by= "ID_temp" )
 glimpse(delegates_GPS_sub_block_yld) #853
-
+unique(delegates_GPS_sub_block_yld$yr)
 
 #### ADD Some extra data clms - need to check this #####
 glimpse(delegates_GPS_sub_block_yld)
@@ -191,6 +202,8 @@ delegates_april_2019 <- dplyr::select(delegates_april_2019,-variety_check)
 
 dim(delegates_april_2019) #589
 names(delegates_april_2019)
+unique(delegates_april_2019$year)
+
 count(filter(delegates_april_2019, na_count == 14))
 count(filter(delegates_april_2019, is.na(x_coord)))
 test <- filter(delegates_april_2019, is.na(x_coord))
@@ -202,13 +215,16 @@ test1 <- arrange(test1,
                 ID_temp, year)
 write_csv(test1, "V:/Marlborough regional/working_jaxs/July2020/delegates_april_no_yld_data_but_cords.csv")
 
+#remove the row that just have block name and coodinates eg dont have harvest data
+delegates_april_2019 <- filter(delegates_april_2019,
+                               na_count != 14)
 
 names(delegates_april_2019)
 delegates_april_2019 <-
   delegates_april_2019 %>%
   mutate(bunch_weight = case_when(bunch_weight == 0.0000 ~ NA_real_,
                                 TRUE ~ bunch_weight))
-
+unique(delegates_april_2019$year)
 ############################################################################## 
 ########################    File to use   ####################################
 

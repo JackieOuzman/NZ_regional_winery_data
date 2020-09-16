@@ -356,10 +356,10 @@ Villia_maria_2018_2012_all <- mutate(Villia_maria_2018_2012_all,
                        bunch_numb_m	 = NA
                        )
 glimpse(Villia_maria_2018_2012_all)
-
+names(Villia_maria_2018_2012_all)
 ##tidy up to match the other files
 Villia_maria_2018_2012_all <- 
-  select(Villia_maria_2018_2012_all, company, ID, variety , x_coord, y_coord,
+  select(Villia_maria_2018_2012_all, company, ID_yr, variety , x_coord, y_coord,
          year , harvest_date, julian,
          yield_t_ha, 
          yield_kg_m,
