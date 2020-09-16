@@ -312,7 +312,9 @@ weta_yld_data <- mutate(
   company = "Weta",
   x_coord = POINT_X,
   y_coord = POINT_Y ,
-  ID_yr = paste0("Weta_", Blocks, "_", year))
+  ID_yr = paste0("Weta_", Blocks, "_", year),
+  na_count = "na",
+  company = "weta")
   
 
 names(weta_yld_data)
@@ -335,7 +337,10 @@ weta_yld_data <- select(
     pruning_style,
     row_width ,
     vine_spacing,
-    Block = "Blocks"
+    Block = "Blocks",
+  berry_weight,
+  bunch_numb_m,
+  na_count
   )
  
 names(weta_yld_data)
