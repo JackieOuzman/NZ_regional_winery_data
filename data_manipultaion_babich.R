@@ -1303,6 +1303,12 @@ Babich_2014_2019 <- select(
   Block = Name 
 )
 
+# add missing clms
+Babich_2014_2019 <- mutate(Babich_2014_2019,berry_weight = NA,
+                           bunch_numb_m = NA,
+                           na_count = NA)
+
+
 
 write.csv(Babich_2014_2019,
           "V:/Marlborough regional/working_jaxs/July2020/babich_13_08_2020.csv")
