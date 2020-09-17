@@ -69,8 +69,8 @@ getwd()
 #remove what I dont want..
 rm(
    #Grower_coop_V2019,
-   #Grower_coop_V2019_block_info,
-   #Grower_coop_V2019_GPS,
+   Grower_coop_V2019_block_info,
+   Grower_coop_V2019_GPS,
    not_joined_Grower_coop_V2019
     )
 
@@ -78,7 +78,7 @@ str(Grower_coop_V2019)
 #just the coodinates
 str(Grower_coop_V2019_GPS)
 
-Grower_coop_GPS <- select(Grower_coop_V2019_GPS,
+Grower_coop_GPS <- select(Grower_coop_V2019,
                           Name,
                           POINT_X,
                           POINT_Y ,
@@ -102,7 +102,34 @@ glimpse(Grower_coop_GPS_1)
 Grower_coop_GPS_1_df = as.data.frame(Grower_coop_GPS_1) #this has the new coordinates projected !YES!!
 glimpse(Grower_coop_GPS_1_df)
 
-rm(Grower_coop_GPS_1, Grower_coop_GPS)
+
+#so I want to update the coodinates clm in the grower_coop_V2019 and only keep this one.
+
+Grower_coop_V2019 <- select(Grower_coop_V2019,
+                                -POINT_X,
+                                -POINT_Y)
+Grower_coop_V2019 <- rename(Grower_coop_V2019, "Realignment_Number" =`Realignment Number` )
+
+names(Grower_coop_V2019)
+names(Grower_coop_GPS_1_df)
+
+
+Grower_coop_gps_block <- left_join(Grower_coop_V2019, Grower_coop_GPS_1_df, by = "Realignment_Number")
+names(Grower_coop_gps_block)                             
+Grower_coop_gps_block <- select(Grower_coop_gps_block,
+                                Realignment_Number,
+                                ID_yr,
+                                Ha,
+                                row_width,
+                                vine_Spacing,
+                                Grower ,
+                                Block,
+                                POINT_X, POINT_Y)
+
+rm(Grower_coop_GPS_1, Grower_coop_GPS, Grower_coop_V2019)
+rm(mapCRS, wgs84CRS, Grower_coop_GPS_1_df)
+
+
 ###########################################################################################################
 ################     add in the 2019 yield data ##########################################################
   
@@ -124,7 +151,8 @@ Grower_coop_V2019_yld_data <- dplyr::select(Grower_coop_V2019_yld_data,
                                             total_weight_berry = "Total weight of berry sample (g)",
                                             no_berry_in_sample = "No. berry's in sample (5 berry's / bunch)",
                                             yield_t_ha = "Harvested T/ha",
-                                            "Realignment_number" = "Realignment number"
+                                            "Realignment_Number" = "Realignment number",
+                                            berry_weight  = `V2019 Actual Berry wgt (gm)`
                                             
                                              )
 
@@ -150,27 +178,21 @@ str(Grower_coop_V2019_yld_data)
 ### Bring in the block data 
 
 #str(Grower_coop_V2019_block_info)
-str(Grower_coop_V2019)
-#just keep a few clms 
-
- Grower_coop_V2019_selection <- dplyr::select(Grower_coop_V2019,
-                                                         #ID_yr,
-                                                         SWNZ_Vineyard_ID,
-                                                         row_width ,
-                                                         vine_Spacing ,
-                                                         ha = Ha,
-                                                         "Realignment_number" = "Realignment Number" ,
-                                                         POINT_X,
-                                                         POINT_Y
-                                                         )
+str(Grower_coop_gps_block)
 
 
 names(Grower_coop_V2019_yld_data)
-names(Grower_coop_V2019_selection)
+names(Grower_coop_gps_block)
 
+temp_Grower_coop_gps_block <- select(Grower_coop_gps_block,
+                                     Realignment_Number,
+                                     POINT_X,
+                                     POINT_Y,
+                                     vine_Spacing,
+                                     row_width)
 
-Grower_coop_V2019_join <- full_join(Grower_coop_V2019_selection, Grower_coop_V2019_yld_data)                                                     
-                                                     
+Grower_coop_V2019_join <- full_join(temp_Grower_coop_gps_block, Grower_coop_V2019_yld_data, by = "Realignment_Number")                                                     
+rm(Grower_coop_V2019_yld_data, temp_Grower_coop_gps_block)
 
 names(Grower_coop_V2019_join)
 
@@ -182,14 +204,14 @@ Grower_coop_V2019_join <- mutate(Grower_coop_V2019_join,
                                      yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
                                      bunch_weight = total_weight_bunches / nunb_bunches_collected, #the data sheet has -4 from this cal ?why
                                      berry_weight_1 = total_weight_berry / no_berry_in_sample,
-                                     berry_per_bunch = bunch_weight / berry_weight_1, 
-                                     berry_weight_2 = (yield_t_ha/vines_ha/bunches_per_vine/berry_per_bunch)*1000000, #this is in the data sheet - check
+                                     berry_per_bunch = bunch_weight / berry_weight_1,
                                      bunches_per_vine = NA, #??not sure I can cal this?? help
                                      pruning_style = NA,
                                      brix = NA,
                                      meter_row_per_ha = 10000/row_width,
                                      yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width,
                                      bunch_m = (yld_per_m_row_kg * 1000)/ bunch_weight)
+                                     
 
 
 
@@ -210,21 +232,19 @@ Grower_coop_V2019 <- select(Grower_coop_V2019_join,
                                              #pruning_style,
                                              row_width ,
                                              vine_spacing = vine_Spacing,
-                                             Realignment_number,
-                                             bunch_weight
+                                             Realignment_Number,
+                                             bunch_weight,
+                                             berry_weight 
 )
 
 
 
-Grower_coop_V2019
+
+names(Grower_coop_V2019)
 
 
 ##Remove the df I dont need anymore
-rm(#Grower_coop_V2019
-   #Grower_coop_V2019_GPS,
-   Grower_coop_V2019_join,
-   Grower_coop_V2019_selection, 
-   Grower_coop_V2019_yld_data)
+rm(Grower_coop_V2019_join)
   
 
 #remove the rows with the missing data
@@ -327,32 +347,27 @@ site_with_t_ha_error <- filter(site_with_t_ha_error,
 
 ### add in the coodinates based on relaingnmnet numbers
 str(yld_data2014_2017)
-str(Grower_coop_V2019_GPS)
+str(Grower_coop_gps_block)
+yld_data2014_2017 <- rename(yld_data2014_2017,
+                            Realignment_Number =  `Realignment Number`)
 
-yld_data2014_2017$`Realignment Number`<- as.numeric(yld_data2014_2017$`Realignment Number`)
 
-yld_data2014_2017 <- full_join(yld_data2014_2017,Grower_coop_V2019_GPS )
+yld_data2014_2017$Realignment_Number<- as.numeric(yld_data2014_2017$Realignment_Number)
+
+#yld_data2014_2017 <- full_join(yld_data2014_2017,Grower_coop_gps_block )
+yld_data2014_2017 <- full_join(yld_data2014_2017,Grower_coop_gps_block, by = "Realignment_Number")
+
+
+names(yld_data2014_2017)
 yld_data2014_2017 <- dplyr::select(yld_data2014_2017,
-                                   - "...6",
-                                   -"notes",
-                                   -"check_t_ha" ,
+                                   -"Ha" , #this is from the 2019 GPS data so I will use the 2014-2017
+                                  - "Block", #this is from the 2019 GPS data so I will use the 2014-2017
+                                  - "Grower.y", 
+                                  -"check_t_ha" ,
                                   - "match_ha" )
 
-#I need to add in the row spacing and vine spacing this is in the 2019 data
-names(Grower_coop_V2019)
-row_vine_spacing <- dplyr::select(Grower_coop_V2019,
-                                  "Realignment_number" ,
-                                  row_width  ,
-                                  vine_spacing)
 
-# add this to the other 2014 -2017 data
-str(row_vine_spacing)
-str(yld_data2014_2017)
-#rename clm 
-yld_data2014_2017 <- rename(yld_data2014_2017,
-                            Realignment_number = `Realignment Number`)
-yld_data2014_2017$Realignment_number <- as.numeric(yld_data2014_2017$Realignment_number)
-yld_data2014_2017 <- left_join(yld_data2014_2017, row_vine_spacing )
+
 
 
 #### Add in the calulations
@@ -368,19 +383,21 @@ yld_data2014_2017 <- mutate(yld_data2014_2017,
                                  brix ,
                                  meter_row_per_ha = 10000/row_width,
                                  yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width,
-                                 bunch_m = NA)
+                                 bunch_m = NA,
+                                 berry_weight = NA)
 
 
 str(yld_data2014_2017)
-str(Grower_coop_V2019_GPS)
-Grower_coop_V2019_GPS <- rename(Grower_coop_V2019_GPS,
-                            Realignment_number = `Realignment Number`)
+str(Grower_coop_gps_block)
+
 
 
 yld_data2014_2017 <- mutate(yld_data2014_2017,
                             company = "grower_coop",
-                            ID_yr = paste0("Realignment_numb_", Realignment_number, "_year_", year ),
+                            ID_yr = paste0("Realignment_numb_", Realignment_Number, 
+                                           "_year_", year ),
                             variety = "SAB")
+names(yld_data2014_2017)
 
 yld_data2014_2017 <- select(
    yld_data2014_2017,
@@ -388,8 +405,8 @@ yld_data2014_2017 <- select(
    ID_yr,
    year, 
    variety,
-   x_coord = POINT_X,
-   y_coord = POINT_Y ,
+    POINT_X,
+    POINT_Y ,
    year,
    harvest_date,
    julian,
@@ -400,14 +417,16 @@ yld_data2014_2017 <- select(
    bunch_m,
    pruning_style,
    row_width ,
-   vine_spacing,
-   Block = Name 
+   vine_spacing = vine_Spacing,
+   #Block =Grower.x,
+  # Block = Name ,
+   berry_weight
 )
 
 names(yld_data2014_2017)
 
 rm(   "site_with_t_ha_error")
-rm("Grower_coop_V2019_GPS")
+
 #remove the rows with missing yld data
 
  
@@ -420,34 +439,36 @@ str(yld_data2014_2017)
 str(Grower_coop_V2019) #add in a fw more clms
 Grower_coop_V2019 <- mutate(Grower_coop_V2019,
                             company = "grower_coop",
-                            ID_yr = paste0("Realignment_numb_", Realignment_number, "_year_", year ),
+                            ID_yr = paste0("Realignment_numb_", Realignment_Number, "_year_", year ),
                             variety = "SAB",
                             pruning_style = NA,
                             )
 
-
+names(Grower_coop_V2019)
 Grower_coop_V2019 <- select(
    Grower_coop_V2019,
    company,
    ID_yr,
    year, 
    variety,
-   x_coord ,
-   y_coord  ,
+   POINT_X = x_coord ,
+   POINT_Y = y_coord  ,
    year,
    harvest_date,
    julian,
-   #bunch_weight,
+   bunch_weight,
    yield_t_ha,
    yield_kg_m,
    brix, 
    bunch_m,
-   #pruning_style,
+   pruning_style,
    row_width ,
-   vine_spacing
+   vine_spacing,
+   berry_weight
    
 )
-
+names(Grower_coop_V2019)
+names(yld_data2014_2017)
 
 V2019_2014_to_2017 <- bind_rows(Grower_coop_V2019, yld_data2014_2017)
 
@@ -456,30 +477,6 @@ names(V2019_2014_to_2017)
 V2019_2014_to_2017 <- filter(V2019_2014_to_2017,
                !is.na(yield_t_ha) | !is.na(brix))
 
-
-# the last step is to get the coordinates into project values:
-
-### change the coordinates to from long and lats to projected data.
-# I have my data in decimal degrees I want to convert it into GDA
-mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
-wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
-
-
-names(V2019_2014_to_2017)
-V2019_2014_to_2017 <- filter(V2019_2014_to_2017, !is.na(x_coord))
-str(V2019_2014_to_2017)
-V2019_2014_to_2017$x_coord <- as.double(V2019_2014_to_2017$x_coord)
-V2019_2014_to_2017$y_coord <- as.double(V2019_2014_to_2017$y_coord)
-coordinates(V2019_2014_to_2017) <- ~x_coord+y_coord
-proj4string(V2019_2014_to_2017) <- wgs84CRS   # assume input lat and longs are WGS84
-V2019_2014_to_2017_1 <- spTransform(V2019_2014_to_2017, mapCRS)
-
-glimpse(V2019_2014_to_2017_1)
-V2019_2014_to_2017_1_df = as.data.frame(V2019_2014_to_2017_1) #this has the new coordinates projected !YES!!
-glimpse(V2019_2014_to_2017_1_df)
-
-getwd()
-#write.csv( V2019_2014_to_2017_1_df, "grower_coop_V2019_2014_to_2017.csv")
 
 
 
@@ -553,26 +550,28 @@ Grower_coop_V2018 <- full_join(Grower_coop_V2018, Grower_coop_V2018_part3)
 #seems that we dont have harvest dates for some sites, not sure why this is the raw data reflects this.
 
 rm(Grower_coop_V2018_part1,Grower_coop_V2018_part2, Grower_coop_V2018_part3)
-rm(V2019_2014_to_2017, V2019_2014_to_2017_1)
-rm(Harvest_data_2014_2017)
-rm(yld_data2014_2017)
-unique(V2019_2014_to_2017_1_df$year)
-str(V2019_2014_to_2017_1_df)
+
 
 
 
 
 
 #add in the gPS data
- str(Grower_coop_GPS_1_df)
+ str(Grower_coop_gps_block)
  str(Grower_coop_V2018)
+ Grower_coop_V2018 <- rename(Grower_coop_V2018,
+                             Realignment_Number = realignmnet_number )
+ temp_Grower_coop_gps_block <- select(Grower_coop_gps_block,
+                                      Realignment_Number,
+                                      POINT_X,
+                                      POINT_Y)
  
- Grower_coop_V2018 <- full_join(Grower_coop_V2018, Grower_coop_GPS_1_df, by = c("realignmnet_number" = "Realignment_Number"))
+ Grower_coop_V2018 <- full_join(Grower_coop_V2018, temp_Grower_coop_gps_block)
  Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(POINT_X))
  Grower_coop_V2018 <- filter(Grower_coop_V2018, !is.na(Block))
  Grower_coop_V2018 <- select(Grower_coop_V2018, -Block)
  
-
+rm(temp_Grower_coop_gps_block)
 ### add the caluations and missing data
 #first add the correct clm 
 
@@ -594,13 +593,14 @@ Grower_coop_V2018 <- mutate(Grower_coop_V2018,
                             brix ,
                             meter_row_per_ha = 10000/row_width,
                             yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width,
-                            bunch_m = NA)
+                            bunch_m = NA,
+                            berry_weight = NA)
 str(Grower_coop_V2018)
 
 Grower_coop_V2018 <- mutate(
    Grower_coop_V2018,
    company = "grower_coop",
-   ID_yr = paste0("Realignment_numb_", realignmnet_number, "_year_", year),
+   ID_yr = paste0("Realignment_numb_", Realignment_Number, "_year_", year),
    variety = "SAB"
 )
 
@@ -610,8 +610,8 @@ Grower_coop_V2018 <- select(
    ID_yr,
    year, 
    variety,
-   x_coord = POINT_X,
-   y_coord = POINT_Y ,
+   POINT_X,
+   POINT_Y ,
    year,
    harvest_date,
    julian,
@@ -623,7 +623,8 @@ Grower_coop_V2018 <- select(
    pruning_style,
    row_width ,
    vine_spacing,
-   Block = Name 
+   #Block = Name ,
+   berry_weight
 )
 
 
@@ -631,8 +632,14 @@ Grower_coop_V2018 <- select(
 #Join the 2018 data to the rest.
 
 dim(Grower_coop_V2018)
-dim(V2019_2014_to_2017_1_df)
+dim(V2019_2014_to_2017)
+View(V2019_2014_to_2017)
+V2014_to_2019 <- bind_rows(Grower_coop_V2018, V2019_2014_to_2017)
+V2014_to_2019 <- V2014_to_2019 %>% 
+   mutate( bunch_numb_m = NA,
+           x_coord = POINT_X,
+           y_coord = POINT_Y ,
+           na_count = NA)
 
-V2014_to_2019 <- bind_rows(Grower_coop_V2018, V2019_2014_to_2017_1_df)
 write.csv(V2014_to_2019,
           "V:/Marlborough regional/working_jaxs/July2020/grower_coop_V2014_to_2019.csv")
