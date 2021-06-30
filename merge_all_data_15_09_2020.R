@@ -8,12 +8,14 @@ library(readxl)
 library(naniar)
 library(plotly)
 
+getwd()
+
 ### set up function to standardise how the different sites look.
 ##1. define the function inputs
-#site <- "whitehaven" 
-#file <- "white_haven_2019to2014_GPS_updated.csv"
-#site <- "pernod_ricard"
-#file <- "pernod_ricard_april_2019.csv"
+# site <- "whitehaven"
+# file <- "white_haven_2019to2014_GPS_updated.csv"
+# site <- "pernod_ricard"
+# file <- "pernod_ricard_april_2019.csv"
 # site <- "Villia_maria"
 # file <- "Villia_maria_2017_2012_all_sau.csv"
 # site <- "delegates"
@@ -34,9 +36,12 @@ library(plotly)
 # file <- "weta_yld_data.csv"
 # site <- "grower_coop"
 # file <- "grower_coop_V2014_to_2019.csv"
-site <- "babich"
-file <- "babich_13_08_2020.csv"
-
+# site <- "babich"
+# file <- "babich_13_08_2020.csv"
+ # site <- "TWE"
+ # file <- "TWE_30_06_2021.csv"
+ site <- "wither_hills"
+ file <- "wither_hills_GPS_block_info_harvest_sau_v1.csv"
 
 
 
@@ -45,6 +50,10 @@ read_and_tidy_FUN <- function(file) {
 #1. read the data in
   df <-
     read_csv(paste0("V:/Marlborough regional/working_jaxs/July2020/",file))
+  # just for wither hills  add ID_yr clm
+  # df <- df %>% 
+  #   mutate(ID_yr = paste0(ID, "_", year))
+  # names(df)
 #2. select the clm I want only  
   df <- dplyr::select(df,
                       ID_yr,
@@ -360,6 +369,8 @@ ls(pattern = "site_")
 `site_ Wine_portfolio`$pruning_style <- as.character(`site_ Wine_portfolio`$pruning_style)
 `site_ wither_hills`$pruning_style <- as.character(`site_ wither_hills`$pruning_style )
 `site_ yealands`$pruning_style <- as.character(`site_ yealands`$pruning_style)
+`site_ TWE`$pruning_style <- as.character(`site_ TWE`$pruning_style)
+
 
 `site_ constellation`$na_count <- as.character(`site_ constellation`$na_count )
 `site_ delegates`$na_count <- as.character(`site_ delegates`$na_count)
@@ -373,7 +384,7 @@ ls(pattern = "site_")
 `site_ Wine_portfolio`$na_count <- as.character(`site_ Wine_portfolio`$na_count)
 `site_ wither_hills`$na_count <- as.character(`site_ wither_hills`$na_count )
 `site_ yealands`$na_count <- as.character(`site_ yealands`$pruning_style)
-
+`site_ TWE`$na_count <- as.character(`site_ TWE`$pruning_style)
 
 All_sites <- bind_rows(
   `site_ babich`,
@@ -389,26 +400,48 @@ All_sites <- bind_rows(
   `site_ whitehaven`,
   `site_ Wine_portfolio` ,
   `site_ wither_hills`,
-  `site_ yealands`
+  `site_ yealands`,
+  `site_ TWE`
 )
 
 unique(All_sites$company) 
 #do the count thing again
 
 All_sites$na_count <- apply(is.na(All_sites), 1, sum)
+# there is a problem with Yealand seaview coordinates (I think Rob made a mistake).
+#ID_yr = Seaview_J2_2018
+str(All_sites)
+All_sites$y_coord <- as.double(All_sites$y_coord)
+All_sites$x_coord <- as.double(All_sites$x_coord)
 
-write.csv(All_sites, "V:/Marlborough regional/working_jaxs/July2020/All_sites_july2020.csv")
+All_sites <- All_sites %>% 
+  mutate(
+    y_coord  = case_when(
+      
+      ID_yr == "Seaview_J2_2018" ~ 5388746.638369999800000,
+      TRUE ~ y_coord
+    ))
+All_sites <- All_sites %>% 
+  mutate(
+    x_coord  = case_when(
+      ID_yr == "Seaview_J2_2018" ~ 1694942.457269999900000,
+      TRUE ~ x_coord
+    ))
+#x_coord = 1694942.457269999900000
+#y_coord =5388746.638369999800000
+
+write.csv(All_sites, "V:/Marlborough regional/working_jaxs/July2020/All_sites_june2021.csv")
 names(All_sites)
 
 All_sites_2014_2019 <- All_sites %>% 
   filter(between(year,2014, 2019))
-write.csv(All_sites, "V:/Marlborough regional/working_jaxs/July2020/All_sites_2014_2019_july2020.csv")
+write.csv(All_sites, "V:/Marlborough regional/working_jaxs/July2020/All_sites_2014_2019_june2021.csv")
 
 
 #with(site_Jan2020,  table(company, year))
 site_table_yr <- with(filter(All_sites_2014_2019,  x_coord >0), table(company, year))
 site_table_yr
-write.csv(site_table_yr, "V:/Marlborough regional/working_jaxs/July2020/site_table_yr.csv")
+write.csv(site_table_yr, "V:/Marlborough regional/working_jaxs/July2020/site_table_yr_june2021.csv")
 
 All_sites_2014_2019$year_factor <- as.factor(All_sites_2014_2019$year)
 #julian days
