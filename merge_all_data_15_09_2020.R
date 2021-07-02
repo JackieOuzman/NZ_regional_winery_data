@@ -40,9 +40,10 @@ getwd()
 # file <- "babich_13_08_2020.csv"
  # site <- "TWE"
  # file <- "TWE_30_06_2021.csv"
- site <- "wither_hills"
- file <- "wither_hills_GPS_block_info_harvest_sau_v1.csv"
-
+ # site <- "wither_hills"
+ # file <- "wither_hills_GPS_block_info_harvest_sau_v1.csv"
+ site <- "forrest"
+ file <- "Forrest_08_2020.csv"
 
 
 
@@ -137,6 +138,9 @@ assign(paste("site_",site),df)
 ##########################################################################################
 
 
+
+##02/07/2021 - Rob has given me 2 extra sites - so I will be a bit lazey
+All_sites <- read_csv ("V:/Marlborough regional/working_jaxs/July2020/All_sites_june2021.csv")
 
 
 
@@ -370,7 +374,7 @@ ls(pattern = "site_")
 `site_ wither_hills`$pruning_style <- as.character(`site_ wither_hills`$pruning_style )
 `site_ yealands`$pruning_style <- as.character(`site_ yealands`$pruning_style)
 `site_ TWE`$pruning_style <- as.character(`site_ TWE`$pruning_style)
-
+`site_ forrest`$pruning_style <- as.character(`site_ forrest`$pruning_style)
 
 `site_ constellation`$na_count <- as.character(`site_ constellation`$na_count )
 `site_ delegates`$na_count <- as.character(`site_ delegates`$na_count)
@@ -385,6 +389,7 @@ ls(pattern = "site_")
 `site_ wither_hills`$na_count <- as.character(`site_ wither_hills`$na_count )
 `site_ yealands`$na_count <- as.character(`site_ yealands`$pruning_style)
 `site_ TWE`$na_count <- as.character(`site_ TWE`$pruning_style)
+`site_ forrest`$na_count <- as.character(`site_ forrest`$pruning_style)
 
 All_sites <- bind_rows(
   `site_ babich`,
