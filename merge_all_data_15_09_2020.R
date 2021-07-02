@@ -14,8 +14,8 @@ getwd()
 ##1. define the function inputs
 # site <- "whitehaven"
 # file <- "white_haven_2019to2014_GPS_updated.csv"
-# site <- "pernod_ricard"
-# file <- "pernod_ricard_april_2019.csv"
+ # site <- "pernod_ricard"
+ # file <- "pernod_ricard_april_2019.csv"
 # site <- "Villia_maria"
 # file <- "Villia_maria_2017_2012_all_sau.csv"
 # site <- "delegates"
@@ -42,9 +42,10 @@ getwd()
  # file <- "TWE_30_06_2021.csv"
  # site <- "wither_hills"
  # file <- "wither_hills_GPS_block_info_harvest_sau_v1.csv"
- site <- "forrest"
- file <- "Forrest_08_2020.csv"
-
+ # site <- "forrest"
+ # file <- "Forrest_08_2020.csv"
+ site <- "indevin"
+ file <- "Indevin_02_07_2021.csv"
 
 
 read_and_tidy_FUN <- function(file) {
@@ -140,7 +141,7 @@ assign(paste("site_",site),df)
 
 
 ##02/07/2021 - Rob has given me 2 extra sites - so I will be a bit lazey
-All_sites <- read_csv ("V:/Marlborough regional/working_jaxs/July2020/All_sites_june2021.csv")
+#All_sites <- read_csv ("V:/Marlborough regional/working_jaxs/July2020/All_sites_june2021.csv")
 
 
 
@@ -375,6 +376,7 @@ ls(pattern = "site_")
 `site_ yealands`$pruning_style <- as.character(`site_ yealands`$pruning_style)
 `site_ TWE`$pruning_style <- as.character(`site_ TWE`$pruning_style)
 `site_ forrest`$pruning_style <- as.character(`site_ forrest`$pruning_style)
+`site_ indevin`$pruning_style <- as.character(`site_ indevin`$pruning_style)
 
 `site_ constellation`$na_count <- as.character(`site_ constellation`$na_count )
 `site_ delegates`$na_count <- as.character(`site_ delegates`$na_count)
@@ -390,6 +392,7 @@ ls(pattern = "site_")
 `site_ yealands`$na_count <- as.character(`site_ yealands`$pruning_style)
 `site_ TWE`$na_count <- as.character(`site_ TWE`$pruning_style)
 `site_ forrest`$na_count <- as.character(`site_ forrest`$pruning_style)
+`site_ indevin`$na_count <- as.character(`site_ indevin`$pruning_style)
 
 All_sites <- bind_rows(
   `site_ babich`,
@@ -406,8 +409,12 @@ All_sites <- bind_rows(
   `site_ Wine_portfolio` ,
   `site_ wither_hills`,
   `site_ yealands`,
-  `site_ TWE`
+  `site_ TWE`, 
+  `site_ forrest`,
+  `site_ indevin`
 )
+
+#All_sites <- bind_rows(All_sites, `site_ forrest`)
 
 unique(All_sites$company) 
 #do the count thing again
@@ -599,3 +606,4 @@ ggplot(All_sites_2014_2019, aes(year_factor, bunch_numb_m , colour= company))+
   labs(x = "Year",
        y= "Bunch number per m  - Sauvignon Blanc")+
   facet_wrap(.~ company)
+

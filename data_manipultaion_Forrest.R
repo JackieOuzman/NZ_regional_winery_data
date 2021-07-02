@@ -236,7 +236,7 @@ Forrest_08_2020_df <- Forrest_08_2020_df %>%
 Forrest_08_2020_df <- mutate(Forrest_08_2020_df,berry_weight = NA,
                            bunch_numb_m = NA,
                            na_count = NA,
-                           company = "TWE",
+                           company = "forrest",
               ID_yr = paste0(Block, "_", year))
 
 
