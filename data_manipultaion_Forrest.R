@@ -16,25 +16,96 @@ library(tidyr)
 ######   Bring in the coodinated that I have got from ROB - I have used certain blocks to reflect the whole vineyard see note in excel file for more details     ##########################
 
 Forrest_08 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                    sheet =    "2008")
+                    sheet = "2008",
+                    col_types = c("text", 
+                                  "text", "text", "numeric", "numeric", 
+                                  "numeric", "numeric", "numeric", 
+                                  "numeric", "numeric", "numeric", 
+                                  "numeric", "numeric", "numeric", 
+                                  "numeric", "numeric", "numeric", 
+                                  "numeric", "date"))
+str(Forrest_08)
 Forrest_12 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2012")
+                         sheet =    "2012",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_13 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2013")
+                         sheet =    "2013",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_14 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2014")
+                         sheet =    "2014",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_15 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2015")
+                         sheet =    "2015",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_16 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2016")
+                         sheet =    "2016",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_17 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2017")
+                         sheet =    "2017",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_18 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2018")
+                         sheet =    "2018",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_19 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2019")
+                         sheet =    "2019",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 Forrest_20 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Forrest/Forrest Cropping History for Mike Trought.xlsx",
-                         sheet =    "2020")
+                         sheet =    "2020",
+                         col_types = c("text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "numeric", "numeric", 
+                                       "numeric", "date"))
 
 ## join them all togther
 
@@ -49,105 +120,105 @@ Forrest_08_2020 <- rbind(Forrest_08,
                          Forrest_19,
                          Forrest_20
                          )
+### fill in the missing  data for sublock clm
+names(Forrest_08_2020)
+
+Forrest_08_2020 <- Forrest_08_2020 %>%
+  fill(Subblock, .direction = "down")
+
+
+#### remove the df I no longer need
+rm(list=ls()[ls()!= c("Forrest_08_2020")])
+
+
+######################################################################################################################
+################                         change the projection of the data                              #################
+######################################################################################################################
+#Now I have my data in decimal degrees I want to convert it into GDA
+
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+
+glimpse(Forrest_08_2020) # seems to be missing a few values
+#Forrest_08_2020 <-drop_na(Latitude)
+
+Forrest_08_2020<- Forrest_08_2020 %>% 
+  filter(!is.na(Latitude))
+
+coordinates(Forrest_08_2020) <- ~Longitude + Latitude
+
+proj4string(Forrest_08_2020) <- wgs84CRS   # assume input lat and longs are WGS84
+Forrest_08_2020 <- spTransform(Forrest_08_2020, mapCRS)
+
+glimpse(Forrest_08_2020)
+
+Forrest_08_2020_df = as.data.frame(Forrest_08_2020) #this has the new coordinates projected !YES!!
+glimpse(Forrest_08_2020_df)
+
+rm("mapCRS", "wgs84CRS", "Forrest_08_2020")  
+
+
+#############################################################################################
+#Keep only the SB Sauvignon Blanc
+
+unique(Forrest_08_2020_df$Variety)
+
+Forrest_08_2020_df <- Forrest_08_2020_df %>% 
+  filter(Variety == "Sauvignon Blanc")
+
+
+### I think that it
+names(Forrest_08_2020_df)
+
+Forrest_08_2020_df <- Forrest_08_2020_df %>% 
+  rename(year = Harvest.year,
+         variety = Variety,
+         x_coord = Longitude,
+         y_coord = Latitude ,
+         harvest_date = harvest.date,
+         
+         bunch_weight = Pre.Harvest.Average.Bunch.Weight..g.,
+         yield_t_ha = Harvested.T.Ha,
+         #yield_kg_m,
+         #brix, 
+         #bunch_m,
+         #pruning_style,
+         row_width = In.row.spacing..m. ,
+         #vine_spacing,
+         Block = Subblock 
+         )
 
 #####################################################################################################################
 
-## the year in this file now in the year of planting - so change this.
-TWE_coordinates <- TWE_coordinates %>% 
-  rename(Year_planting = Year)
+str(Forrest_08_2020_df)  
 
-## make a clm for the year of harvest
-#subset data for just yld
-yld <- TWE_coordinates %>%
-  dplyr::select(X,Y,NAME, 
-  Yld_2014,
-  Yld_2015,
-  Yld_2016,
-  Yld_2017,
-  Yld_2018,Yld_2019 )
+#Forrest_08_2020_df$harvest_date_1 <- lubridate::dmy(Forrest_08_2020_df$harvest_date)
 
-
-names(yld)
-yld_narrow <- yld %>% 
-  pivot_longer(cols = starts_with("Yld"),
-               names_to = "year",
-               values_to = "yield_t_ha")
-               
-#now take out the yld
-yld_narrow$year <- yld_narrow$year %>% stringr::str_remove(pattern = ".*_")
-
-
-#subset data for just harvest Date
-names(TWE_coordinates)
-harvest_date <- TWE_coordinates %>%
-  dplyr::select(X,Y,NAME, 
-                Harvest_date_2014,
-                Harvest_date_2015,
-                Harvest_date_2016,
-                Harvest_date_2017,
-                Harvest_date_2018,Harvest_date_2019 )
-
-
-names(harvest_date)
-harevst_date_narrow <- harvest_date %>% 
-  pivot_longer(cols = starts_with("Harvest_date"),
-               names_to = "year",
-               values_to = "Harvest_date")
-
-#now take out the yld
-harevst_date_narrow$year <- harevst_date_narrow$year %>% stringr::str_remove(pattern = ".*_")
-
-## join the narrow yld and narrow harvest date togther.
-# make a join_clm
-
-harevst_date_narrow <- harevst_date_narrow %>% 
-  mutate(Join_ID = paste0(NAME, "_", year))
-yld_narrow <- yld_narrow %>% 
-  mutate(Join_ID = paste0(NAME, "_", year))
-
-yld_and_date <- left_join(yld_narrow, harevst_date_narrow)
-
-
-## now add the rest of the data.
-names(TWE_coordinates)
-TWE <- TWE_coordinates %>% 
-  dplyr::select(NAME,GROWER,VINEYARD_1,VARIETY, vine_spacing = `Vine Space`,row_spacing =`Row Space`)  
-
-
-TWE <- left_join(yld_and_date, TWE)
-
-names(TWE)
-str(TWE)
-test <- TWE
-
-
-
-TWE$Harvest_date <- lubridate::dmy(TWE$Harvest_date)
-
-TWE <- mutate(
-  TWE,
-  harvest_date  = Harvest_date,
+Forrest_08_2020_df <- mutate(
+  Forrest_08_2020_df,
+  harvest_date  ,
   julian = as.numeric(format(harvest_date, "%j")),
-  m_ha_vine = 10000 / row_spacing,
+  m_ha_vine = 10000 / row_width,
   yield_kg_m = (yield_t_ha * 1000) / m_ha_vine,
   bunch_weight = NA,
   berry_per_bunch = NA ,
   bunches_per_vine = NA,
   pruning_style = NA,
   brix = NA,
-  meter_row_per_ha = 10000 / row_spacing,
+  meter_row_per_ha = 10000 / row_width,
   yld_per_m_row_kg = (yield_t_ha * 1000) / 10000 /
-    row_spacing,
-  bunch_m = NA
+    row_width,
+  bunch_m = NA,
+  vine_spacing = NA
 )
-names(TWE)
+names(Forrest_08_2020_df)
 
-TWE <- TWE %>% 
+Forrest_08_2020_df <- Forrest_08_2020_df %>% 
   dplyr::select(
   year, 
-  variety = VARIETY,
-  x_coord = X,
-  y_coord = Y ,
+  variety ,
+  x_coord ,
+  y_coord ,
   harvest_date,
   julian,
   bunch_weight,
@@ -156,13 +227,13 @@ TWE <- TWE %>%
   brix, 
   bunch_m,
   pruning_style,
-  row_width = row_spacing ,
+  row_width ,
   vine_spacing,
-  Block = NAME 
+  Block 
 )
 
 # add missing clms
-TWE <- mutate(TWE,berry_weight = NA,
+Forrest_08_2020_df <- mutate(Forrest_08_2020_df,berry_weight = NA,
                            bunch_numb_m = NA,
                            na_count = NA,
                            company = "TWE",
@@ -170,8 +241,8 @@ TWE <- mutate(TWE,berry_weight = NA,
 
 
 
-write.csv(TWE,
-          "V:/Marlborough regional/working_jaxs/July2020/TWE_30_06_2021.csv")
+write.csv(Forrest_08_2020_df,
+          "V:/Marlborough regional/working_jaxs/July2020/Forrest_08_2020.csv")
    
-write.csv(TWE,
-          "C:/Users/ouz001/working_from_home/NZ_regional_winery_data/TWE_30_06_2021.csv")
+write.csv(Forrest_08_2020_df,
+          "C:/Users/ouz001/working_from_home/NZ_regional_winery_data/Forrest_08_2020.csv")
