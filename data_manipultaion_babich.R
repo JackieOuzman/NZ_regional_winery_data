@@ -26,7 +26,67 @@ babich_coordinates <- filter(babich_coordinates,
 
 babich_coordinates_DF <-data.frame(babich_coordinates)
 str(babich_coordinates_DF)
+names(babich_coordinates_DF)
 
+#split my data into 2 sets
+babich_coordinates_DF_missing_data <- babich_coordinates_DF %>% 
+  dplyr::filter(is.na(row_spacing) )
+names(babich_coordinates_DF_missing_data)
+babich_coordinates_DF_no_missing <- babich_coordinates_DF %>% 
+  dplyr::filter(!is.na(row_spacing) )
+
+
+######   we have some extra sites now      ##########################
+
+babich_extra_info <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/revised_data_05082020/Babich_locations_with_v_spacing_r_width CSIRO Amended 050820.xlsx")
+names(babich_extra_info)
+babich_extra_info <- babich_extra_info %>% 
+  dplyr::select(Name_1 = field_for_join,
+                row_spacing,
+                vine_spacing)
+#only keep the row with a name_1 to join
+babich_extra_info <- babich_extra_info %>% 
+  dplyr::filter(!is.na(Name_1) )
+
+#Can I match up the names?
+
+to_fill <- full_join(babich_coordinates_DF_missing_data, babich_extra_info, by = c("Name" = "Name_1"))
+#remove some clm
+names(to_fill)
+to_fill <- to_fill %>%
+  dplyr::select(FID,
+                Name, POINT_X, POINT_Y,row_spacing=  row_spacing.y, vine_spacing = vine_spacing.y)
+#remove rows with no coordinates
+to_fill <- to_fill %>%
+  dplyr::filter(!is.na(POINT_X) )
+#add in sites that dont have row and vine spacing
+to_fill <- to_fill %>%
+  mutate(
+    row_spacing =
+      case_when(
+        Name == "martin_pattie sr bottom" ~ 3,
+        Name == "martin_pattie sr main" ~ 3,
+        Name == "martin_pattie sr top" ~ 3,
+        Name == "martin_pattie sr top_main_bottom" ~ 3,
+        Name == "babich cvv south" ~ 2.5,
+        TRUE                      ~ row_spacing))
+        
+to_fill <- to_fill %>%
+  mutate(
+    vine_spacing =
+      case_when(
+        Name == "martin_pattie sr bottom" ~ 1.8,
+        Name == "martin_pattie sr main" ~ 1.8,
+        Name == "martin_pattie sr top" ~ 1.8,
+        Name == "martin_pattie sr top_main_bottom" ~ 1.8,
+        Name == "babich cvv south" ~ 1.8,
+        TRUE                      ~ vine_spacing))
+
+## make a complete data set 
+names(babich_coordinates_DF_no_missing)
+names(to_fill)
+
+babich_coordinates_DF <- rbind(babich_coordinates_DF_no_missing,to_fill )
 
 ############################################################################################################
 ########      Bring in the yield data for multiple years 2014 to 2017     ############################################
@@ -1312,4 +1372,34 @@ Babich_2014_2019 <- mutate(Babich_2014_2019,berry_weight = NA,
 
 write.csv(Babich_2014_2019,
           "V:/Marlborough regional/working_jaxs/July2020/babich_13_08_2020.csv")
-   
+
+
+#Revised babich data set 21/0/2021
+
+#1. How many sites?
+#for each year
+Babich_2014_2019 %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+Babich_2014_2019 %>%
+    summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+names(Babich_2014_2019)
+
+Babich_2014_2019 %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+Babich_2014_2019 %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
