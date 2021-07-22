@@ -28,65 +28,7 @@ babich_coordinates_DF <-data.frame(babich_coordinates)
 str(babich_coordinates_DF)
 names(babich_coordinates_DF)
 
-#split my data into 2 sets
-babich_coordinates_DF_missing_data <- babich_coordinates_DF %>% 
-  dplyr::filter(is.na(row_spacing) )
-names(babich_coordinates_DF_missing_data)
-babich_coordinates_DF_no_missing <- babich_coordinates_DF %>% 
-  dplyr::filter(!is.na(row_spacing) )
 
-
-######   we have some extra sites now      ##########################
-
-babich_extra_info <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Babich/revised_data_05082020/Babich_locations_with_v_spacing_r_width CSIRO Amended 050820.xlsx")
-names(babich_extra_info)
-babich_extra_info <- babich_extra_info %>% 
-  dplyr::select(Name_1 = field_for_join,
-                row_spacing,
-                vine_spacing)
-#only keep the row with a name_1 to join
-babich_extra_info <- babich_extra_info %>% 
-  dplyr::filter(!is.na(Name_1) )
-
-#Can I match up the names?
-
-to_fill <- full_join(babich_coordinates_DF_missing_data, babich_extra_info, by = c("Name" = "Name_1"))
-#remove some clm
-names(to_fill)
-to_fill <- to_fill %>%
-  dplyr::select(FID,
-                Name, POINT_X, POINT_Y,row_spacing=  row_spacing.y, vine_spacing = vine_spacing.y)
-#remove rows with no coordinates
-to_fill <- to_fill %>%
-  dplyr::filter(!is.na(POINT_X) )
-#add in sites that dont have row and vine spacing
-to_fill <- to_fill %>%
-  mutate(
-    row_spacing =
-      case_when(
-        Name == "martin_pattie sr bottom" ~ 3,
-        Name == "martin_pattie sr main" ~ 3,
-        Name == "martin_pattie sr top" ~ 3,
-        Name == "martin_pattie sr top_main_bottom" ~ 3,
-        Name == "babich cvv south" ~ 2.5,
-        TRUE                      ~ row_spacing))
-        
-to_fill <- to_fill %>%
-  mutate(
-    vine_spacing =
-      case_when(
-        Name == "martin_pattie sr bottom" ~ 1.8,
-        Name == "martin_pattie sr main" ~ 1.8,
-        Name == "martin_pattie sr top" ~ 1.8,
-        Name == "martin_pattie sr top_main_bottom" ~ 1.8,
-        Name == "babich cvv south" ~ 1.8,
-        TRUE                      ~ vine_spacing))
-
-## make a complete data set 
-names(babich_coordinates_DF_no_missing)
-names(to_fill)
-
-babich_coordinates_DF <- rbind(babich_coordinates_DF_no_missing,to_fill )
 
 ############################################################################################################
 ########      Bring in the yield data for multiple years 2014 to 2017     ############################################
