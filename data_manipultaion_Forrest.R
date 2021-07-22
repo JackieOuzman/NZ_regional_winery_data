@@ -183,8 +183,8 @@ Forrest_08_2020_df <- Forrest_08_2020_df %>%
          #brix, 
          #bunch_m,
          #pruning_style,
-         row_width = In.row.spacing..m. ,
-         #vine_spacing,
+         vine_spacing = In.row.spacing..m. ,
+         #row_width = 2.4,
          Block = Subblock 
          )
 
@@ -205,11 +205,11 @@ Forrest_08_2020_df <- mutate(
   bunches_per_vine = NA,
   pruning_style = NA,
   brix = NA,
-  meter_row_per_ha = 10000 / row_width,
-  yld_per_m_row_kg = (yield_t_ha * 1000) / 10000 /
-    row_width,
-  bunch_m = NA,
-  vine_spacing = NA
+  row_width = 2.4,
+  meter_row_per_ha = 10000 / 2.4,
+  yld_per_m_row_kg = (yield_t_ha * 1000) / 10000 / 2.4,
+  bunch_m = NA
+  
 )
 names(Forrest_08_2020_df)
 
