@@ -390,7 +390,43 @@ filter(delegates_april_2019_sau,brix != 0) %>%
   theme_bw()+
   labs(x = "Year",
        y= "Brix - Sauvignon Blanc")
+########################################################################################################################
 
+#Revised delegates_april_2019_sau 21/0/2021
+names(delegates_april_2019_sau)
+
+#just need to make a block 
+
+
+delegates_april_2019_sau <- delegates_april_2019_sau %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+#1. How many sites?
+#for each year
+delegates_april_2019_sau %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+delegates_april_2019_sau %>%
+  summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+names(delegates_april_2019_sau)
+
+delegates_april_2019_sau %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+delegates_april_2019_sau %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
 
 
 
