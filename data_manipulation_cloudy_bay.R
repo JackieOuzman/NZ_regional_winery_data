@@ -78,8 +78,19 @@ rm(
     "GPS_Pts_cloudy_bay_shapefile_SB_agg",
     "Block_ID",
     "shapefile_df"))
-    
+names(cloudyBay_site_centroid)    
+## A few extra sites have been supplied containing the GPS coodinates and the row and vine spacing
+extra_sites <- read_excel(path ="//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/Regional winery data/Raw_data/Cloudy_bay/extra_sites_details_Alex_2021.xlsx" )
+names(extra_sites)
+extra_sites_coordinates <- extra_sites %>% 
+  dplyr::select(Name = block,
+                Row_spacin = row_width,
+                Vine_spaci = vine_spacing,
+                POINT_X = x_coord,
+                POINT_Y = y_coord)
 
+cloudyBay_site_centroid <- rbind(cloudyBay_site_centroid, extra_sites_coordinates)
+rm(list = c("extra_sites_coordinates", "extra_sites"))
 
 ############### yld data
 yld_cloudy_bay <-   read_excel("//FSSA2-ADL/CLW-SHARE3/Viticulture/Marlborough regional/Regional winery data/Raw_data/Cloudy_bay/Cloudy Bay Sauvignon Harvest data for GYA prokect.xlsx",
@@ -409,6 +420,45 @@ yld_spatial_cloudy_bay_2004_19 <- select(yld_spatial_cloudy_bay_2004_19,
 
 
 write_csv(yld_spatial_cloudy_bay_2004_19, "V:/Marlborough regional/working_jaxs/July2020/yld_spatial_cloudy_bay_2004_19.csv")
+
+
+
+#Revised cloudy_bay data set 21/0/2021
+names(yld_spatial_cloudy_bay_2004_19)
+
+#just need to make a block 
+# yld_spatial_cloudy_bay_2004_19 <- yld_spatial_cloudy_bay_2004_19 %>%
+#   dplyr::mutate(
+    
+yld_spatial_cloudy_bay_2004_19 <- yld_spatial_cloudy_bay_2004_19 %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+#1. How many sites?
+#for each year
+yld_spatial_cloudy_bay_2004_19 %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+yld_spatial_cloudy_bay_2004_19 %>%
+  summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+names(yld_spatial_cloudy_bay_2004_19)
+
+yld_spatial_cloudy_bay_2004_19 %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+yld_spatial_cloudy_bay_2004_19 %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
 
           
           
