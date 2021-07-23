@@ -117,6 +117,42 @@ glimpse(perno_GPS_distinct)
 
 rm(list = c("perno_GPS", "perno_GPS_coord", "perno_GPS_distinct_no_coords", "perno_GPS_no_coord", "perno_GPS_temp"))
 
+#Rob has a few extra coordinates 
+
+Extra_cood <- read.csv("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Extra_coordinates_obtained_Rob2021.csv")
+mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
+wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
+#proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
+
+coordinates(Extra_cood) <- ~long+lat
+proj4string(Extra_cood) <- wgs84CRS   # assume input lat and longs are WGS84
+Extra_cood_1 <- spTransform(Extra_cood, mapCRS)
+Extra_cood_1_df = as.data.frame(Extra_cood_1) #this has the new coordinates projected !YES!!
+#remove the duplication
+Extra_cood_1_df <- Extra_cood_1_df %>% separate(ID_yr, c("step1", "step2"), sep = "_", remove = FALSE)
+
+Extra_cood_1_df <- Extra_cood_1_df %>% mutate(ID = paste0(step1,"_", step2))
+
+Extra_cood_1_df <- Extra_cood_1_df %>% dplyr::distinct(ID, .keep_all = TRUE)
+names(perno_GPS_distinct)
+names(Extra_cood_1_df)
+Extra_cood_1_df <- Extra_cood_1_df %>% 
+  rename( x_coord = long,
+         y_coord  = lat) %>% 
+  dplyr::select(ID,  x_coord, y_coord) 
+
+Extra_cood_1_df <- Extra_cood_1_df %>% 
+  mutate(Variety = "Sauvignon Blanc",
+  Vnd = NA,
+  trellis = NA,)
+
+#join the newly GPS location with the older set
+names(perno_GPS_distinct)
+names(Extra_cood_1_df)
+perno_GPS_distinct <- rbind(perno_GPS_distinct, Extra_cood_1_df)
+
+
+rm(list=setdiff(ls(), "perno_GPS_distinct"))
 
 #########################################################################################################################
 ##############################           Yield data  PART 1           #################################################
@@ -520,7 +556,63 @@ write_csv(pernod_ricard1, "pernod_ricard_april_2019.csv")
 
 glimpse(pernod_ricard1)
 
+View(pernod_ricard1)
+## Rob want a few site removed because they are too old
 
+filter_vals <- c(
+"M10_SBLP_2008",
+"M13_SBDY_2008",
+"M13_SBLD_2008",
+"M13_SBLK_2008",
+"M16_SBAA_2008",
+"MV2_SBI1_2008",
+"MV2_SBLC_2008",
+"MV2_SBLM_2009",
+"MV4_SBL27_2010",
+"MV6_SBLD_2008")
+
+
+pernod_ricard1 <- filter(pernod_ricard1, !ID_yr  %in% filter_vals)
+
+
+############################################################################## 
+
+
+
+#Revised  set 21/0/2021
+names(pernod_ricard1)
+
+#just need to make a block 
+#pernod_ricard1 <- pernod_ricard1 %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+pernod_ricard1 <- pernod_ricard1 %>% 
+  rename(Block = ID)
+#1. How many sites?
+#for each year
+pernod_ricard1 %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+pernod_ricard1 %>%
+  summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+#names(pernod_ricard1)
+
+pernod_ricard1 %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+pernod_ricard1 %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
 
 
 

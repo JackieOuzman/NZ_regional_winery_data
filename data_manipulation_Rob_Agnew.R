@@ -93,8 +93,8 @@ GPS_Pts_Rob_Agnew <-  select(GPS_Pts_Rob_Agnew,
                              winery ,
                              latitude,
                              longitude,
-                             Lat_DD,
-                             Long_DD)
+                             Lat_dd,
+                             Long_dd)
 
 
 
@@ -105,10 +105,10 @@ wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and 
 
 glimpse(GPS_Pts_Rob_Agnew)
 
-GPS_Pts_Rob_Agnew_DD1<- select(GPS_Pts_Rob_Agnew, vineyard , winery, Lat_DD, Long_DD)
+GPS_Pts_Rob_Agnew_DD1<- select(GPS_Pts_Rob_Agnew, vineyard , winery, Lat_dd, Long_dd)
 glimpse(GPS_Pts_Rob_Agnew_DD1)
 #proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
-coordinates(GPS_Pts_Rob_Agnew_DD1) <- ~Long_DD+Lat_DD
+coordinates(GPS_Pts_Rob_Agnew_DD1) <- ~Long_dd+Lat_dd
 proj4string(GPS_Pts_Rob_Agnew_DD1) <- wgs84CRS   # assume input lat and longs are WGS84
 GPS_Pts_Rob_Agnew_DD <- spTransform(GPS_Pts_Rob_Agnew_DD1, mapCRS)
 
@@ -236,8 +236,8 @@ Yld_GPS_Rob_Agnew <- select(Yld_GPS_Rob_Agnew,
 company,
 ID_yr,
 variety,
-x_coord = Long_DD,
-y_coord = Lat_DD,
+x_coord = Long_dd,
+y_coord = Lat_dd,
 year,
 harvest_date,
 julian,
@@ -284,3 +284,39 @@ unique(Yld_GPS_Rob_Agnew_GPS_SAB$variety)
 
 write_csv(Yld_GPS_Rob_Agnew_GPS_SAB, "V:/Marlborough regional/working_jaxs/July2020/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
 ############################################################################## 
+
+
+
+#Revised  set 21/0/2021
+names(Yld_GPS_Rob_Agnew_GPS_SAB)
+
+#just need to make a block 
+Yld_GPS_Rob_Agnew_GPS_SAB <- Yld_GPS_Rob_Agnew_GPS_SAB %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+#1. How many sites?
+#for each year
+Yld_GPS_Rob_Agnew_GPS_SAB %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+Yld_GPS_Rob_Agnew_GPS_SAB %>%
+  summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+names(Forrest_08_2020_df)
+
+Yld_GPS_Rob_Agnew_GPS_SAB %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+Yld_GPS_Rob_Agnew_GPS_SAB %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
