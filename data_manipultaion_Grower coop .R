@@ -641,5 +641,82 @@ V2014_to_2019 <- V2014_to_2019 %>%
            y_coord = POINT_Y ,
            na_count = NA)
 
+
+V2014_to_2019 <- V2014_to_2019 %>% separate(ID_yr, c("temp", "temp2","Block"), sep = "_", remove = FALSE)
+
+V2014_to_2019 <- V2014_to_2019 %>% dplyr::select(-temp, -temp2)
+## add in some guess work for the blocks that have missing row and vine spacing.
+names(V2014_to_2019)
+
+V2014_to_2019 <- V2014_to_2019 %>% 
+   mutate(row_width = case_when(
+      Block == "200" ~ 2.80,
+      Block == "201" ~ 2.50,
+      Block == "202" ~ 3.0,
+      Block == "203" ~ 2.70,
+      Block == "204" ~ 2.70,
+      Block == "205" ~ 3.0,
+      Block == "206" ~ 2.70,
+      Block == "208" ~ 2.80,
+      TRUE ~ row_width))
+V2014_to_2019 <- V2014_to_2019 %>% 
+   mutate(vine_spacing = case_when(
+      Block == "200" ~ 1.80,
+      Block == "201" ~ 1.50,
+      Block == "202" ~ 1.8,
+      Block == "203" ~ 2,
+      Block == "204" ~ 1.8,
+      Block == "205" ~ 1.8,
+      Block == "206" ~ 1.8,
+      Block == "208" ~ 1.8,
+      TRUE ~ vine_spacing))   
+   
+#Now that I have some more info on the row and vine spacing I need to cal the yield kg again   
+V2014_to_2019 <- mutate(V2014_to_2019,
+                            m_ha_vine = 10000/ row_width,
+                            yield_kg_m = (yield_t_ha *1000)/m_ha_vine,
+                            meter_row_per_ha = 10000/row_width,
+                            yld_per_m_row_kg = (yield_t_ha *1000) / 10000/row_width
+                            )
+
+
 write.csv(V2014_to_2019,
           "V:/Marlborough regional/working_jaxs/July2020/grower_coop_V2014_to_2019.csv")
+
+
+########################################################################################################################
+
+#Revised Giesen_2020_spatial_yld_upadted2020_vs2 21/0/2021
+names(V2014_to_2019)
+
+#just need to make a block 
+
+
+# Giesen_2020_spatial_yld_upadted2020_vs2 <- Giesen_2020_spatial_yld_upadted2020_vs2 %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+#1. How many sites?
+#for each year
+V2014_to_2019 %>%
+   group_by(year) %>%
+   summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+V2014_to_2019 %>%
+   summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+
+V2014_to_2019 %>%
+   group_by(year) %>%
+   summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+             min_julian_days = min(julian, na.rm = TRUE),
+             max_julian_days = max(julian, na.rm = TRUE),
+             sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+V2014_to_2019 %>%
+   group_by(year) %>%
+   summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+             min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+             max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+             sum_na = sum(!is.na(yield_kg_m)))
