@@ -353,3 +353,46 @@ write_csv(Giesen_more_01072020_df, "V:/Marlborough regional/Regional winery data
 Giesen_2020_spatial_yld_upadted2020_vs2 <- bind_rows(Giesen_2020_spatial_yld_upadted2020, Giesen_more_01072020_df)
 #write_csv(Giesen_2020_spatial_yld_upadted2020_vs2, "V:/Marlborough regional/Regional winery data/Raw_data/Giesen/Giesen_2020_spatial_yld_upadted2020_vs2.csv")
 write_csv(Giesen_2020_spatial_yld_upadted2020_vs2, "V:/Marlborough regional/working_jaxs/July2020/Giesen_yld_data.csv")
+
+
+########################################################################################################################
+
+#Revised Giesen_2020_spatial_yld_upadted2020_vs2 21/0/2021
+names(Giesen_2020_spatial_yld_upadted2020_vs2)
+
+#just need to make a block 
+
+
+Giesen_2020_spatial_yld_upadted2020_vs2 <- Giesen_2020_spatial_yld_upadted2020_vs2 %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+#1. How many sites?
+#for each year
+Giesen_2020_spatial_yld_upadted2020_vs2 %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+Giesen_2020_spatial_yld_upadted2020_vs2 %>%
+  summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+names(Giesen_2020_spatial_yld_upadted2020_vs2)
+
+Giesen_2020_spatial_yld_upadted2020_vs2 %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+Giesen_2020_spatial_yld_upadted2020_vs2 %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
+
+
+
+
