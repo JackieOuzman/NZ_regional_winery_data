@@ -165,6 +165,9 @@ unique(Forrest_08_2020_df$Variety)
 
 Forrest_08_2020_df <- Forrest_08_2020_df %>% 
   filter(Variety == "Sauvignon Blanc")
+#test <- Forrest_08_2020_df
+
+
 
 
 ### I think that it
@@ -184,9 +187,20 @@ Forrest_08_2020_df <- Forrest_08_2020_df %>%
          #bunch_m,
          #pruning_style,
          vine_spacing = In.row.spacing..m. ,
-         #row_width = 2.4,
+         #row_width = In.row.spacing..m.,
          Block = Subblock 
          )
+
+#Rob has worked out the row width 23/07/2010
+Forrest_08_2020_df <- Forrest_08_2020_df %>% 
+  mutate(
+    row_width = case_when(
+      Block == "Conders Bend" ~	2.40,
+      Block == "Gibsons Creek" ~	2.70,
+      Block == "Home Block" ~	2.90,
+      Block == "Mountain View" ~	2.50,
+      Block == "Northbank" ~	2.80))
+
 
 #####################################################################################################################
 
@@ -205,9 +219,8 @@ Forrest_08_2020_df <- mutate(
   bunches_per_vine = NA,
   pruning_style = NA,
   brix = NA,
-  row_width = 2.4,
-  meter_row_per_ha = 10000 / 2.4,
-  yld_per_m_row_kg = (yield_t_ha * 1000) / 10000 / 2.4,
+  meter_row_per_ha = 10000 / row_width,
+  yld_per_m_row_kg = (yield_t_ha * 1000) / 10000 / row_width,
   bunch_m = NA
   
 )
@@ -246,3 +259,40 @@ write.csv(Forrest_08_2020_df,
    
 write.csv(Forrest_08_2020_df,
           "C:/Users/ouz001/working_from_home/NZ_regional_winery_data/Forrest_08_2020.csv")
+
+
+
+
+#Revised cloudy_bay data set 21/0/2021
+names(Forrest_08_2020_df)
+
+#just need to make a block 
+#Forrest_08_2020_df <- Forrest_08_2020_df %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+#1. How many sites?
+#for each year
+Forrest_08_2020_df %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+Forrest_08_2020_df %>%
+  summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+names(Forrest_08_2020_df)
+
+Forrest_08_2020_df %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+Forrest_08_2020_df %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
