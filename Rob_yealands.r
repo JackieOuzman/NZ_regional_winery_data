@@ -121,7 +121,7 @@ yealands_seaview_2020 <- mutate(yealands_seaview_2020,
                                 bunch_numb_m = bunch_per_vine / vine_spacing,
                                 pruning_style = NA,
                                 row_width = NA,
-                                na_count = NA) #not supplied I havent calulated
+                                na_count = NA) #
 
 
 
@@ -207,6 +207,94 @@ yealands_seaview_2020$yield_kg_m[yealands_seaview_2020$yield_kg_m == 0] <- NA
 yealands_seaview_2020$bunch_numb_m[yealands_seaview_2020$bunch_numb_m == 0] <- NA
 
 
+## I think Rob has made as mistake with the yield cal _ I will do this again
+# names(yealands_seaview_2020)
+# test <- yealands_seaview_2020
+# names(test)
+# str(test$yield_t_ha)
+# str(test$yield_kg_m)
+# str(test$row_width)
+
+## but first I need to work out which one Rob did
+# test <- test %>% dplyr::select(ID_yr, yield_t_ha, yield_kg_m, row_width)
+# test %>%filter(!is.na(row_width))
+
+yealands_seaview_2020 <- yealands_seaview_2020 %>%
+  mutate(re_cal_yield_kg_m = case_when(is.na(row_width) ~ yield_kg_m,
+                                          TRUE ~ (yield_t_ha * 1000) / (10000 / row_width)))
+
+
+## now remove the old cal and keep the new one
+names(yealands_seaview_2020)
+  
+yealands_seaview_2020 <- yealands_seaview_2020 %>%  dplyr::select(-yield_kg_m)
+yealands_seaview_2020 <- yealands_seaview_2020 %>%  dplyr::rename(yield_kg_m = re_cal_yield_kg_m)                  
+
+### one site is wrong
+yealands_seaview_2020 <- yealands_seaview_2020 %>% 
+  mutate(
+    y_coord  = case_when(
+      
+      ID_yr == "Seaview_J2_2018" ~ 5388746.638369999800000,
+      TRUE ~ y_coord
+    ))
+yealands_seaview_2020 <- yealands_seaview_2020 %>% 
+  mutate(
+    x_coord  = case_when(
+      ID_yr == "Seaview_J2_2018" ~ 1694942.457269999900000,
+      TRUE ~ x_coord
+    ))
+
 write_csv(yealands_seaview_2020, "V:/Marlborough regional/working_jaxs/July2020/Updated_Yealands_jax.csv")
 str(yealands_seaview_2020)
+
+
+###########################################################################################################
+#Revised  set 26/0/2021
+names(yealands_seaview_2020)
+
+#just need to make a block 
+yealands_seaview_2020 <- yealands_seaview_2020 %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+#1. How many sites?
+#for each year
+yealands_seaview_2020 %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+yealands_seaview_2020 %>%
+  summarise(count = n_distinct(Block))
+
+#2. For harvest date how many sites per year?
+names(yealands_seaview_2020)
+
+yealands_seaview_2020 %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+yealands_seaview_2020 %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
+
+
+
+
+
+
+
+
+#  
+
+
+
+
+
 

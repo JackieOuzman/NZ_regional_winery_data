@@ -232,156 +232,51 @@ yld_GPS <- mutate(yld_GPS,na_count = NA )
 write_csv(yld_GPS, "V:/Marlborough regional/working_jaxs/July2020/Wine_portfolio_yld_GPS_only_SAB.csv")
 ############################################################################## 
 
+###########################################################################################################
+#Revised  set 26/0/2021
+names(yld_GPS)
 
+#just need to make a block 
+yld_GPS <- yld_GPS %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
 
-######################################################################################################################
-################                         view and summaries DF 2014 -2019                            #################
-######################################################################################################################
+#1. How many sites?
+#for each year
+yld_GPS %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+yld_GPS %>%
+  summarise(count = n_distinct(Block))
 
-#how many entries with and without GPS for all years
-dim(yld_GPS)#144
-yld_GPS_noGPS_SAB <- filter(yld_GPS, variety       == "SAB" )
-dim(yld_GPS_noGPS_SAB)#71
+#2. For harvest date how many sites per year?
+names(yld_GPS)
 
-#how many entries with GPS for all years
-yld_GPS_only <- filter(yld_GPS,  x_coord       >0)
-dim(yld_GPS_only) #136
-#how many site are SAU?
-unique(yld_GPS_only$variety)
-#SAB
-yld_GPS_only_SAB <- filter(yld_GPS_only, variety == "SAB" )
-dim(yld_GPS_only_SAB) #70
+yld_GPS %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
 
+#3. For yield kg/m  how many sites per year
 
-
-glimpse(yld_GPS_only_SAB) #70 records
-max(yld_GPS_only_SAB$year) #2019
-min(yld_GPS_only_SAB$year) #2014
-#how many records are SAU with GPS
-count(filter(yld_GPS_only_SAB,   x_coord >0)) #70
-
-
-
-#how many records with GPS pts all varieties
-glimpse(yld_GPS_only  )#136 records
-#how many records with GPS pts all varieties
-count(filter(yld_GPS_only,   x_coord >0)) #136
-
-filter(yld_GPS_only,   x_coord >0) %>% 
-  ggplot( aes(variety ))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites with GPS coordinates")
-
-#how many sites with GPS pts by Variety by year
-filter(yld_GPS_only,  x_coord >0) %>% 
-  ggplot( aes(variety ))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")+
-  facet_wrap(~year)
+yld_GPS %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
 
 
 
 
-#create a new variable year_as_factor
-yld_GPS_only_SAB$year_factor <- as.factor(yld_GPS_only_SAB$year)
-
-#filter data for Sauvignon Blanc
-yld_GPS_only_SAB
-
-#how many sites for Sauvignon Blanc by year
-filter(yld_GPS_only_SAB,  x_coord >0) %>% 
-  group_by(year) %>% 
-  count() # 2014 = 12, 2015 =12, 2016 =12, 2017 =10, 2018 =12, 2019 =12
-
-####################################################################################################
-
-yld_GPS_only_SAB$na_count <- apply(is.na(yld_GPS_only_SAB), 1, sum)
-
-str(yld_GPS_only_SAB)
-
-#how many sites for Sauvignon Blanc have missing data - how much missing data?
-filter(yld_GPS_only_SAB,  x_coord >0) %>% 
-  ggplot( aes(year_factor, na_count))+
-  geom_col()+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Total counts of missing data entries NA - Sauvignon Blanc")
-#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-filter(yld_GPS_only_SAB,  x_coord >0) %>%
-  ggplot( aes(na_count))+
-  geom_bar()+
-  #xlim(0,10)+
-  scale_x_continuous(breaks =  c(0,2,4,6,8,10))+
-  facet_wrap(~year_factor)+
-  theme_bw()+
-  labs(x = "number of na counts per entry",
-       y= "Counts of missing data entries NA")
-
-########################################################################################################
-
-#check stuff 
 
 
-glimpse(yld_GPS_only_SAB)
-#julian days
-filter(yld_GPS_only_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor, julian))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days - Sauvignon Blanc")
-#yield_t_ha
-filter(yld_GPS_only_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor,  yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha - Sauvignon Blanc")
-#yield_kg_m
-filter(yld_GPS_only_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
-
-#yield_kg_m filter out zeros
-filter(yld_GPS_only_SAB,  x_coord >0) %>%
-  filter(yield_kg_m != 0) %>% 
-  ggplot( aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
 
 
-#brix - too many zero
-filter(yld_GPS_only_SAB,  x_coord >0) %>%
-  ggplot( aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
+#  
 
 
-#brix - filter out high values
-filter(yld_GPS_only_SAB,  x_coord >0) %>%
-  filter(brix <40) %>% 
-  ggplot( aes(year_factor, brix ))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
 
 
 
