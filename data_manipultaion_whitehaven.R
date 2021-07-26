@@ -4,8 +4,8 @@
 
 #install.packages("sp")
 #install.packages("biogeo")
-install.packages("rgdal")
-install.packages("sf")
+#install.packages("rgdal")
+#install.packages("sf")
 
 
 library(dplyr)
@@ -753,86 +753,57 @@ white_haven_2019to2014_GPS$na_count <- apply(is.na(white_haven_2019to2014_GPS), 
 glimpse(white_haven_2019to2014_GPS)
 
 
+white_haven_2019to2014_GPS$ID <- white_haven_2019to2014_GPS$ID %>% str_replace("murphy_east-west©_sb", "murphy_east-west_sb")
+white_haven_2019to2014_GPS$ID_yr <- white_haven_2019to2014_GPS$ID_yr %>% str_replace("murphy_east-west©_sb_", "murphy_east-west_sb_")
+white_haven_2019to2014_GPS$Block <- white_haven_2019to2014_GPS$Block %>% str_replace("East-West ©", "East-West")
+
 getwd()
 #write_csv(white_haven_2019to2014_GPS, "V:/Marlborough regional/working_jaxs/white_haven_2019to2014_GPS_updated.csv")
 
 write_csv(white_haven_2019to2014_GPS, "V:/Marlborough regional/working_jaxs/July2020/white_haven_2019to2014_GPS_updated.csv")
 write_csv(white_haven_2019to2014_GPS, "C:/Users/ouz001/working_from_home/NZ_regional_winery_data//white_haven_2019to2014_GPS_updated.csv")
 
-######################################################################################################################
-################                         view and summaries DF 2019 -2014                            #################
-######################################################################################################################
 
+###########################################################################################################
+#Revised  set 26/0/2021
+names(white_haven_2019to2014_GPS)
 
-dim(white_haven_2019to2014_GPS)
-#how many site?
-dim(white_haven_GPS_DD1_df)
-glimpse(white_haven_2019to2014_GPS)
+#just need to make a block 
+#white_haven_2019to2014_GPS <- white_haven_2019to2014_GPS %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
 
-glimpse(white_haven_2019_GPS)
-# do all sites have SB ?how many site?
-#all 130 sites are SB
-ggplot(white_haven_2019to2014_GPS, aes(Variety, year))+
-  geom_count()
-# how many vineyards?
-number_vineyards <- filter(white_haven_2019to2014_GPS, year == 2019) %>% 
-  distinct(Vineyard)
-glimpse(number_vineyards)
-# how many vineyards - not sure this is correct
-number_blocks <-filter(white_haven_2019to2014_GPS, year == 2019) %>% 
-  distinct(Block)
-glimpse(number_blocks)
+#1. How many sites?
+#for each year
+white_haven_2019to2014_GPS %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+white_haven_2019to2014_GPS %>%
+  summarise(count = n_distinct(Block))
 
-ggplot(white_haven_2019to2014_GPS, aes(year, julian))+
-  geom_point()
-  #geom_boxplot()
+#2. For harvest date how many sites per year?
+names(white_haven_2019to2014_GPS)
 
-#create a new variable year_as_factor
-white_haven_2019to2014_GPS$year_factor <- as.factor(white_haven_2019to2014_GPS$year)
+white_haven_2019to2014_GPS %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
 
-#julian days
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, julian))+
- geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days")
-#yield_t_ha
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha")
+#3. For yield kg/m  how many sites per year
 
-#brix
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix")
-
-
-ggplot(white_haven_2019to2014_GPS, aes(year_factor, na_count))+
-    geom_col()+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Total counts of missing data entries NA")
-
-ggplot(white_haven_2019to2014_GPS, aes(na_count))+
-  geom_bar()+
-  scale_x_continuous(breaks =  c(2,4,6,8,10))+
-  facet_wrap(~year_factor)+
-  theme_bw()+
-  labs(x = "number of na counts per entry",
-       y= "Counts of missing data entries NA")
+white_haven_2019to2014_GPS %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
 
 
 
-############################################################################## 
-########################    File to use   ####################################
-white_haven_2019to2014_all_sav <- select(white_haven_2019to2014_GPS, -year_factor)
-glimpse(white_haven_2019to2014_all_sav)
-write_csv(white_haven_2019to2014_all_sav, "V:/Marlborough regional/working_jaxs/white_haven_2019to2014_all_sav.csv")
-##############################################################################   
+View(white_haven_2019to2014_GPS)
+
+
+
+
+#  
