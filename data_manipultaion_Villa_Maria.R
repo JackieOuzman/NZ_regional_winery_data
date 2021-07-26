@@ -51,9 +51,29 @@ Villia_maria_GPS <- select(Villia_maria_GPS,
 Villia_maria_GPS <- filter(Villia_maria_GPS,Section !="MWTFSB04") %>% 
 filter(Section !="MMASPN04") 
                              
+### Rob has been given some coodinates in July 2021 
 
+Villia_maria_GPS_extra <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Villa_Maria/Extra sites July 2021 Final check VillaM-SG Edit.xlsx",
+                                     sheet = "summary of changes for R")
 
+Villia_maria_GPS_extra_keep <- Villia_maria_GPS_extra %>% 
+  dplyr::filter(Notes =="update info")
 
+names(Villia_maria_GPS)
+names(Villia_maria_GPS_extra_keep)
+# get the names of the clms correct/ to match
+Villia_maria_GPS_extra_keep <- Villia_maria_GPS_extra_keep %>% 
+  dplyr::mutate(sub_region = NA, variety = "SAUV")
+
+Villia_maria_GPS_extra_keep <- Villia_maria_GPS_extra_keep %>% 
+  dplyr::rename("Section" = "Block",
+                "lat" = "x_coord",
+                "long" = "y_coord"
+                ) %>% 
+  select(-"Notes")
+Villia_maria_GPS <- rbind(Villia_maria_GPS, Villia_maria_GPS_extra_keep)
+
+rm("Villia_maria_GPS_extra_keep")  
 #write_csv(Villia_maria_GPS, "Villia_maria_GPS_test.csv")
 ######################################################################################################################
 ################                         change the projection of the data                              #################
@@ -381,80 +401,23 @@ Villia_maria_2018_2012_all_sav <-
            variety ==  "SAUV")
 
 
-#rm("Villia_maria_2018_2012_all", "no_GPS_Villia_maria")
 
-#heaps pof block with no GPS coordinates - why is this? can we do better?
-no_GPS_Villia_maria_sav<- Villia_maria_2018_2012_all_sav %>% 
-  filter(is.na(x_coord))
+################################################################################################################
+## Rob want to remove a few sites July 2021
+glimpse(Villia_maria_GPS_extra)
+sites_to_remove <- Villia_maria_GPS_extra %>% 
+  dplyr::filter(Notes == "remove from analysis")
+sites_to_remove <- as.list(sites_to_remove$Block)
+str(sites_to_remove)
+glimpse(Villia_maria_2018_2012_all_sav)
+Villia_maria_2018_2012_all_sav <- Villia_maria_2018_2012_all_sav %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+Villia_maria_2018_2012_all_sav <- Villia_maria_2018_2012_all_sav %>% 
+  filter(!Block %in% sites_to_remove)
+
+###############################################################################################################
 
 
-no_GPS_Villia_maria_sav %>% 
-  group_by( year) %>% 
-  summarise(number = n())
-
-#wow heaps of the 2019 sites dont match - why?? lets see whats missing for the years
-no_GPS_2019_sav <- no_GPS_Villia_maria_sav %>% 
-  filter(year == 2019)
-no_GPS_2019_sav <-as.data.frame( unique(no_GPS_2019_sav$ID))
-names(no_GPS_2019_sav)<- "no_coord"
-no_GPS_2019_sav <- no_GPS_2019_sav %>% 
-  mutate(year = 2019)
-
-no_GPS_2017_sav <- no_GPS_Villia_maria_sav %>% 
-  filter(year == 2017) 
-no_GPS_2017_sav <-as.data.frame( unique(no_GPS_2017_sav$ID))
-names(no_GPS_2017_sav)<- "no_coord"
-no_GPS_2017_sav <- no_GPS_2017_sav %>% 
-  mutate(year = 2017)
-
-no_GPS_2016_sav <- no_GPS_Villia_maria_sav %>% 
-  filter(year == 2016) 
-no_GPS_2016_sav <-as.data.frame( unique(no_GPS_2016_sav$ID))
-names(no_GPS_2016_sav)<- "no_coord"
-no_GPS_2016_sav <- no_GPS_2016_sav %>% 
-  mutate(year = 2016)
-
-no_GPS_2015_sav <- no_GPS_Villia_maria_sav %>% 
-  filter(year == 2015) 
-no_GPS_2015_sav <-as.data.frame( unique(no_GPS_2015_sav$ID))
-names(no_GPS_2015_sav)<- "no_coord"
-no_GPS_2015_sav <- no_GPS_2015_sav %>% 
-  mutate(year = 2015)
-
-no_GPS_2014_sav <- no_GPS_Villia_maria_sav %>% 
-  filter(year == 2014) 
-no_GPS_2014_sav <-as.data.frame( unique(no_GPS_2014_sav$ID))
-names(no_GPS_2014_sav)<- "no_coord"
-no_GPS_2014_sav <- no_GPS_2014_sav %>% 
-  mutate(year = 2014)
-
-no_GPS_2013_sav <- no_GPS_Villia_maria_sav %>% 
-  filter(year == 2013) 
-no_GPS_2013_sav <-as.data.frame( unique(no_GPS_2013_sav$ID))
-names(no_GPS_2013_sav)<- "no_coord"
-no_GPS_2013_sav <- no_GPS_2013_sav %>% 
-  mutate(year = 2013)
-
-no_GPS_2012_sav <- no_GPS_Villia_maria_sav %>% 
-  filter(year == 2012) 
-no_GPS_2012_sav <-as.data.frame( unique(no_GPS_2012_sav$ID))
-names(no_GPS_2012_sav)<- "no_coord"
-no_GPS_2012_sav <- no_GPS_2012_sav %>% 
-  mutate(year = 2012)
-
-no_GPS_2012_2019sav <- rbind(
-  no_GPS_2012_sav,
-  no_GPS_2013_sav,
-  no_GPS_2014_sav,
-  no_GPS_2015_sav,
-  no_GPS_2016_sav,
-  no_GPS_2017_sav,
-  no_GPS_2019_sav
-)
-getwd()
-write.csv(no_GPS_2012_2019sav, "Villa_Maria_no_GPS_2012_2019sav.csv")
-
-## some data needs to be removed or recoded eg 0 to NA
+# some data needs to be removed or recoded eg 0 to NA
 names(Villia_maria_2018_2012_all_sav)
 
 Villia_maria_2018_2012_all_sav <- Villia_maria_2018_2012_all_sav %>% 
@@ -473,8 +436,6 @@ Villia_maria_2018_2012_all_sav <- Villia_maria_2018_2012_all_sav %>%
   mutate(bunch_weight = case_when(
     bunch_weight == 12439 ~ NA_real_,
     TRUE ~ bunch_weight))
-
-
 
 Villia_maria_2018_2012_all_sav <- Villia_maria_2018_2012_all_sav %>% 
   mutate(brix = case_when(
@@ -496,129 +457,41 @@ Villia_maria_2018_2012_all_sav <- Villia_maria_2018_2012_all_sav %>%
 
 names(Villia_maria_2018_2012_all_sav)
 write_csv(Villia_maria_2018_2012_all_sav, "V:/Marlborough regional/working_jaxs/July2020/Villia_maria_2017_2012_all_sau.csv")
-                       
-######################################################################################################################
-################                         view and summaries DF 2019 -2014                            #################
-######################################################################################################################
 
 
-dim(Villia_maria_2017_2012_all)
-#how many site?
-dim(Villia_maria_2017_2012_all)
-glimpse(Villia_maria_2017_2012_all) #1754 records
-max(Villia_maria_2017_2012_all$year) #2012 -2018
-min(Villia_maria_2017_2012_all$year)
+###########################################################################################################
+#Revised  set 26/0/2021
+names(Villia_maria_2018_2012_all_sav)
 
+#just need to make a block 
+#TWE <- Yld_GPS_Rob_Agnew_GPS_SAB %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
 
-#how many sites with GPS pts
-glimpse(Villia_maria_GPS  )#312 records
-#how many sites with GPS pts by Variety
-ggplot(Villia_maria_GPS, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites with GPS coordinates")
+#1. How many sites?
+#for each year
+Villia_maria_2018_2012_all_sav %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+Villia_maria_2018_2012_all_sav %>%
+  summarise(count = n_distinct(Block))
 
-#how many sites by Variety by year
-ggplot(Villia_maria_2017_2012_all, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")+
-  facet_wrap(~year)
+#2. For harvest date how many sites per year?
+names(Villia_maria_2018_2012_all_sav)
 
-#how many sites by Variety
-ggplot(Villia_maria_2017_2012_all, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")
+Villia_maria_2018_2012_all_sav %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
 
+#3. For yield kg/m  how many sites per year
 
+Villia_maria_2018_2012_all_sav %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
 
-#create a new variable year_as_factor
-Villia_maria_2017_2012_all$year_factor <- as.factor(Villia_maria_2017_2012_all$year)
-
-#filter data for Sauvignon Blanc
-Villia_maria_2017_2012_all_sau <- filter(Villia_maria_2017_2012_all, variety == "SAUV") 
-glimpse(Villia_maria_2017_2012_all_sau)
-
-#how many sites for Sauvignon Blanc by year
-group_by(Villia_maria_2017_2012_all_sau, year) %>% 
-  count()
-#how many sites for Sauvignon Blanc have missing data - how much missing data?
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, na_count))+
-  geom_col()+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Total counts of missing data entries NA - Sauvignon Blanc")
-#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-ggplot(Villia_maria_2017_2012_all_sau, aes(na_count))+
-  geom_bar()+
-  scale_x_continuous(breaks =  c(2,4,6,8,10))+
-  facet_wrap(~year_factor)+
-  theme_bw()+
-  labs(x = "number of na counts per entry",
-       y= "Counts of missing data entries NA")
-
-
-glimpse(Villia_maria_2017_2012_all_sau)
-#julian days
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, julian))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days - Sauvignon Blanc")
-#yield_t_ha
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha - Sauvignon Blanc")
-#yield_kg_m
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
-
-#yield_kg_m filter out zeros
-filter(Villia_maria_2017_2012_all_sau,yield_kg_m != 0) %>% 
-  ggplot( aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
-
-
-#brix - too many zero
-ggplot(Villia_maria_2017_2012_all_sau, aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
-
-
-#brix - filter out high values
-filter(Villia_maria_2017_2012_all_sau,brix <40) %>% 
-  ggplot( aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
-
-
-
-############################################################################## 
-########################    File to use   ####################################
-Villia_maria_2017_2012_all_sau <- select(Villia_maria_2017_2012_all_sau, -year_factor)
-glimpse(Villia_maria_2017_2012_all_sau)
-write_csv(Villia_maria_2017_2012_all_sau, "V:/Marlborough regional/working_jaxs/Villia_maria_2017_2012_all_sau.csv")
-##############################################################################   
 
