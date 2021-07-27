@@ -542,221 +542,146 @@ write_csv(wither_hills_GPS_block_info_harvest_all_yrs_sb, "V:/Marlborough region
 ####################################################################################################################
 
 View(wither_hills_GPS_block_info_harvest_all_yrs_sb)
+# names(wither_hills_GPS_block_info_harvest_all_yrs_sb)
+# count(filter(wither_hills_GPS_block_info_harvest_all_yrs_sb,na_count ==12 ))
+# sites_coord_no_yld_data <- filter(wither_hills_GPS_block_info_harvest_all_yrs_sb,na_count ==12 )
+# write_csv(sites_coord_no_yld_data, "V:/Marlborough regional/working_jaxs/July2020/wither_hills_sites_coord_no_yld_data.csv")
+
+#####################################################################################################################
+#Revised cloudy_bay data set 27/0/2021
 names(wither_hills_GPS_block_info_harvest_all_yrs_sb)
-count(filter(wither_hills_GPS_block_info_harvest_all_yrs_sb,na_count ==12 ))
-sites_coord_no_yld_data <- filter(wither_hills_GPS_block_info_harvest_all_yrs_sb,na_count ==12 )
-write_csv(sites_coord_no_yld_data, "V:/Marlborough regional/working_jaxs/July2020/wither_hills_sites_coord_no_yld_data.csv")
 
-######################################################################################################################
-################                         view and summaries DF                             #################
-######################################################################################################################
+#just need to make a block 
+# yld_spatial_cloudy_bay_2004_19 <- yld_spatial_cloudy_bay_2004_19 %>%
+#   dplyr::mutate(
 
+wither_hills_GPS_block_info_harvest_all_yrs_sb <- wither_hills_GPS_block_info_harvest_all_yrs_sb %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
 
-dim(wither_hills_GPS_block_info_harvest)
-#how many site?
-dim(wither_hills_GPS_block_info_harvest)
-glimpse(wither_hills_GPS_block_info_harvest$year) #606 records
+#1. How many sites?
+#for each year
+wither_hills_GPS_block_info_harvest_all_yrs_sb %>%
+  group_by(year) %>%
+  summarise(count = n_distinct(Block))
+#overall for the data set from 2014-2019 how many blocks do we have?
+wither_hills_GPS_block_info_harvest_all_yrs_sb %>%
+  summarise(count = n_distinct(Block))
 
-max(wither_hills_GPS_block_info_harvest$year, na.rm = TRUE) #2015 -2018
-min(wither_hills_GPS_block_info_harvest$year, na.rm = TRUE) #2015 -2018
+#2. For harvest date how many sites per year?
+names(wither_hills_GPS_block_info_harvest_all_yrs_sb)
 
+wither_hills_GPS_block_info_harvest_all_yrs_sb %>%
+  group_by(year) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
 
-#how many sites with GPS pts
-glimpse(wither_hills_GPS_block_info_harvest)#606 records
-colSums(is.na(wither_hills_GPS_block_info_harvest)) #330 with missing GPS records
-GPS_only <- filter(wither_hills_GPS_block_info_harvest, x_coord> 0)
-glimpse(GPS_only)
+#3. For yield kg/m  how many sites per year
 
-
-
-#how many sites with GPS pts by Variety using filter
-filter(wither_hills_GPS_block_info_harvest, x_coord > 0) %>% 
-  ggplot( aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites with GPS coordinates")
-#how many sites with GPS pts by Variety using df with just GPS pts (same graph different methods)
-ggplot(GPS_only, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites with GPS coordinates")
+wither_hills_GPS_block_info_harvest_all_yrs_sb %>%
+  group_by(year) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
 
 
 
 
-#how many sites by Variety by year with just the GPS data
-ggplot(wither_hills_GPS_block_info_harvest, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")+
-  facet_wrap(~year)
-
-#how many sites by Variety with just the GPS data all the data
-ggplot(wither_hills_GPS_block_info_harvest, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")
 
 
 
-#create a new variable year_as_factor
-wither_hills_GPS_block_info_harvest$year_factor <- as.factor(wither_hills_GPS_block_info_harvest$year)
-glimpse(wither_hills_GPS_block_info_harvest)
-#filter data for Sauvignon Blanc
-wither_hills_GPS_block_info_harvest_sau <- filter(wither_hills_GPS_block_info_harvest, variety == "sb") 
-glimpse(wither_hills_GPS_block_info_harvest_sau)
-
-#how many sites for Sauvignon Blanc by year
-group_by(wither_hills_GPS_block_info_harvest_sau, year) %>% 
-  count()
-#how many sites for Sauvignon Blanc have missing data - how much missing data?
-ggplot(wither_hills_GPS_block_info_harvest_sau, aes(year_factor, na_count))+
-  geom_col()+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Total counts of missing data entries NA - Sauvignon Blanc")
-#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-ggplot(wither_hills_GPS_block_info_harvest_sau, aes(na_count))+
-  geom_bar()+
-  scale_x_continuous(breaks =  c(2,4,6,8,10))+
-  facet_wrap(~year_factor)+
-  theme_bw()+
-  labs(x = "number of na counts per entry",
-       y= "Counts of missing data entries NA")
 
 
-glimpse(wither_hills_GPS_block_info_harvest_sau)
-#julian days
-ggplot(wither_hills_GPS_block_info_harvest_sau, aes(year_factor, julian))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days - Sauvignon Blanc")
-#yield_t_ha
-ggplot(wither_hills_GPS_block_info_harvest_sau, aes(year_factor, yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha - Sauvignon Blanc")
-#yield_kg_m
-ggplot(wither_hills_GPS_block_info_harvest_sau, aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
-
-#yield_kg_m filter out zeros
-filter(wither_hills_GPS_block_info_harvest_sau,yield_kg_m != 0) %>% 
-  ggplot( aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
 
 
-#brix - too many zero
-ggplot(wither_hills_GPS_block_info_harvest_sau, aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
 
 
-#brix - filter out zero
-filter(wither_hills_GPS_block_info_harvest_sau,brix != 0) %>% 
-  ggplot( aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
+
+
+
+
+
+
+
 
 
 ###########################################################################################################################################
 ##############   how do I know if the sites are doubled up?? and what to do about it?   ###################################################
 
-check_double_up <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/V15-V19 Mapping Project Data.xlsx", 
-                                               sheet = "15,16,17,18,19 ", skip = 3)
-glimpse(check_double_up)
-unique(check_double_up$Variety)
-
-check_double_up_sb <- filter(check_double_up,Variety == "SB" )
-check_double_up_sb
-#bm_02_(spur09)_pn is only block name on the harvest data, and GPS point only have bm_02_pn – make the assumption that they are the same?
-check_double_up_sb <- mutate(check_double_up_sb,
-                                           Block =  case_when(
-                                             Block == "BM 02 (spur 09)" ~ "BM 02",
-                                             TRUE ~ Block))
-## A few needs a name change...SC01 to SC 01 and SC05 to SC 05 and SC06 to SC 06 OR 04a&b, OR03
-
-check_double_up_sb <- mutate(check_double_up_sb,
-                                           Block =  case_when(
-                                             Block == "SC01" ~ "SC 01",
-                                             Block == "SC05" ~ "SC 05",
-                                             Block == "SC06" ~ "SC 06",
-                                             Block == "OR 04a&b" ~ "OR 04",
-                                             Block == "OR03" ~ "OR 03",
-                                             Block == "OR04" ~ "OR 04",
-                                             Block == "OR 01a&b" ~ "OR 01",
-                                             TRUE ~ Block))
-
-
-
-
-#Create an ID clm
-str(check_double_up_sb)
-check_double_up_sb_step1 <- check_double_up_sb %>% 
-  mutate(vineyard_lower =str_to_lower(Vineyard, locale = "en"),
-         block_lower =str_to_lower(Block, locale = "en"),
-         Variety_lower =str_to_lower(Variety, locale = "en"),
-         year = gsub( "V|v", "20", check_double_up_sb$Vintage))
-glimpse(check_double_up_sb_step1)
-
-
-
-check_double_up_sb_step2 <- check_double_up_sb_step1 %>% 
-  mutate(ID_temp1 = gsub( " ", "_", check_double_up_sb_step1$block_lower),
-         ID_temp = paste0(ID_temp1,"_", Variety_lower),
-         ID_yr = paste0(ID_temp,"_", year))  
-glimpse(check_double_up_sb_step2)
-
-
-check_double_up_sb_step2 <- dplyr::select(check_double_up_sb_step2,
-                                          Vineyard,
-                                          Region,
-                                          Block,
-                                          ha = `Area \r\n(ha)`,
-                                          ID_yr,
-                                          ID_temp)
-check_double_up_sb_step2
-
-#what are the replicates?
-what_reps <- check_double_up_sb_step2 %>% group_by(ID_yr) %>% 
-  filter(n() > 1)
-
-what_reps <-mutate(what_reps,
-       ID_yr_ha = paste0(ID_yr, "_", ha)) 
-print(what_reps)
-
-#Yes there are a few lets just use the one that has tne biggest ha...
-biggest_rep <- what_reps %>% 
-  group_by(ID_yr) %>%
-  summarise(value = max(ha, na.rm = FALSE))
-biggest_rep <- mutate(biggest_rep,
-       ID_yr_ha = paste0(ID_yr, "_", value))  
-
-print(biggest_rep)
-
-
-#use this to make a list of sites I dont want to use in analysis
-what_to_chuck <- what_reps %>%
-filter(!ID_yr_ha %in% biggest_rep$ID_yr_ha)
+# check_double_up <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Wither_hills/V15-V19 Mapping Project Data.xlsx", 
+#                                                sheet = "15,16,17,18,19 ", skip = 3)
+# glimpse(check_double_up)
+# unique(check_double_up$Variety)
+# 
+# check_double_up_sb <- filter(check_double_up,Variety == "SB" )
+# check_double_up_sb
+# #bm_02_(spur09)_pn is only block name on the harvest data, and GPS point only have bm_02_pn – make the assumption that they are the same?
+# check_double_up_sb <- mutate(check_double_up_sb,
+#                                            Block =  case_when(
+#                                              Block == "BM 02 (spur 09)" ~ "BM 02",
+#                                              TRUE ~ Block))
+# ## A few needs a name change...SC01 to SC 01 and SC05 to SC 05 and SC06 to SC 06 OR 04a&b, OR03
+# 
+# check_double_up_sb <- mutate(check_double_up_sb,
+#                                            Block =  case_when(
+#                                              Block == "SC01" ~ "SC 01",
+#                                              Block == "SC05" ~ "SC 05",
+#                                              Block == "SC06" ~ "SC 06",
+#                                              Block == "OR 04a&b" ~ "OR 04",
+#                                              Block == "OR03" ~ "OR 03",
+#                                              Block == "OR04" ~ "OR 04",
+#                                              Block == "OR 01a&b" ~ "OR 01",
+#                                              TRUE ~ Block))
+# 
+# 
+# 
+# 
+# #Create an ID clm
+# str(check_double_up_sb)
+# check_double_up_sb_step1 <- check_double_up_sb %>% 
+#   mutate(vineyard_lower =str_to_lower(Vineyard, locale = "en"),
+#          block_lower =str_to_lower(Block, locale = "en"),
+#          Variety_lower =str_to_lower(Variety, locale = "en"),
+#          year = gsub( "V|v", "20", check_double_up_sb$Vintage))
+# glimpse(check_double_up_sb_step1)
+# 
+# 
+# 
+# check_double_up_sb_step2 <- check_double_up_sb_step1 %>% 
+#   mutate(ID_temp1 = gsub( " ", "_", check_double_up_sb_step1$block_lower),
+#          ID_temp = paste0(ID_temp1,"_", Variety_lower),
+#          ID_yr = paste0(ID_temp,"_", year))  
+# glimpse(check_double_up_sb_step2)
+# 
+# 
+# check_double_up_sb_step2 <- dplyr::select(check_double_up_sb_step2,
+#                                           Vineyard,
+#                                           Region,
+#                                           Block,
+#                                           ha = `Area \r\n(ha)`,
+#                                           ID_yr,
+#                                           ID_temp)
+# check_double_up_sb_step2
+# 
+# #what are the replicates?
+# what_reps <- check_double_up_sb_step2 %>% group_by(ID_yr) %>% 
+#   filter(n() > 1)
+# 
+# what_reps <-mutate(what_reps,
+#        ID_yr_ha = paste0(ID_yr, "_", ha)) 
+# print(what_reps)
+# 
+# #Yes there are a few lets just use the one that has tne biggest ha...
+# biggest_rep <- what_reps %>% 
+#   group_by(ID_yr) %>%
+#   summarise(value = max(ha, na.rm = FALSE))
+# biggest_rep <- mutate(biggest_rep,
+#        ID_yr_ha = paste0(ID_yr, "_", value))  
+# 
+# print(biggest_rep)
+# 
+# 
+# #use this to make a list of sites I dont want to use in analysis
+# what_to_chuck <- what_reps %>%
+# filter(!ID_yr_ha %in% biggest_rep$ID_yr_ha)
