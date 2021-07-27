@@ -213,7 +213,7 @@ test <- arrange(test,
 test1 <- filter(delegates_april_2019, na_count == 14)
 test1 <- arrange(test1,
                 ID_temp, year)
-write_csv(test1, "V:/Marlborough regional/working_jaxs/July2020/delegates_april_no_yld_data_but_cords.csv")
+#write_csv(test1, "V:/Marlborough regional/working_jaxs/July2020/delegates_april_no_yld_data_but_cords.csv")
 
 #remove the row that just have block name and coodinates eg dont have harvest data
 delegates_april_2019 <- filter(delegates_april_2019,

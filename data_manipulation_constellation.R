@@ -539,8 +539,8 @@ worth_chasing_up <- sites_with_no_coord_more_att
 names(worth_chasing_up)
 worth_chasing_up <-separate(worth_chasing_up, ID_yr, into = c("temp1", "temp2"), remove = FALSE)
 worth_chasing_up <- distinct(worth_chasing_up, temp1)
-write_csv(worth_chasing_up, 
-          "V:/Marlborough regional/working_jaxs/July2020/constellation_worth_chasing_up_no_coods.csv")
+# write_csv(worth_chasing_up, 
+#           "V:/Marlborough regional/working_jaxs/July2020/constellation_worth_chasing_up_no_coods.csv")
 
 ############################################################################## 
 ########################    File to use   ####################################

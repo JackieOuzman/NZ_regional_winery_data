@@ -1241,7 +1241,7 @@ test1 <- anti_join(babich_coordinates_DF, Babich_2014_2019)
 test2 <- anti_join(Babich_2014_2019 , babich_coordinates_DF)
 
 #Rob wants a list of what was not joined
-write.csv(test2,"V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/missing_location_13_08_2020/babich_no_coord.csv")
+#write.csv(test2,"V:/Marlborough regional/Regional winery data/Raw_data/Babich/google_earth_location/missing_location_13_08_2020/babich_no_coord.csv")
 
 ############################################################################################################
 
