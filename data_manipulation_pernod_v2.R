@@ -752,7 +752,7 @@ ggplot( aes(year_factor, brix))+
 ########################    File to use   ####################################
 pernod_ricard1_sau <- select(pernod_ricard1_sau, -year_factor)
 glimpse(pernod_ricard1_sau)
-write_csv(pernod_ricard1_sau, "V:/Marlborough regional/working_jaxs/pernod_ricard1_sau.csv")
+write_csv(pernod_ricard1_sau, "V:/Marlborough regional/working_jaxs/July2020/pernod_ricard1_sau.csv")
 ##############################################################################   
 
 

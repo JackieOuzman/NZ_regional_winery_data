@@ -11,7 +11,7 @@ library(plotly)
 
 ### move the files over to a folder and then mess about with them there
 
-"V:\Marlborough regional\working_jaxs\July2020\wither_hills_GPS_block_info_harvest_sau.csv"
+
 
 # identify the folders
 current.folder <- "V:/Marlborough regional/working_jaxs/July2020"
@@ -24,7 +24,7 @@ list.of.files
 file.copy(from=list.of.files, 
           to=new.folder, 
           overwrite = TRUE)
-
+list.files("V:/Marlborough regional/working_jaxs/July2020/file_for_merge")
 #make the names a bit shorter
 
 file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
@@ -47,12 +47,10 @@ file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge
                    "Forrest_08_2020.csv"), 
             paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "forrest.csv"))
-
 file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Giesen_yld_data.csv"), 
             paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "giesen.csv"))
-
 file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "grower_coop_V2014_to_2019.csv"), 
             paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
@@ -93,7 +91,10 @@ file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge
                    "Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv"), 
             paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "rob_agnew.csv"))
-
+file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+                   "pernod_ricard1_sau.csv"), 
+            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+                   "pernod_ricard.csv"))
 
 ########################################################################################################################
 
@@ -182,7 +183,8 @@ all_sites <- rbind(`site_ babich`,
                    `site_ white_haven`,
                    `site_ Wine_portfolio`,
                    `site_ wither_hills`,  
-                   `site_ yealands`) 
+                   `site_ yealands`,
+                   `site_ pernod_ricard`) 
 
 #########################################################################################
 ### remove_low_high_values 
@@ -207,4 +209,58 @@ all_sites$harvest_date <- as.Date(all_sites$harvest_date,
 
 
 ##########################################################################################
+
+write.csv(all_sites, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/All_sites_july2021.csv")
+names(all_sites)
+
+all_sites_2014_2019 <- all_sites %>% 
+  filter(between(year,2014, 2019))
+write.csv(all_sites_2014_2019, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/All_sites_2014_2019_july2021.csv")
+
+
+
+
+############################################################################################
+
+#with(site_Jan2020,  table(company, year))
+site_table_yr <- with(filter(all_sites_2014_2019,  x_coord >0), table(company, year))
+site_table_yr
+write.csv(site_table_yr, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/site_table_yr_july2021.csv")
+
+
+
+################################################################################################
+#Revised  27/0/2021
+names(all_sites_2014_2019)
+
+
+
+#all_sites_2014_2019 <- all_sites_2014_2019 %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
+
+
+#2. For harvest date how many sites per year?
+names(all_sites_2014_2019)
+
+summary_harvest_date <- all_sites_2014_2019 %>%
+  group_by(year, company) %>%
+  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
+            min_julian_days = min(julian, na.rm = TRUE),
+            max_julian_days = max(julian, na.rm = TRUE),
+            sum_na = sum(!is.na(julian)))
+
+#3. For yield kg/m  how many sites per year
+
+summary_yld <- all_sites_2014_2019 %>%
+  group_by(year, company) %>%
+  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
+            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
+            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
+            sum_na = sum(!is.na(yield_kg_m)))
+
+names(summary_harvest_date)
+write.csv(summary_harvest_date, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/summary_harvest_date.csv")
+write.csv(summary_yld, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/summary_yld.csv")
+
+
+
 
