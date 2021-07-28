@@ -93,8 +93,9 @@ GPS_Pts_Rob_Agnew <-  select(GPS_Pts_Rob_Agnew,
                              winery ,
                              latitude,
                              longitude,
-                             Lat_dd,
-                             Long_dd)
+                             Lat_DD,
+                             Long_DD)
+print(GPS_Pts_Rob_Agnew$Long_DD)
 
 
 
@@ -105,10 +106,10 @@ wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and 
 
 glimpse(GPS_Pts_Rob_Agnew)
 
-GPS_Pts_Rob_Agnew_DD1<- select(GPS_Pts_Rob_Agnew, vineyard , winery, Lat_dd, Long_dd)
+GPS_Pts_Rob_Agnew_DD1<- select(GPS_Pts_Rob_Agnew, vineyard , winery, Lat_DD, Long_DD)
 glimpse(GPS_Pts_Rob_Agnew_DD1)
 #proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
-coordinates(GPS_Pts_Rob_Agnew_DD1) <- ~Long_dd+Lat_dd
+coordinates(GPS_Pts_Rob_Agnew_DD1) <- ~Long_DD+Lat_DD
 proj4string(GPS_Pts_Rob_Agnew_DD1) <- wgs84CRS   # assume input lat and longs are WGS84
 GPS_Pts_Rob_Agnew_DD <- spTransform(GPS_Pts_Rob_Agnew_DD1, mapCRS)
 
@@ -236,8 +237,8 @@ Yld_GPS_Rob_Agnew <- select(Yld_GPS_Rob_Agnew,
 company,
 ID_yr,
 variety,
-x_coord = Long_dd,
-y_coord = Lat_dd,
+x_coord = Long_DD,
+y_coord = Lat_DD,
 year,
 harvest_date,
 julian,

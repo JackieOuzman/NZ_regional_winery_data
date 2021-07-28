@@ -109,6 +109,7 @@ GPS_Pts_Rob_Agnew_DD1<- select(GPS_Pts_Rob_Agnew, vineyard , winery, Lat_DD, Lon
 glimpse(GPS_Pts_Rob_Agnew_DD1)
 #proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
 coordinates(GPS_Pts_Rob_Agnew_DD1) <- ~Long_DD+Lat_DD
+#coordinates(GPS_Pts_Rob_Agnew_DD1) <- ~Lat_DD + Long_DD
 proj4string(GPS_Pts_Rob_Agnew_DD1) <- wgs84CRS   # assume input lat and longs are WGS84
 GPS_Pts_Rob_Agnew_DD <- spTransform(GPS_Pts_Rob_Agnew_DD1, mapCRS)
 
@@ -232,8 +233,8 @@ Yld_GPS_Rob_Agnew <- select(Yld_GPS_Rob_Agnew,
 company,
 ID_yr,
 variety,
-x_coord = Long_DD,
-y_coord = Lat_DD,
+x_coord = Lat_DD,
+y_coord = Long_DD,
 year,
 harvest_date,
 julian,
@@ -420,5 +421,5 @@ glimpse(Yld_GPS_Rob_Agnew_GPS_SAB)
 
 
 
-write_csv(Yld_GPS_Rob_Agnew_GPS_SAB, "V:/Marlborough regional/working_jaxs/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
+write_csv(Yld_GPS_Rob_Agnew_GPS_SAB, "V:/Marlborough regional/working_jaxs/July2020/Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv")
 ############################################################################## 

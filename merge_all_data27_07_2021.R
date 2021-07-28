@@ -264,3 +264,159 @@ write.csv(summary_yld, "V:/Marlborough regional/working_jaxs/for_mapping_july202
 
 
 
+#####################################################################################################################
+## Plots and checks ####
+#####################################################################################################################
+
+all_sites_2014_2019$year_factor <- as.factor(all_sites_2014_2019$year)
+#julian days
+ggplot(all_sites_2014_2019, aes(year_factor, julian))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")
+ggplot(all_sites_2014_2019, aes(year_factor, julian, colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Julian days - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+#yield_t_ha
+ggplot(all_sites_2014_2019, aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+#yield_t_ha
+filter(all_sites_2014_2019,yield_t_ha > 2 & yield_t_ha < 100 ) %>% 
+  ggplot( aes(year_factor, yield_t_ha))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")
+
+#yield_t_ha
+filter(all_sites_2014_2019,yield_t_ha > 2 & yield_t_ha < 100) %>% 
+  ggplot( aes(year_factor, yield_t_ha, colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Yield t/ha - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+
+##yld kg
+ggplot(all_sites_2014_2019, aes(year_factor, yield_kg_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Yield kg/m - Sauvignon Blanc")
+
+
+#yield_km_m
+filter(all_sites_2014_2019,yield_kg_m > 0) %>% 
+  ggplot( aes(year_factor, yield_kg_m, colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Yield kg/m - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+# brix
+
+filter(all_sites_2014_2019,brix < 100) %>% 
+  ggplot( aes(year_factor, brix))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Brix - Sauvignon Blanc")
+
+
+filter(all_sites_2014_2019,brix < 100) %>% 
+  ggplot( aes(year_factor, brix , colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Brix  - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+#bunc wt
+#filter(site_Jan2020_yr_14_18,bunch_weight < 100) %>% 
+ggplot( all_sites_2014_2019, aes(year_factor, bunch_weight))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Bunch weight - Sauvignon Blanc")
+
+ggplot(all_sites_2014_2019, aes(year_factor, bunch_weight , colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Bunch weight  - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+
+
+all_sites_2014_2019$berry_weight <- as.double(all_sites_2014_2019$berry_weight)
+
+filter(all_sites_2014_2019,berry_weight < 20) %>% 
+  ggplot( aes(year_factor, berry_weight))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Berry weight - Sauvignon Blanc")
+
+filter(all_sites_2014_2019,berry_weight < 20) %>% 
+  ggplot( aes(year_factor, berry_weight , colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Berry weight  - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
+
+#bunch_numb_m 
+
+ggplot( all_sites_2014_2019, aes(year_factor, bunch_numb_m))+
+  geom_boxplot(alpha=0.1)+
+  geom_point(colour = "blue", alpha = 0.1)+
+  theme_bw()+
+  labs(x = "Year",
+       y= "Bunch number per m - Sauvignon Blanc")
+
+ggplot(all_sites_2014_2019, aes(year_factor, bunch_numb_m , colour= company))+
+  geom_boxplot(alpha=0.1)+
+  geom_point( alpha = 0.1)+
+  theme_bw()+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  labs(x = "Year",
+       y= "Bunch number per m  - Sauvignon Blanc")+
+  facet_wrap(.~ company)
+
