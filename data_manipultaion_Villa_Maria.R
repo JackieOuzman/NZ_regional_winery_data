@@ -456,6 +456,19 @@ Villia_maria_2018_2012_all_sav <- Villia_maria_2018_2012_all_sav %>%
     TRUE ~ berry_weight))
 
 names(Villia_maria_2018_2012_all_sav)
+
+#There is duplication in the raw data that needs to be removed
+
+
+
+test2 <- Villia_maria_2018_2012_all_sav %>% 
+  mutate(duplication_clm = paste0(ID_yr, harvest_date, yield_kg_m, x_coord, y_coord ))
+
+test2_a <- distinct(test2, duplication_clm, .keep_all = TRUE)
+test2_a <- test2_a %>% 
+  dplyr::select(-duplication_clm)
+Villia_maria_2018_2012_all_sav <- test2_a
+
 write_csv(Villia_maria_2018_2012_all_sav, "V:/Marlborough regional/working_jaxs/July2020/Villia_maria_2017_2012_all_sau.csv")
 
 
