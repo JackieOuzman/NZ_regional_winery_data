@@ -154,6 +154,22 @@ perno_GPS_distinct <- rbind(perno_GPS_distinct, Extra_cood_1_df)
 
 rm(list=setdiff(ls(), "perno_GPS_distinct"))
 
+### Rob has now 25/08/2021 given me a new file with vine spacing and row spacing.
+spacing <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/2019 update Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates.xlsx", 
+                                                                                 sheet = "Grape Summary", col_types = c("text", 
+                                                                                                                        "skip", "skip", "skip", "skip", "skip", 
+                                                                                                                        "skip", "numeric", "skip", "skip", 
+                                                                                          "numeric", "numeric", "skip", "skip", 
+                                                                                                                        "skip", "skip", "skip", "skip", "numeric"))
+
+# make a new ID clm compatiable
+perno_GPS_distinct <- perno_GPS_distinct %>% 
+  mutate(`Vendor Block Key` = 
+  str_replace_all(ID, "[[:punct:]]", ""))
+
+## join the sapcing to the GPS pts
+
+perno_GPS_distinct <- left_join(perno_GPS_distinct, spacing)
 #########################################################################################################################
 ##############################           Yield data  PART 1           #################################################
 #########################################################################################################################
@@ -473,8 +489,8 @@ pernod_ricard1 <- mutate(pernod_ricard1,
          bunch_numb_m = NA, 
          bunch_mass_g = NA,
          berry_bunch = NA,
-         row_width = NA,
-         vine_spacing = NA,
+         row_width = `Row Spacing`,
+         vine_spacing = `Vine Spacing`,
          bunch_numb_m = NA,
          variety = Variety,
          harvest_date,
