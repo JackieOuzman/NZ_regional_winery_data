@@ -2,6 +2,9 @@ library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
+library(sf)
+library(raster)
+
 #########################################################################################################################
 ##############################           GPS POINTS for blocks #########################################################
 #########################################################################################################################
@@ -16,7 +19,7 @@ perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_d
 #perno_GPS_temp <- read_excel("C:/Users/ouz001/NZ_work/Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
 #                             sheet = "Block Location reference")
 glimpse(perno_GPS_temp)
-perno_GPS <- select(perno_GPS_temp,
+perno_GPS <- dplyr::select(perno_GPS_temp,
                     ID_temp = `VendorBlock Key` ,
                     x_temp = `NZGD2000 Centroid Easting`,
                     y_temp = `NZGD2000 Centroid Nrthing`,
@@ -109,7 +112,7 @@ perno_GPS_distinct <- mutate(perno_GPS_distinct,
 
 ###The below is the list of sites with GPS coordinates
 perno_GPS_distinct <- perno_GPS_distinct %>% 
-  select(ID, x_coord, y_coord, Variety, Vnd, trellis)
+  dplyr::select(ID, x_coord, y_coord, Variety, Vnd, trellis)
 glimpse(perno_GPS_distinct)
 #write_csv(perno_GPS_distinct, path = "V:/Marlborough regional/working_jaxs/perno_GPS_test1.csv" )
 
@@ -184,7 +187,7 @@ perno_GPS_distinct <- left_join(perno_GPS_distinct, spacing)
 #perno_yld <- read_excel("C:/Users/ouz001/NZ_work/test/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx" ,
 #                        sheet = "Block Yield reference")
 
-perno_yld_kg_ha <- select(perno_yld_kg_ha,
+perno_yld_kg_ha <- dplyr::select(perno_yld_kg_ha,
                     ID_temp = `VendorBlock Key` ,
                     Vnd = `Vendor Code`,
                     Block = `Block Ref Number`,
@@ -198,7 +201,7 @@ perno_yld_kg_ha <- perno_yld_kg_ha %>%
   mutate(ID_yr = paste0(ID,"_", year))
 #tidy this up
 perno_yld_kg_ha <- perno_yld_kg_ha %>% 
-  select(ID, ID_yr, yield_kg_per_m, brix, year)
+  dplyr::select(ID, ID_yr, yield_kg_per_m, brix, year)
 glimpse(perno_yld_kg_ha) # 4,112
 
 unique(perno_yld_kg_ha$year)
@@ -210,7 +213,7 @@ unique(perno_yld_kg_ha$year)
 perno_yld_t_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx", 
                         sheet = "Yield per ha") 
 
-perno_yld_t_ha <- select(perno_yld_t_ha,
+perno_yld_t_ha <- dplyr::select(perno_yld_t_ha,
                     ID_temp = `VendorBlock Key` ,
                     Vnd = `Vendor Code`,
                     Block = `Block Ref Number`,
@@ -223,7 +226,7 @@ perno_yld_t_ha <- perno_yld_t_ha %>%
   mutate(ID_yr = paste0(ID,"_", year))
 #tidy this up
 perno_yld_t_ha <- perno_yld_t_ha %>% 
-  select(ID_yr, yield_t_per_ha)
+  dplyr::select(ID_yr, yield_t_per_ha)
 glimpse(perno_yld_t_ha) # 3,740
 
 
@@ -243,7 +246,7 @@ perno_yld_harvest_date <- read_excel("V:/Marlborough regional/Regional winery da
 
 glimpse(perno_yld_harvest_date)
 
-perno_yld_harvest_date <- select(perno_yld_harvest_date,
+perno_yld_harvest_date <- dplyr::select(perno_yld_harvest_date,
                          ID_temp = `VendorBlock Key` ,
                          Vnd = `Vendor Code`,
                          Block = `Block Ref Number`,
@@ -257,14 +260,14 @@ perno_yld_harvest_date <- perno_yld_harvest_date %>%
   mutate(ID_yr = paste0(ID,"_", year))
 #tidy this up
 perno_yld_harvest_date <- perno_yld_harvest_date %>% 
-  select(ID, ID_yr, yield_t_per_ha, year)
+  dplyr::select(ID, ID_yr, yield_t_per_ha, year)
 glimpse(perno_yld_harvest_date) # 4,772
 
 #need to group data by ID_Yr and then work out max yield and what date this occured this works but dont use the tonnes harvested as this is only for the max date harvested
 perno_yld_harvest_date_max <- perno_yld_harvest_date  %>%
   group_by(ID_yr) %>%
   filter(row_number() == which.max(ton_harvested)) %>% 
-  select(harvest_date, ID_yr)
+  dplyr::select(harvest_date, ID_yr)
 glimpse(perno_yld_harvest_date_max)
 
 
@@ -290,7 +293,7 @@ perno_maturity <- read_excel("V:/Marlborough regional/Regional winery data/Raw_d
 #perno_maturity <- read_excel("C:/Users/ouz001/NZ_work/test/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx" ,
 #                        sheet = "Grape Sample results by date")
 glimpse(perno_maturity)
-perno_maturity <- select(perno_maturity,
+perno_maturity <- dplyr::select(perno_maturity,
                     ID_temp = `VendorBlock Key`,
                     Vnd = `Vendor Code`,
                     Block = `Block Ref Number`,
@@ -318,7 +321,7 @@ perno_maturity_Bunch_wt_g <- perno_maturity_Bunch_wt_g %>%
 
 
 perno_maturity1 <- perno_maturity_Bunch_wt_g %>% 
-  select(ID_yr,  bunch_wt_g = bunch_wt_g_results)
+  dplyr::select(ID_yr,  bunch_wt_g = bunch_wt_g_results)
 
 
 ################## now join the yield data   #############################
@@ -359,7 +362,7 @@ perno_berryWt_2011 <- perno_berryWt_2011 %>%
   separate(`Vendor Block`, into = c("vendor_text", "vendor_numb","variety"), 
       sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
       mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
-      select(ID_temp =`Vendor Block`,
+      dplyr::select(ID_temp =`Vendor Block`,
              ID_yr, year = Vintage,
              #sample_date = `Date sample taken`,
              berry_weight_g = `Av. Berry weight (g)` )
@@ -375,7 +378,7 @@ perno_berryWt_2016 <- perno_berryWt_2016 %>%
   separate(VendBlock, into = c("vendor_text", "vendor_numb","variety"), 
            sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
   mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
-  select(ID_temp = VendBlock,
+  dplyr::select(ID_temp = VendBlock,
          ID_yr, year = Vintage,
          berry_weight_g = `Av berry wgt (g)`)
 glimpse(perno_berryWt_2016)
@@ -402,7 +405,7 @@ temp1 <- temp %>%
   summarise(berry_weight_g = mean(berry_weight_g)) 
   
 temp1 <- temp1 %>% 
-  select(ID_temp = rep,
+  dplyr::select(ID_temp = rep,
          berry_weight_g) %>% 
          mutate(ID_yr = paste0(ID_temp, "_", "2016"),
                 year = "2016")%>% 
@@ -417,7 +420,7 @@ temp2 <- temp %>%
          ID_temp != "M13RR1B#2",
          ID_temp != "M13RRIA#1",
          ID_temp != "M13RRIA#2") %>% 
-  select(-rep) 
+  dplyr::select(-rep) 
 
 glimpse(temp1)
 glimpse(temp2)
@@ -438,7 +441,7 @@ perno_berryWt_2017 <- perno_berryWt_2017 %>%
   separate(`...1`  , into = c("vendor_text", "vendor_numb","variety"), 
            sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
   mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
-  select(ID_temp = `...1`  ,
+  dplyr::select(ID_temp = `...1`  ,
          ID_yr, year = Vintage,
          berry_weight_g = `Av berry wgt (g)` )
 
@@ -451,7 +454,7 @@ perno_berryWt_2018 <- perno_berryWt_2018 %>%
   separate(VendorBlock   , into = c("vendor_text", "vendor_numb","variety"), 
            sep = "(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", remove = FALSE, extra = "merge") %>% 
   mutate(ID_yr = paste0(vendor_text, vendor_numb,"_", variety,"_",Vintage)) %>% 
-  select(ID_temp = VendorBlock   ,
+  dplyr::select(ID_temp = VendorBlock   ,
          ID_yr, year = Vintage,
          berry_weight_g = `Berry Wt` )
 
@@ -464,7 +467,7 @@ glimpse(perno_berryWt_2018)
 perno_berryWt_all <- rbind(perno_berryWt_2011,perno_berryWt_2016,
                            perno_berryWt_2017, perno_berryWt_2018)
 perno_berryWt_all <- perno_berryWt_all %>% 
-  select(ID_yr, berry_weight_g)
+  dplyr::select(ID_yr, berry_weight_g)
 
 #############################           berry wt info data with yld and maturity        ############################## 
 glimpse(perno_berryWt_all) #763 berry wts for subet of years - data supplied
@@ -501,7 +504,7 @@ pernod_ricard1 <- mutate(pernod_ricard1,
 glimpse(pernod_ricard1) #4518
 
 pernod_ricard1 <- pernod_ricard1 %>% 
-  select(company, ID, ID_yr, variety , x_coord, y_coord,
+  dplyr::select(company, ID, ID_yr, variety , x_coord, y_coord,
                 year , harvest_date, julian,
                 yield_t_ha, yield_kg_m,
                 brix,bunch_weight = bunch_wt_g, berry_weight = berry_weight_g,
@@ -567,10 +570,9 @@ pernod_ricard1 <- filter(pernod_ricard1,
 names(pernod_ricard1)
 pernod_ricard1 <- dplyr::select(pernod_ricard1, -temp1, -temp2, -variety_check)
 
-write_csv(pernod_ricard1, "pernod_ricard_april_2019.csv")
+write_csv(pernod_ricard1, "V:/Marlborough regional/working_jaxs/July2020/pernod_ricard1_sau.csv")
 
 
-glimpse(pernod_ricard1)
 
 View(pernod_ricard1)
 ## Rob want a few site removed because they are too old
@@ -602,33 +604,10 @@ names(pernod_ricard1)
 #pernod_ricard1 <- pernod_ricard1 %>% separate(ID_yr, c("Block"), sep = "_", remove = FALSE)
 pernod_ricard1 <- pernod_ricard1 %>% 
   rename(Block = ID)
-#1. How many sites?
-#for each year
-pernod_ricard1 %>%
-  group_by(year) %>%
-  summarise(count = n_distinct(Block))
-#overall for the data set from 2014-2019 how many blocks do we have?
-pernod_ricard1 %>%
-  summarise(count = n_distinct(Block))
 
-#2. For harvest date how many sites per year?
-#names(pernod_ricard1)
 
-pernod_ricard1 %>%
-  group_by(year) %>%
-  summarise(mean_julian_days = mean(julian, na.rm = TRUE),
-            min_julian_days = min(julian, na.rm = TRUE),
-            max_julian_days = max(julian, na.rm = TRUE),
-            sum_na = sum(!is.na(julian)))
 
-#3. For yield kg/m  how many sites per year
 
-pernod_ricard1 %>%
-  group_by(year) %>%
-  summarise(mean_yield_kg_m = mean(yield_kg_m, na.rm = TRUE),
-            min_yield_kg_m = min(yield_kg_m, na.rm = TRUE),
-            max_yield_kg_m = max(yield_kg_m, na.rm = TRUE),
-            sum_na = sum(!is.na(yield_kg_m)))
 
 
 
@@ -641,39 +620,6 @@ pernod_ricard1 %>%
 ######################################################################################################################
 
 
-dim(pernod_ricard1)
-#how many site?
-dim(pernod_ricard1)
-glimpse(pernod_ricard1) #4518 records
-max(pernod_ricard1$year) #2008 -2019
-summary(pernod_ricard1)
-
-
-#how many sites with GPS pts
-glimpse(perno_GPS_distinct)#372 records
-#how many sites with GPS pts by Variety
-ggplot(perno_GPS_distinct, aes(Variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites with GPS coordinates")
-  
-#how many sites by Variety by year
-ggplot(pernod_ricard1, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")+
-  facet_wrap(~year)
-
-#how many sites by Variety
-ggplot(pernod_ricard1, aes(variety))+
-  geom_bar()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90))+
-  labs(y = "Count of sites")
-  
-
 
 #create a new variable year_as_factor
 pernod_ricard1$year_factor <- as.factor(pernod_ricard1$year)
@@ -682,86 +628,12 @@ pernod_ricard1$year_factor <- as.factor(pernod_ricard1$year)
 pernod_ricard1_sau <- filter(pernod_ricard1, variety == "Sauvignon Blanc") 
 glimpse(pernod_ricard1_sau)
 
-#how many sites for Sauvignon Blanc by year
-group_by(pernod_ricard1_sau, year) %>% 
-  count()
-#how many sites for Sauvignon Blanc have missing data - how much missing data?
-ggplot(pernod_ricard1_sau, aes(year_factor, na_count))+
-  geom_col()+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Total counts of missing data entries NA - Sauvignon Blanc")
-#how many sites for Sauvignon Blanc have missing data - missing data grouped together?
-ggplot(pernod_ricard1_sau, aes(na_count))+
-  geom_bar()+
-  scale_x_continuous(breaks =  c(2,4,6,8,10))+
-  facet_wrap(~year_factor)+
-  theme_bw()+
-  labs(x = "number of na counts per entry",
-       y= "Counts of missing data entries NA")
 
 
-glimpse(pernod_ricard1_sau)
-#julian days
-ggplot(pernod_ricard1_sau, aes(year_factor, julian))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Julian days - Sauvignon Blanc")
-#yield_t_ha
-ggplot(pernod_ricard1_sau, aes(year_factor, yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha - Sauvignon Blanc")
-
-#yield_t_ha filter out high value
-filter(pernod_ricard1_sau, yield_t_ha <100 ) %>%
-ggplot( aes(year_factor, yield_t_ha))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Yield t/ha - Sauvignon Blanc")
 
 
-#yield_kg_m
-ggplot(pernod_ricard1_sau, aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
-
-#yield_kg_m filter out zeros
-filter(pernod_ricard1_sau,yield_kg_m != 0 ) %>% 
-ggplot( aes(year_factor, yield_kg_m))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "yield kg/m - Sauvignon Blanc")
 
 
-#brix - too many zero
-ggplot(pernod_ricard1_sau, aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
-
-
-#brix - filter out zero
-filter(pernod_ricard1_sau,brix != 0) %>% 
-ggplot( aes(year_factor, brix))+
-  geom_boxplot(alpha=0.1)+
-  geom_point(colour = "blue", alpha = 0.1)+
-  theme_bw()+
-  labs(x = "Year",
-       y= "Brix - Sauvignon Blanc")
 
 
 ############################################################################## 
