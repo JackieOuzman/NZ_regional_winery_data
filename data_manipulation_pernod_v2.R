@@ -8,10 +8,15 @@ library(raster)
 #########################################################################################################################
 ##############################           GPS POINTS for blocks #########################################################
 #########################################################################################################################
+getwd()
 
+path <- "V:/Viticulture/"
 # perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
 #                                  sheet = "Block Location reference")
-perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx", 
+
+
+perno_GPS_temp <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx"), 
                              sheet = "Block Location reference")
 
 
