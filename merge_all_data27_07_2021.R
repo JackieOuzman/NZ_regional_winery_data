@@ -11,11 +11,12 @@ library(plotly)
 
 ### move the files over to a folder and then mess about with them there
 
-
+getwd()
 
 # identify the folders
-current.folder <- "V:/Marlborough regional/working_jaxs/July2020"
-new.folder <- "V:/Marlborough regional/working_jaxs/July2020/file_for_merge"
+#current.folder <- "V:/Marlborough regional/working_jaxs/July2020" (my computer)
+current.folder <- "V:/Viticulture/Marlborough regional/working_jaxs/July2020" #(melb computer)
+new.folder <- "V:/Viticulture/Marlborough regional/working_jaxs/July2020/file_for_merge" #(melb computer)
 # find the files that you want
 list.of.files <- list.files(current.folder, ".csv",full.names=T) #the trick is getting the full name
 list.of.files
@@ -24,88 +25,91 @@ list.of.files
 file.copy(from=list.of.files, 
           to=new.folder, 
           overwrite = TRUE)
-list.files("V:/Marlborough regional/working_jaxs/July2020/file_for_merge")
+#list.files("V:/Marlborough regional/working_jaxs/July2020/file_for_merge")
+list.files("V:/Viticulture/Marlborough regional/working_jaxs/July2020/file_for_merge")
 #make the names a bit shorter
 
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+path_melb <- "V:/Viticulture/"
+
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "babich_13_08_2020.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "babich.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "yld_spatial_cloudy_bay_2004_19.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "cloudy_bay.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "constellation_2017_2019_all_sau.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "constellation.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "delegates_april_2019_sau.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "delegates.csv"))
 file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Forrest_08_2020.csv"), 
             paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "forrest.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Giesen_yld_data.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "giesen.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "grower_coop_V2014_to_2019.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "grower_coop.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Indevin_02_07_2021.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "indevin.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "TWE_30_06_2021.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "twe.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Updated_Yealands_jax.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "yealands.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Villia_maria_2017_2012_all_sau.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "villia_maria.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "weta_yld_data.csv"), 
             paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "weta.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "white_haven_2019to2014_GPS_updated.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "white_haven.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Wine_portfolio_yld_GPS_only_SAB.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Wine_portfolio.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "wither_hills_GPS_block_info_harvest_sau.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "wither_hills.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "Yld_GPS_Rob_Agnew_GPS_SAB_select_sites.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "rob_agnew.csv"))
-file.rename(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+file.rename(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "pernod_ricard1_sau.csv"), 
-            paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",
+            paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",
                    "pernod_ricard.csv"))
 
 ########################################################################################################################
 
-file_list <- list.files("V:/Marlborough regional/working_jaxs/July2020/file_for_merge")
+file_list <- list.files(paste0(path_melb,"Marlborough regional/working_jaxs/July2020/file_for_merge"))
 
 file_list
 
 for (file in file_list){
   
   df <-
-    read_csv(paste0("V:/Marlborough regional/working_jaxs/July2020/file_for_merge/",file))
+    read_csv(paste0(path_melb, "Marlborough regional/working_jaxs/July2020/file_for_merge/",file))
   # just for wither hills  add ID_yr clm
   
   #2. select the clm I want only  
@@ -210,12 +214,13 @@ all_sites$harvest_date <- as.Date(all_sites$harvest_date,
 
 ##########################################################################################
 
-write.csv(all_sites, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/All_sites_july2021.csv")
+write.csv(all_sites, paste0(path_melb, "Marlborough regional/working_jaxs/for_mapping_july2021/All_sites_july2021.csv"))
 names(all_sites)
 
 all_sites_2014_2019 <- all_sites %>% 
   filter(between(year,2014, 2019))
-write.csv(all_sites_2014_2019, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/All_sites_2014_2019_july2021.csv")
+write.csv(all_sites_2014_2019,  paste0(path_melb, 
+                                       "Marlborough regional/working_jaxs/for_mapping_july2021/All_sites_2014_2019_july2021.csv"))
 
 
 
@@ -225,7 +230,8 @@ write.csv(all_sites_2014_2019, "V:/Marlborough regional/working_jaxs/for_mapping
 #with(site_Jan2020,  table(company, year))
 site_table_yr <- with(filter(all_sites_2014_2019,  x_coord >0), table(company, year))
 site_table_yr
-write.csv(site_table_yr, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/site_table_yr_july2021.csv")
+write.csv(site_table_yr,  paste0(path_melb, 
+                                 "Marlborough regional/working_jaxs/for_mapping_july2021/site_table_yr_july2021.csv"))
 
 
 
@@ -258,8 +264,10 @@ summary_yld <- all_sites_2014_2019 %>%
             sum_na = sum(!is.na(yield_kg_m)))
 
 names(summary_harvest_date)
-write.csv(summary_harvest_date, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/summary_harvest_date.csv")
-write.csv(summary_yld, "V:/Marlborough regional/working_jaxs/for_mapping_july2021/summary_yld.csv")
+write.csv(summary_harvest_date,  paste0(path_melb, 
+                                        "Marlborough regional/working_jaxs/for_mapping_july2021/summary_harvest_date.csv"))
+write.csv(summary_yld, paste0(path_melb, 
+                              "Marlborough regional/working_jaxs/for_mapping_july2021/summary_yld.csv"))
 
 
 
