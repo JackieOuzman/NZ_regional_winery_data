@@ -57,14 +57,14 @@ Julian_days_wide <- Julian_days %>%
               values_from = julian)
 
 
-#replace all the NA values with -9999
-names(Julian_days_wide)
-Julian_days_wide$`2014`      <- Julian_days_wide$`2014`  %>% replace_na(-9999)
-Julian_days_wide$`2015`      <- Julian_days_wide$`2015`  %>% replace_na(-9999)
-Julian_days_wide$`2016`      <- Julian_days_wide$`2016`  %>% replace_na(-9999)
-Julian_days_wide$`2017`      <- Julian_days_wide$`2017`  %>% replace_na(-9999)
-Julian_days_wide$`2018`      <- Julian_days_wide$`2018`  %>% replace_na(-9999)
-Julian_days_wide$`2019`      <- Julian_days_wide$`2019`  %>% replace_na(-9999)
+# #replace all the NA values with -9999
+# names(Julian_days_wide)
+# Julian_days_wide$`2014`      <- Julian_days_wide$`2014`  %>% replace_na(-9999)
+# Julian_days_wide$`2015`      <- Julian_days_wide$`2015`  %>% replace_na(-9999)
+# Julian_days_wide$`2016`      <- Julian_days_wide$`2016`  %>% replace_na(-9999)
+# Julian_days_wide$`2017`      <- Julian_days_wide$`2017`  %>% replace_na(-9999)
+# Julian_days_wide$`2018`      <- Julian_days_wide$`2018`  %>% replace_na(-9999)
+# Julian_days_wide$`2019`      <- Julian_days_wide$`2019`  %>% replace_na(-9999)
 
 names(Julian_days_wide)
 Julian_days_wide <- Julian_days_wide %>% 
