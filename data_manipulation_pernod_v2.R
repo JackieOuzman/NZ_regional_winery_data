@@ -8,10 +8,15 @@ library(raster)
 #########################################################################################################################
 ##############################           GPS POINTS for blocks #########################################################
 #########################################################################################################################
+getwd()
 
+path <- "V:/Viticulture/"
 # perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx", 
 #                                  sheet = "Block Location reference")
-perno_GPS_temp <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx", 
+
+
+perno_GPS_temp <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx"), 
                              sheet = "Block Location reference")
 
 
@@ -122,7 +127,8 @@ rm(list = c("perno_GPS", "perno_GPS_coord", "perno_GPS_distinct_no_coords", "per
 
 #Rob has a few extra coordinates 
 
-Extra_cood <- read.csv("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Extra_coordinates_obtained_Rob2021.csv")
+Extra_cood <- read.csv(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Extra_coordinates_obtained_Rob2021.csv"))
 mapCRS <- CRS("+init=epsg:2193")     # 2193 = NZGD2000 / New Zealand Transverse Mercator 2000 
 wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
 #proj4string(test) <- wgs84CRS   # assume input lat and longs are WGS84
@@ -156,9 +162,12 @@ perno_GPS_distinct <- rbind(perno_GPS_distinct, Extra_cood_1_df)
 
 
 rm(list=setdiff(ls(), "perno_GPS_distinct"))
-
+path <- "V:/Viticulture/"
 ### Rob has now 25/08/2021 given me a new file with vine spacing and row spacing.
-spacing <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/2019 update Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates.xlsx", 
+
+
+spacing <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/2019 update Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates.xlsx"), 
                                                                                  sheet = "Grape Summary", col_types = c("text", 
                                                                                                                         "skip", "skip", "skip", "skip", "skip", 
                                                                                                                         "skip", "numeric", "skip", "skip", 
@@ -180,7 +189,8 @@ perno_GPS_distinct <- left_join(perno_GPS_distinct, spacing)
 
 
 #Bring in the yld data and add to coordiates 
- perno_yld_kg_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx", 
+perno_yld_kg_ha <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx"), 
                               sheet = "Block Yield reference") 
 
 
@@ -210,7 +220,8 @@ unique(perno_yld_kg_ha$year)
 #########################################################################################################################
 ##############################           Yield data now with t/ha PART 2    ############################################
 #########################################################################################################################
-perno_yld_t_ha <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx", 
+perno_yld_t_ha <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx"), 
                         sheet = "Yield per ha") 
 
 perno_yld_t_ha <- dplyr::select(perno_yld_t_ha,
@@ -241,7 +252,8 @@ unique(perno_yld_1$year)
 ##############################           Yield data now with harvest date PART 3    ############################################
 #########################################################################################################################
 
-perno_yld_harvest_date <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx", 
+perno_yld_harvest_date <- read_excel(paste0(path,
+  "/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx"), 
                              sheet = "Harvest Dates") 
 
 glimpse(perno_yld_harvest_date)
@@ -275,7 +287,7 @@ glimpse(perno_yld_harvest_date_max) #3,993
 glimpse(perno_yld_1) #4112
 
 perno_yld <- full_join(perno_yld_1, perno_yld_harvest_date_max, by = "ID_yr")
-glimpse(perno_yld) #4,112
+glimpse(perno_yld) #4,495
 
 ##### Julian days
 perno_yld <- perno_yld %>% 
@@ -288,7 +300,8 @@ unique(perno_yld$year)
 
 
 
-perno_maturity <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx", 
+perno_maturity <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Pernod Ricard BX BchWT 2008 -2018 Co Marl with H Dates_v2.xlsx"), 
                              sheet = "Grape Sample results by date") 
 #perno_maturity <- read_excel("C:/Users/ouz001/NZ_work/test/Pernod Ricard Trought BX BchWT 2008 -2018 Co Marl.xlsx" ,
 #                        sheet = "Grape Sample results by date")
@@ -354,7 +367,8 @@ glimpse(pernod_ricard) # 4112
 #perno_berryWt_2011 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
 #                             sheet = "2011 data")
 # read in the data
-perno_berryWt_2011 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2011 <- read_excel(paste0(path,
+  "/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx") ,
                                  sheet = "2011 data")
 
 #create ID clm,select Av. berry weight
@@ -371,7 +385,8 @@ glimpse(perno_berryWt_2011)
 ##############################           2016 berry wt info data          ####################################################
 #perno_berryWt_2016 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
 #                                 sheet = "2016 data")
-perno_berryWt_2016 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2016 <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx") ,
                                  sheet = "2016 data")
 #glimpse(perno_berryWt_2016)  
 perno_berryWt_2016 <- perno_berryWt_2016 %>% 
@@ -432,7 +447,8 @@ glimpse(perno_berryWt_2016)
 
 #perno_berryWt_2017 <- read_excel("C:/Users/ouz001/NZ_work/Trought bry wt and number Co Marl.xlsx" ,
 #                                 sheet = "2017 data")
-perno_berryWt_2017 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2017 <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx") ,
                                  sheet = "2017 data")
 str(perno_berryWt_2017)
 unique(perno_berryWt_2017$...1)
@@ -447,7 +463,8 @@ perno_berryWt_2017 <- perno_berryWt_2017 %>%
 
 ##############################           2018 berry wt info data          #################################################### 
 
-perno_berryWt_2018 <- read_excel("V:/Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx" ,
+perno_berryWt_2018 <- read_excel(paste0(path,
+  "Marlborough regional/Regional winery data/Raw_data/Pernod_Ricard/Trought bry wt and number Co Marl.xlsx") ,
                                  sheet = "2018 data")
 
 perno_berryWt_2018 <- perno_berryWt_2018 %>% 
@@ -484,6 +501,10 @@ glimpse(pernod_ricard1_a) #4135 maturity data and yld data and berry wts
 glimpse(perno_GPS_distinct) #372 sites with GPS 
 
 pernod_ricard1 <- left_join(pernod_ricard1_a,perno_GPS_distinct, by= "ID")
+
+# I have no idea why it is duplicated but I have now removed it
+pernod_ricard1 <- pernod_ricard1 %>% 
+  distinct(ID_yr, .keep_all = TRUE)
 glimpse(pernod_ricard1) #4135
 
 pernod_ricard1 <- mutate(pernod_ricard1,
@@ -570,7 +591,7 @@ pernod_ricard1 <- filter(pernod_ricard1,
 names(pernod_ricard1)
 pernod_ricard1 <- dplyr::select(pernod_ricard1, -temp1, -temp2, -variety_check)
 
-write_csv(pernod_ricard1, "V:/Marlborough regional/working_jaxs/July2020/pernod_ricard1_sau.csv")
+#write_csv(pernod_ricard1, "V:/Marlborough regional/working_jaxs/July2020/pernod_ricard1_sau.csv")
 
 
 
@@ -640,7 +661,8 @@ glimpse(pernod_ricard1_sau)
 ########################    File to use   ####################################
 pernod_ricard1_sau <- select(pernod_ricard1_sau, -year_factor)
 glimpse(pernod_ricard1_sau)
-write_csv(pernod_ricard1_sau, "V:/Marlborough regional/working_jaxs/July2020/pernod_ricard1_sau.csv")
+write_csv(pernod_ricard1_sau, paste0(path,
+          "Marlborough regional/working_jaxs/July2020/pernod_ricard1_sau.csv"))
 ##############################################################################   
 
 
