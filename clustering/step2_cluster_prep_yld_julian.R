@@ -20,7 +20,7 @@ library(tidyverse)
 grid_pts_df <- read.csv("V:/Marlborough regional/Council/Regional_Grid/Marl_Ag_200_BlockGrid_100m_pts.csv")
 
 grid_pts_vec <- vect( grid_pts_df, geom=c('X','Y'), crs=paste0("epsg:",2193) )
-plot(grid_pts_vec)
+#plot(grid_pts_vec)
 
 
 
@@ -28,18 +28,25 @@ plot(grid_pts_vec)
 
 
 ## list in the vineyard data - julian
-type <-"Julian" #"Julian""yld", "yld_norm"
-directory <- "V:/Marlborough regional/working_jaxs/for_mapping_july2022/Julian/Julian"
-#directory <- "V:/Marlborough regional/working_jaxs/for_mapping_july2022/Yield/Yld_norm"
+#type <-"Julian" #"Julian""yld", "yld_norm"
+type <-"yld_norm" #"Julian""yld", "yld_norm"
+#directory <- "V:/Marlborough regional/working_jaxs/for_mapping_july2022/Julian/Julian"
+directory <- "V:/Marlborough regional/working_jaxs/for_mapping_july2022/Yield/Yld_norm"
 
 list.files(directory) 
 
 
 vineyard_files <- list.files(directory, pattern = ".tif")
 
-#View(vineyard_files)
-
 vineyard_files <- as.data.frame(vineyard_files)
+vineyard_files # now I have .ml and .ovr files I need to remove from my list
+
+vineyard_files <- vineyard_files %>% filter(str_detect(vineyard_files, ".ovr", negate = TRUE))
+vineyard_files <- vineyard_files %>% filter(str_detect(vineyard_files, ".xml", negate = TRUE))
+
+#And the folder
+vineyard_files <- vineyard_files %>% filter(str_detect(vineyard_files, "slighly of tiff and asc", negate = TRUE))
+vineyard_files <- vineyard_files %>% filter(str_detect(vineyard_files, "slight_off_tiff and asc", negate = TRUE))
 
 vineyard_files
 vineyard_files$vineyard_files <- as.character(vineyard_files$vineyard_files)
@@ -82,7 +89,7 @@ head(vineyard_raster)
 vineyard_raster <- left_join(vineyard_raster, grid_pts_df)
 
 vineyard_raster <- vineyard_raster %>% 
-  select(-Rowid_,
+  dplyr::select(-Rowid_,
          - MARL_AG_200_BLOC,
          - x,
          -y,
@@ -96,39 +103,39 @@ rm(vineyard_raster, name,year)
 
 
 
-vineyard_raster_julian <- rbind(
-  Julian_2014,
-  Julian_2015,
-  Julian_2016,
-  Julian_2017,
-  Julian_2018,
-  Julian_2019
-  )
-#
- rm(
-   Julian_2014,
-   Julian_2015,
-   Julian_2016,
-   Julian_2017,
-   Julian_2018,
-   Julian_2019)
-
-# vineyard_raster_yld_norm <- rbind(
-#   yld_norm_2014,
-#   yld_norm_2015,
-#   yld_norm_2016,
-#   yld_norm_2017,
-#   yld_norm_2018,
-#   yld_norm_2019
+# vineyard_raster_julian <- rbind(
+#   Julian_2014,
+#   Julian_2015,
+#   Julian_2016,
+#   Julian_2017,
+#   Julian_2018,
+#   Julian_2019
 #   )
 # #
 #  rm(
-# yld_norm_2014,
-# yld_norm_2015,
-# yld_norm_2016,
-# yld_norm_2017,
-# yld_norm_2018,
-# yld_norm_2019)
+#    Julian_2014,
+#    Julian_2015,
+#    Julian_2016,
+#    Julian_2017,
+#    Julian_2018,
+#    Julian_2019)
+
+vineyard_raster_yld_norm <- rbind(
+  yld_norm_2014,
+  yld_norm_2015,
+  yld_norm_2016,
+  yld_norm_2017,
+  yld_norm_2018,
+  yld_norm_2019
+  )
+#
+ rm(
+yld_norm_2014,
+yld_norm_2015,
+yld_norm_2016,
+yld_norm_2017,
+yld_norm_2018,
+yld_norm_2019)
 
 #########################################################################################
 
@@ -159,7 +166,7 @@ vineyard_all <- left_join(vineyard_raster_yld_norm_wider,
 #remove all the NA
 unique(vineyard_all$yld_norm_2014)
 
-vineyard_all_no_missing <- vineyard_all %>% filter(!is.na(yld_norm_2014))
+vineyard_all_no_missing <- vineyard_all %>% filter(!is.na(yld_norm_2014)) #its the same now - I am happy:)
 
 #######################################################################################################################################
 #######################################      save the outputs       ################################################################### 
@@ -169,7 +176,7 @@ names(vineyard_all_no_missing)
 directory
 
 write.csv(
-  vineyard_all_no_missing,
+  vineyard_all,
   paste0(
     "V:/Marlborough regional/working_jaxs/for_mapping_july2022/",
     "vineyard_all_cluster_input.csv"),
